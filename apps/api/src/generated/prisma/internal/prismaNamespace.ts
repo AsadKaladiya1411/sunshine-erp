@@ -397,7 +397,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  SystemCheck: 'SystemCheck'
+
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,85 +413,10 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "systemCheck"
+    modelProps: never
     txIsolationLevel: TransactionIsolationLevel
   }
-  model: {
-    SystemCheck: {
-      payload: Prisma.$SystemCheckPayload<ExtArgs>
-      fields: Prisma.SystemCheckFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.SystemCheckFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.SystemCheckFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        findFirst: {
-          args: Prisma.SystemCheckFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.SystemCheckFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        findMany: {
-          args: Prisma.SystemCheckFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>[]
-        }
-        create: {
-          args: Prisma.SystemCheckCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        createMany: {
-          args: Prisma.SystemCheckCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.SystemCheckCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>[]
-        }
-        delete: {
-          args: Prisma.SystemCheckDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        update: {
-          args: Prisma.SystemCheckUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        deleteMany: {
-          args: Prisma.SystemCheckDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.SystemCheckUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.SystemCheckUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>[]
-        }
-        upsert: {
-          args: Prisma.SystemCheckUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemCheckPayload>
-        }
-        aggregate: {
-          args: Prisma.SystemCheckAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateSystemCheck>
-        }
-        groupBy: {
-          args: Prisma.SystemCheckGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SystemCheckGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.SystemCheckCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.SystemCheckCountAggregateOutputType> | number
-        }
-      }
-    }
-  }
+  model: {}
 } & {
   other: {
     payload: any
@@ -530,91 +455,7 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const SystemCheckScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  createdAt: 'createdAt'
-} as const
 
-export type SystemCheckScalarFieldEnum = (typeof SystemCheckScalarFieldEnum)[keyof typeof SystemCheckScalarFieldEnum]
-
-
-export const SortOrder = {
-  asc: 'asc',
-  desc: 'desc'
-} as const
-
-export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-
-/**
- * Field references
- */
-
-
-/**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
- * Reference to a field of type 'String'
- */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-    
-
-
-/**
- * Reference to a field of type 'String[]'
- */
-export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime'
- */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime[]'
- */
-export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
 
 /**
  * Batch Payload for updateMany & deleteMany & createMany
@@ -766,9 +607,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
  * Learn more about driver adapters: https://pris.ly/d/driver-adapters
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
-export type GlobalOmitConfig = {
-  systemCheck?: Prisma.SystemCheckOmit
-}
+export type GlobalOmitConfig = {}
 
 /* Types for Logging */
 export type LogLevel = 'info' | 'query' | 'warn' | 'error'

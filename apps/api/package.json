@@ -2,18 +2,19 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch --env-file=../../.env src/server.ts",
-  "build": "tsc",
-  "start": "node --env-file=../../.env dist/server.js",
-  "check-types": "tsc --noEmit"
+    "prebuild": "npm run build --workspace=@sunshine-erp/config",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node --env-file=../../.env dist/server.js",
+    "check-types": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "express": "^5.2.1",
     "pino": "^10.3.1",
@@ -26,5 +27,4 @@
     "tsx": "^4.23.12",
     "typescript": "^5.9.2"
   }
-  
 }

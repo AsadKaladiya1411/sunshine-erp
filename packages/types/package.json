@@ -12,7 +12,7 @@
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@repo/typescript-config": "*",
+    "@sunshine-erp/typescript-config": "*",
     "typescript": "5.9.2"
   }
 }

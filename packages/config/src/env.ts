@@ -9,17 +9,17 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1),
 
-  REDIS_URL: z.string().url(),
+  REDIS_URL: z.string().url().optional(),
 
-  KAFKA_BROKERS: z.string().min(1),
+  KAFKA_BROKERS: z.string().min(1).optional(),
 
-  STORAGE_ENDPOINT: z.string().url(),
+  STORAGE_ENDPOINT: z.string().url().optional(),
 
-  STORAGE_ACCESS_KEY: z.string().min(1),
+  STORAGE_ACCESS_KEY: z.string().min(1).optional(),
 
-  STORAGE_SECRET_KEY: z.string().min(1),
+  STORAGE_SECRET_KEY: z.string().min(1).optional(),
 
-  STORAGE_BUCKET: z.string().min(1),
+  STORAGE_BUCKET: z.string().min(1).optional(),
 
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])

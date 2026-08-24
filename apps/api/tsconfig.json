@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript-config/node.json",
+  "extends": "@sunshine-erp/typescript-config/node.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",

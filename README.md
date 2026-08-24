@@ -1,5 +1,10 @@
 # Turborepo starter
 
+## Runtime requirements
+
+- Node.js `^20.19 || ^22.12 || >=24.0`
+- npm `11.17.0`
+
 This Turborepo starter is maintained by the Turborepo core team.
 
 ## Using this example

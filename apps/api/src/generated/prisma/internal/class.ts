@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.9.1",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../apps/api/src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel SystemCheck {\n  id        Int      @id @default(autoincrement())\n  name      String\n  createdAt DateTime @default(now())\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../apps/api/src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -32,10 +32,10 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"SystemCheck\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
 config.parameterizationSchema = {
-  strings: JSON.parse("[\"where\",\"SystemCheck.findUnique\",\"SystemCheck.findUniqueOrThrow\",\"orderBy\",\"cursor\",\"SystemCheck.findFirst\",\"SystemCheck.findFirstOrThrow\",\"SystemCheck.findMany\",\"data\",\"SystemCheck.createOne\",\"SystemCheck.createMany\",\"SystemCheck.createManyAndReturn\",\"SystemCheck.updateOne\",\"SystemCheck.updateMany\",\"SystemCheck.updateManyAndReturn\",\"create\",\"update\",\"SystemCheck.upsertOne\",\"SystemCheck.deleteOne\",\"SystemCheck.deleteMany\",\"having\",\"_count\",\"_avg\",\"_sum\",\"_min\",\"_max\",\"SystemCheck.groupBy\",\"SystemCheck.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"name\",\"createdAt\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"not\",\"contains\",\"startsWith\",\"endsWith\",\"set\",\"increment\",\"decrement\",\"multiply\",\"divide\"]"),
-  graph: "MAsQBhwAACUAMB0AAAQAEB4AACUAMB8CAAAAASABACcAISFAACgAIQEAAAABACABAAAAAQAgBhwAACUAMB0AAAQAEB4AACUAMB8CACYAISABACcAISFAACgAIQADAAAABAAgAwAABQAwBAAAAQAgAwAAAAQAIAMAAAUAMAQAAAEAIAMAAAAEACADAAAFADAEAAABACADHwIAAAABIAEAAAABIUAAAAABAQgAAAkAIAMfAgAAAAEgAQAAAAEhQAAAAAEBCAAACwAwAQgAAAsAMAMfAgAwACEgAQAuACEhQAAvACECAAAAAQAgCAAADgAgAx8CADAAISABAC4AISFAAC8AIQIAAAAEACAIAAAQACACAAAABAAgCAAAEAAgAwAAAAEAIA8AAAkAIBAAAA4AIAEAAAABACABAAAABAAgBRUAACkAIBYAACoAIBcAAC0AIBgAACwAIBkAACsAIAYcAAAaADAdAAAXABAeAAAaADAfAgAbACEgAQAcACEhQAAdACEDAAAABAAgAwAAFgAwFAAAFwAgAwAAAAQAIAMAAAUAMAQAAAEAIAYcAAAaADAdAAAXABAeAAAaADAfAgAbACEgAQAcACEhQAAdACENFQAAHwAgFgAAJAAgFwAAHwAgGAAAHwAgGQAAHwAgIgIAAAABIwIAAAAEJAIAAAAEJQIAAAABJgIAAAABJwIAAAABKAIAAAABKQIAIwAhDhUAAB8AIBgAACIAIBkAACIAICIBAAAAASMBAAAABCQBAAAABCUBAAAAASYBAAAAAScBAAAAASgBAAAAASkBACEAISoBAAAAASsBAAAAASwBAAAAAQsVAAAfACAYAAAgACAZAAAgACAiQAAAAAEjQAAAAAQkQAAAAAQlQAAAAAEmQAAAAAEnQAAAAAEoQAAAAAEpQAAeACELFQAAHwAgGAAAIAAgGQAAIAAgIkAAAAABI0AAAAAEJEAAAAAEJUAAAAABJkAAAAABJ0AAAAABKEAAAAABKUAAHgAhCCICAAAAASMCAAAABCQCAAAABCUCAAAAASYCAAAAAScCAAAAASgCAAAAASkCAB8AIQgiQAAAAAEjQAAAAAQkQAAAAAQlQAAAAAEmQAAAAAEnQAAAAAEoQAAAAAEpQAAgACEOFQAAHwAgGAAAIgAgGQAAIgAgIgEAAAABIwEAAAAEJAEAAAAEJQEAAAABJgEAAAABJwEAAAABKAEAAAABKQEAIQAhKgEAAAABKwEAAAABLAEAAAABCyIBAAAAASMBAAAABCQBAAAABCUBAAAAASYBAAAAAScBAAAAASgBAAAAASkBACIAISoBAAAAASsBAAAAASwBAAAAAQ0VAAAfACAWAAAkACAXAAAfACAYAAAfACAZAAAfACAiAgAAAAEjAgAAAAQkAgAAAAQlAgAAAAEmAgAAAAEnAgAAAAEoAgAAAAEpAgAjACEIIggAAAABIwgAAAAEJAgAAAAEJQgAAAABJggAAAABJwgAAAABKAgAAAABKQgAJAAhBhwAACUAMB0AAAQAEB4AACUAMB8CACYAISABACcAISFAACgAIQgiAgAAAAEjAgAAAAQkAgAAAAQlAgAAAAEmAgAAAAEnAgAAAAEoAgAAAAEpAgAfACELIgEAAAABIwEAAAAEJAEAAAAEJQEAAAABJgEAAAABJwEAAAABKAEAAAABKQEAIgAhKgEAAAABKwEAAAABLAEAAAABCCJAAAAAASNAAAAABCRAAAAABCVAAAAAASZAAAAAASdAAAAAAShAAAAAASlAACAAIQAAAAAAAS0BAAAAAQEtQAAAAAEFLQIAAAABLgIAAAABLwIAAAABMAIAAAABMQIAAAABAAAAAAUVAAYWAAcXAAgYAAkZAAoAAAAAAAUVAAYWAAcXAAgYAAkZAAoBAgECAwEFBgEGBwEHCAEJCgEKDAILDQMMDwENEQIOEgQREwESFAETFQIaGAUbGQs"
+  strings: JSON.parse("[]"),
+  graph: "AAAA"
 }
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
@@ -70,8 +70,8 @@ export interface PrismaClientConstructor {
    * const prisma = new PrismaClient({
    *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * })
-   * // Fetch zero or more SystemChecks
-   * const systemChecks = await prisma.systemCheck.findMany()
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -94,8 +94,8 @@ export interface PrismaClientConstructor {
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more SystemChecks
- * const systemChecks = await prisma.systemCheck.findMany()
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -188,15 +188,7 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-      /**
-   * `prisma.systemCheck`: Exposes CRUD operations for the **SystemCheck** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more SystemChecks
-    * const systemChecks = await prisma.systemCheck.findMany()
-    * ```
-    */
-  get systemCheck(): Prisma.SystemCheckDelegate<ExtArgs, { omit: OmitOpts }>;
+    
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {
