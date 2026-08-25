@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  failedLoginAttempts: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  failedLoginAttempts: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -35,6 +45,8 @@ export type UserMinAggregateOutputType = {
   mobileNumber: string | null
   username: string | null
   passwordHash: string | null
+  failedLoginAttempts: number | null
+  lockedUntil: Date | null
   status: string | null
   lastLoginAt: Date | null
   createdById: string | null
@@ -54,6 +66,8 @@ export type UserMaxAggregateOutputType = {
   mobileNumber: string | null
   username: string | null
   passwordHash: string | null
+  failedLoginAttempts: number | null
+  lockedUntil: Date | null
   status: string | null
   lastLoginAt: Date | null
   createdById: string | null
@@ -73,6 +87,8 @@ export type UserCountAggregateOutputType = {
   mobileNumber: number
   username: number
   passwordHash: number
+  failedLoginAttempts: number
+  lockedUntil: number
   status: number
   lastLoginAt: number
   createdById: number
@@ -82,6 +98,14 @@ export type UserCountAggregateOutputType = {
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  failedLoginAttempts?: true
+}
+
+export type UserSumAggregateInputType = {
+  failedLoginAttempts?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -94,6 +118,8 @@ export type UserMinAggregateInputType = {
   mobileNumber?: true
   username?: true
   passwordHash?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   status?: true
   lastLoginAt?: true
   createdById?: true
@@ -113,6 +139,8 @@ export type UserMaxAggregateInputType = {
   mobileNumber?: true
   username?: true
   passwordHash?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   status?: true
   lastLoginAt?: true
   createdById?: true
@@ -132,6 +160,8 @@ export type UserCountAggregateInputType = {
   mobileNumber?: true
   username?: true
   passwordHash?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   status?: true
   lastLoginAt?: true
   createdById?: true
@@ -172,10 +202,22 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
+   *
    * Count returned Users
   **/
   _count?: true | UserCountAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
@@ -209,6 +251,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -224,6 +268,8 @@ export type UserGroupByOutputType = {
   mobileNumber: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts: number
+  lockedUntil: Date | null
   status: string
   lastLoginAt: Date | null
   createdById: string | null
@@ -231,6 +277,8 @@ export type UserGroupByOutputType = {
   updatedById: string | null
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -264,6 +312,8 @@ export type UserWhereInput = {
   mobileNumber?: Prisma.StringNullableFilter<"User"> | string | null
   username?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   status?: Prisma.StringFilter<"User"> | string
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdById?: Prisma.UuidNullableFilter<"User"> | string | null
@@ -285,6 +335,8 @@ export type UserWhereInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingListRelationFilter
   updatedOrganizationSettings?: Prisma.OrganizationSettingListRelationFilter
   sessions?: Prisma.UserSessionListRelationFilter
+  passwordHistory?: Prisma.UserPasswordHistoryListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -298,6 +350,8 @@ export type UserOrderByWithRelationInput = {
   mobileNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -319,10 +373,13 @@ export type UserOrderByWithRelationInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingOrderByRelationAggregateInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingOrderByRelationAggregateInput
   sessions?: Prisma.UserSessionOrderByRelationAggregateInput
+  passwordHistory?: Prisma.UserPasswordHistoryOrderByRelationAggregateInput
+  passwordResetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  id_organizationId?: Prisma.UserIdOrganizationIdCompoundUniqueInput
   organizationId_username?: Prisma.UserOrganizationIdUsernameCompoundUniqueInput
   organizationId_email?: Prisma.UserOrganizationIdEmailCompoundUniqueInput
   organizationId_employeeCode?: Prisma.UserOrganizationIdEmployeeCodeCompoundUniqueInput
@@ -338,6 +395,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   mobileNumber?: Prisma.StringNullableFilter<"User"> | string | null
   username?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   status?: Prisma.StringFilter<"User"> | string
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdById?: Prisma.UuidNullableFilter<"User"> | string | null
@@ -359,7 +418,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdOrganizationSettings?: Prisma.OrganizationSettingListRelationFilter
   updatedOrganizationSettings?: Prisma.OrganizationSettingListRelationFilter
   sessions?: Prisma.UserSessionListRelationFilter
-}, "id" | "organizationId_username" | "organizationId_email" | "organizationId_employeeCode">
+  passwordHistory?: Prisma.UserPasswordHistoryListRelationFilter
+  passwordResetTokens?: Prisma.PasswordResetTokenListRelationFilter
+}, "id" | "id_organizationId" | "organizationId_username" | "organizationId_email" | "organizationId_employeeCode">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -372,6 +433,8 @@ export type UserOrderByWithAggregationInput = {
   mobileNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -379,8 +442,10 @@ export type UserOrderByWithAggregationInput = {
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -397,6 +462,8 @@ export type UserScalarWhereWithAggregatesInput = {
   mobileNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   username?: Prisma.StringWithAggregatesFilter<"User"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"User"> | string
+  failedLoginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   status?: Prisma.StringWithAggregatesFilter<"User"> | string
   lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdById?: Prisma.UuidNullableWithAggregatesFilter<"User"> | string | null
@@ -414,6 +481,8 @@ export type UserCreateInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -433,6 +502,8 @@ export type UserCreateInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -446,6 +517,8 @@ export type UserUncheckedCreateInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -463,6 +536,8 @@ export type UserUncheckedCreateInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -474,6 +549,8 @@ export type UserUpdateInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -493,6 +570,8 @@ export type UserUpdateInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -506,6 +585,8 @@ export type UserUncheckedUpdateInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -523,6 +604,8 @@ export type UserUncheckedUpdateInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -536,6 +619,8 @@ export type UserCreateManyInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -553,6 +638,8 @@ export type UserUpdateManyMutationInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -570,6 +657,8 @@ export type UserUncheckedUpdateManyInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -591,6 +680,11 @@ export type UserListRelationFilter = {
 
 export type UserOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type UserIdOrganizationIdCompoundUniqueInput = {
+  id: string
+  organizationId: string
 }
 
 export type UserOrganizationIdUsernameCompoundUniqueInput = {
@@ -619,12 +713,18 @@ export type UserCountOrderByAggregateInput = {
   mobileNumber?: Prisma.SortOrder
   username?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  failedLoginAttempts?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -638,6 +738,8 @@ export type UserMaxOrderByAggregateInput = {
   mobileNumber?: Prisma.SortOrder
   username?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -657,12 +759,18 @@ export type UserMinOrderByAggregateInput = {
   mobileNumber?: Prisma.SortOrder
   username?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   status?: Prisma.SortOrder
   lastLoginAt?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  failedLoginAttempts?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -858,6 +966,14 @@ export type UserUncheckedCreateNestedManyWithoutUpdatedByInput = {
   connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -1016,6 +1132,34 @@ export type UserUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSessionsInput, Prisma.UserUpdateWithoutSessionsInput>, Prisma.UserUncheckedUpdateWithoutSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutPasswordHistoryInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordHistoryInput, Prisma.UserUncheckedCreateWithoutPasswordHistoryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordHistoryInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPasswordHistoryNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordHistoryInput, Prisma.UserUncheckedCreateWithoutPasswordHistoryInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordHistoryInput
+  upsert?: Prisma.UserUpsertWithoutPasswordHistoryInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordHistoryInput, Prisma.UserUpdateWithoutPasswordHistoryInput>, Prisma.UserUncheckedUpdateWithoutPasswordHistoryInput>
+}
+
+export type UserCreateNestedOneWithoutPasswordResetTokensInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPasswordResetTokensNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPasswordResetTokensInput
+  upsert?: Prisma.UserUpsertWithoutPasswordResetTokensInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPasswordResetTokensInput, Prisma.UserUpdateWithoutPasswordResetTokensInput>, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+}
+
 export type UserCreateWithoutCreatedOrganizationsInput = {
   id?: string
   employeeCode?: string | null
@@ -1025,6 +1169,8 @@ export type UserCreateWithoutCreatedOrganizationsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1043,6 +1189,8 @@ export type UserCreateWithoutCreatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedOrganizationsInput = {
@@ -1056,6 +1204,8 @@ export type UserUncheckedCreateWithoutCreatedOrganizationsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1072,6 +1222,8 @@ export type UserUncheckedCreateWithoutCreatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedOrganizationsInput = {
@@ -1088,6 +1240,8 @@ export type UserCreateWithoutUpdatedOrganizationsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1106,6 +1260,8 @@ export type UserCreateWithoutUpdatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedOrganizationsInput = {
@@ -1119,6 +1275,8 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1135,6 +1293,8 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedOrganizationsInput = {
@@ -1151,6 +1311,8 @@ export type UserCreateWithoutOrganizationInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1169,6 +1331,8 @@ export type UserCreateWithoutOrganizationInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -1181,6 +1345,8 @@ export type UserUncheckedCreateWithoutOrganizationInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1198,6 +1364,8 @@ export type UserUncheckedCreateWithoutOrganizationInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -1230,6 +1398,8 @@ export type UserUpdateWithoutCreatedOrganizationsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1248,6 +1418,8 @@ export type UserUpdateWithoutCreatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedOrganizationsInput = {
@@ -1261,6 +1433,8 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1277,6 +1451,8 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedOrganizationsInput = {
@@ -1299,6 +1475,8 @@ export type UserUpdateWithoutUpdatedOrganizationsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1317,6 +1495,8 @@ export type UserUpdateWithoutUpdatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedOrganizationsInput = {
@@ -1330,6 +1510,8 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1346,6 +1528,8 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -1378,6 +1562,8 @@ export type UserScalarWhereInput = {
   mobileNumber?: Prisma.StringNullableFilter<"User"> | string | null
   username?: Prisma.StringFilter<"User"> | string
   passwordHash?: Prisma.StringFilter<"User"> | string
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   status?: Prisma.StringFilter<"User"> | string
   lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdById?: Prisma.UuidNullableFilter<"User"> | string | null
@@ -1395,6 +1581,8 @@ export type UserCreateWithoutCreatedDepartmentsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1413,6 +1601,8 @@ export type UserCreateWithoutCreatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedDepartmentsInput = {
@@ -1426,6 +1616,8 @@ export type UserUncheckedCreateWithoutCreatedDepartmentsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1442,6 +1634,8 @@ export type UserUncheckedCreateWithoutCreatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedDepartmentsInput = {
@@ -1458,6 +1652,8 @@ export type UserCreateWithoutUpdatedDepartmentsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1476,6 +1672,8 @@ export type UserCreateWithoutUpdatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedDepartmentsInput = {
@@ -1489,6 +1687,8 @@ export type UserUncheckedCreateWithoutUpdatedDepartmentsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1505,6 +1705,8 @@ export type UserUncheckedCreateWithoutUpdatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedDepartmentsInput = {
@@ -1521,6 +1723,8 @@ export type UserCreateWithoutDepartmentInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1539,6 +1743,8 @@ export type UserCreateWithoutDepartmentInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -1551,6 +1757,8 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1568,6 +1776,8 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -1600,6 +1810,8 @@ export type UserUpdateWithoutCreatedDepartmentsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1618,6 +1830,8 @@ export type UserUpdateWithoutCreatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedDepartmentsInput = {
@@ -1631,6 +1845,8 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1647,6 +1863,8 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedDepartmentsInput = {
@@ -1669,6 +1887,8 @@ export type UserUpdateWithoutUpdatedDepartmentsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1687,6 +1907,8 @@ export type UserUpdateWithoutUpdatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedDepartmentsInput = {
@@ -1700,6 +1922,8 @@ export type UserUncheckedUpdateWithoutUpdatedDepartmentsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1716,6 +1940,8 @@ export type UserUncheckedUpdateWithoutUpdatedDepartmentsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1743,6 +1969,8 @@ export type UserCreateWithoutCreatedUsersInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1761,6 +1989,8 @@ export type UserCreateWithoutCreatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -1774,6 +2004,8 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1790,6 +2022,8 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -1806,6 +2040,8 @@ export type UserCreateWithoutUpdatedUsersInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1824,6 +2060,8 @@ export type UserCreateWithoutUpdatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedUsersInput = {
@@ -1837,6 +2075,8 @@ export type UserUncheckedCreateWithoutUpdatedUsersInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1853,6 +2093,8 @@ export type UserUncheckedCreateWithoutUpdatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedUsersInput = {
@@ -1869,6 +2111,8 @@ export type UserCreateWithoutCreatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1887,6 +2131,8 @@ export type UserCreateWithoutCreatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -1900,6 +2146,8 @@ export type UserUncheckedCreateWithoutCreatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1916,6 +2164,8 @@ export type UserUncheckedCreateWithoutCreatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -1937,6 +2187,8 @@ export type UserCreateWithoutUpdatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -1955,6 +2207,8 @@ export type UserCreateWithoutUpdatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedByInput = {
@@ -1968,6 +2222,8 @@ export type UserUncheckedCreateWithoutUpdatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -1984,6 +2240,8 @@ export type UserUncheckedCreateWithoutUpdatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedByInput = {
@@ -2016,6 +2274,8 @@ export type UserUpdateWithoutCreatedUsersInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2034,6 +2294,8 @@ export type UserUpdateWithoutCreatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -2047,6 +2309,8 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2063,6 +2327,8 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedUsersInput = {
@@ -2085,6 +2351,8 @@ export type UserUpdateWithoutUpdatedUsersInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2103,6 +2371,8 @@ export type UserUpdateWithoutUpdatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
@@ -2116,6 +2386,8 @@ export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2132,6 +2404,8 @@ export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -2175,6 +2449,8 @@ export type UserCreateWithoutCreatedFinancialYearsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -2193,6 +2469,8 @@ export type UserCreateWithoutCreatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedFinancialYearsInput = {
@@ -2206,6 +2484,8 @@ export type UserUncheckedCreateWithoutCreatedFinancialYearsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2222,6 +2502,8 @@ export type UserUncheckedCreateWithoutCreatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedFinancialYearsInput = {
@@ -2238,6 +2520,8 @@ export type UserCreateWithoutUpdatedFinancialYearsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -2256,6 +2540,8 @@ export type UserCreateWithoutUpdatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedFinancialYearsInput = {
@@ -2269,6 +2555,8 @@ export type UserUncheckedCreateWithoutUpdatedFinancialYearsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2285,6 +2573,8 @@ export type UserUncheckedCreateWithoutUpdatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedFinancialYearsInput = {
@@ -2312,6 +2602,8 @@ export type UserUpdateWithoutCreatedFinancialYearsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2330,6 +2622,8 @@ export type UserUpdateWithoutCreatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedFinancialYearsInput = {
@@ -2343,6 +2637,8 @@ export type UserUncheckedUpdateWithoutCreatedFinancialYearsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2359,6 +2655,8 @@ export type UserUncheckedUpdateWithoutCreatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedFinancialYearsInput = {
@@ -2381,6 +2679,8 @@ export type UserUpdateWithoutUpdatedFinancialYearsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2399,6 +2699,8 @@ export type UserUpdateWithoutUpdatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedFinancialYearsInput = {
@@ -2412,6 +2714,8 @@ export type UserUncheckedUpdateWithoutUpdatedFinancialYearsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2428,6 +2732,8 @@ export type UserUncheckedUpdateWithoutUpdatedFinancialYearsInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedOrganizationSettingsInput = {
@@ -2439,6 +2745,8 @@ export type UserCreateWithoutCreatedOrganizationSettingsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -2457,6 +2765,8 @@ export type UserCreateWithoutCreatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedOrganizationSettingsInput = {
@@ -2470,6 +2780,8 @@ export type UserUncheckedCreateWithoutCreatedOrganizationSettingsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2486,6 +2798,8 @@ export type UserUncheckedCreateWithoutCreatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedOrganizationSettingsInput = {
@@ -2502,6 +2816,8 @@ export type UserCreateWithoutUpdatedOrganizationSettingsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -2520,6 +2836,8 @@ export type UserCreateWithoutUpdatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedOrganizationSettingsInput = {
@@ -2533,6 +2851,8 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationSettingsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2549,6 +2869,8 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedOrganizationSettingsInput = {
@@ -2576,6 +2898,8 @@ export type UserUpdateWithoutCreatedOrganizationSettingsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2594,6 +2918,8 @@ export type UserUpdateWithoutCreatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedOrganizationSettingsInput = {
@@ -2607,6 +2933,8 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationSettingsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2623,6 +2951,8 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedOrganizationSettingsInput = {
@@ -2645,6 +2975,8 @@ export type UserUpdateWithoutUpdatedOrganizationSettingsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2663,6 +2995,8 @@ export type UserUpdateWithoutUpdatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedOrganizationSettingsInput = {
@@ -2676,6 +3010,8 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationSettingsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2692,6 +3028,8 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationSettingsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -2703,6 +3041,8 @@ export type UserCreateWithoutSessionsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -2721,6 +3061,8 @@ export type UserCreateWithoutSessionsInput = {
   updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
   createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -2734,6 +3076,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2750,6 +3094,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -2777,6 +3123,8 @@ export type UserUpdateWithoutSessionsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2795,6 +3143,8 @@ export type UserUpdateWithoutSessionsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -2808,6 +3158,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2824,6 +3176,304 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPasswordHistoryInput = {
+  id?: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organization: Prisma.OrganizationCreateNestedOneWithoutUsersInput
+  department: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPasswordHistoryInput = {
+  id?: string
+  organizationId: string
+  departmentId: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPasswordHistoryInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordHistoryInput, Prisma.UserUncheckedCreateWithoutPasswordHistoryInput>
+}
+
+export type UserUpsertWithoutPasswordHistoryInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordHistoryInput, Prisma.UserUncheckedUpdateWithoutPasswordHistoryInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordHistoryInput, Prisma.UserUncheckedCreateWithoutPasswordHistoryInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPasswordHistoryInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordHistoryInput, Prisma.UserUncheckedUpdateWithoutPasswordHistoryInput>
+}
+
+export type UserUpdateWithoutPasswordHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutUsersNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutUsersNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPasswordHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organization: Prisma.OrganizationCreateNestedOneWithoutUsersInput
+  department: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
+  id?: string
+  organizationId: string
+  departmentId: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+}
+
+export type UserUpsertWithoutPasswordResetTokensInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPasswordResetTokensInput, Prisma.UserUncheckedCreateWithoutPasswordResetTokensInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPasswordResetTokensInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPasswordResetTokensInput, Prisma.UserUncheckedUpdateWithoutPasswordResetTokensInput>
+}
+
+export type UserUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutUsersNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutUsersNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyOrganizationInput = {
@@ -2836,6 +3486,8 @@ export type UserCreateManyOrganizationInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2853,6 +3505,8 @@ export type UserUpdateWithoutOrganizationInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2871,6 +3525,8 @@ export type UserUpdateWithoutOrganizationInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -2883,6 +3539,8 @@ export type UserUncheckedUpdateWithoutOrganizationInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2900,6 +3558,8 @@ export type UserUncheckedUpdateWithoutOrganizationInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -2912,6 +3572,8 @@ export type UserUncheckedUpdateManyWithoutOrganizationInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2930,6 +3592,8 @@ export type UserCreateManyDepartmentInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -2947,6 +3611,8 @@ export type UserUpdateWithoutDepartmentInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2965,6 +3631,8 @@ export type UserUpdateWithoutDepartmentInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -2977,6 +3645,8 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2994,6 +3664,8 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -3006,6 +3678,8 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3025,6 +3699,8 @@ export type UserCreateManyCreatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdAt?: Date | string
@@ -3043,6 +3719,8 @@ export type UserCreateManyUpdatedByInput = {
   mobileNumber?: string | null
   username: string
   passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   status: string
   lastLoginAt?: Date | string | null
   createdById?: string | null
@@ -3059,6 +3737,8 @@ export type UserUpdateWithoutCreatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3077,6 +3757,8 @@ export type UserUpdateWithoutCreatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -3090,6 +3772,8 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3106,6 +3790,8 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -3119,6 +3805,8 @@ export type UserUncheckedUpdateManyWithoutCreatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3135,6 +3823,8 @@ export type UserUpdateWithoutUpdatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3153,6 +3843,8 @@ export type UserUpdateWithoutUpdatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedByInput = {
@@ -3166,6 +3858,8 @@ export type UserUncheckedUpdateWithoutUpdatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3182,6 +3876,8 @@ export type UserUncheckedUpdateWithoutUpdatedByInput = {
   createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
   sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -3195,6 +3891,8 @@ export type UserUncheckedUpdateManyWithoutUpdatedByInput = {
   mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3219,6 +3917,8 @@ export type UserCountOutputType = {
   createdOrganizationSettings: number
   updatedOrganizationSettings: number
   sessions: number
+  passwordHistory: number
+  passwordResetTokens: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3233,6 +3933,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   createdOrganizationSettings?: boolean | UserCountOutputTypeCountCreatedOrganizationSettingsArgs
   updatedOrganizationSettings?: boolean | UserCountOutputTypeCountUpdatedOrganizationSettingsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
+  passwordHistory?: boolean | UserCountOutputTypeCountPasswordHistoryArgs
+  passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
 }
 
 /**
@@ -3322,6 +4024,20 @@ export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.UserSessionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPasswordHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserPasswordHistoryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPasswordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PasswordResetTokenWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3334,6 +4050,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   mobileNumber?: boolean
   username?: boolean
   passwordHash?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   status?: boolean
   lastLoginAt?: boolean
   createdById?: boolean
@@ -3355,6 +4073,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdOrganizationSettings?: boolean | Prisma.User$createdOrganizationSettingsArgs<ExtArgs>
   updatedOrganizationSettings?: boolean | Prisma.User$updatedOrganizationSettingsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  passwordHistory?: boolean | Prisma.User$passwordHistoryArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -3369,6 +4089,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   mobileNumber?: boolean
   username?: boolean
   passwordHash?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   status?: boolean
   lastLoginAt?: boolean
   createdById?: boolean
@@ -3392,6 +4114,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   mobileNumber?: boolean
   username?: boolean
   passwordHash?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   status?: boolean
   lastLoginAt?: boolean
   createdById?: boolean
@@ -3415,6 +4139,8 @@ export type UserSelectScalar = {
   mobileNumber?: boolean
   username?: boolean
   passwordHash?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   status?: boolean
   lastLoginAt?: boolean
   createdById?: boolean
@@ -3423,7 +4149,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "departmentId" | "employeeCode" | "firstName" | "lastName" | "email" | "mobileNumber" | "username" | "passwordHash" | "status" | "lastLoginAt" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "departmentId" | "employeeCode" | "firstName" | "lastName" | "email" | "mobileNumber" | "username" | "passwordHash" | "failedLoginAttempts" | "lockedUntil" | "status" | "lastLoginAt" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
@@ -3440,6 +4166,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   createdOrganizationSettings?: boolean | Prisma.User$createdOrganizationSettingsArgs<ExtArgs>
   updatedOrganizationSettings?: boolean | Prisma.User$updatedOrganizationSettingsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  passwordHistory?: boolean | Prisma.User$passwordHistoryArgs<ExtArgs>
+  passwordResetTokens?: boolean | Prisma.User$passwordResetTokensArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3473,6 +4201,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdOrganizationSettings: Prisma.$OrganizationSettingPayload<ExtArgs>[]
     updatedOrganizationSettings: Prisma.$OrganizationSettingPayload<ExtArgs>[]
     sessions: Prisma.$UserSessionPayload<ExtArgs>[]
+    passwordHistory: Prisma.$UserPasswordHistoryPayload<ExtArgs>[]
+    passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3485,6 +4215,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     mobileNumber: string | null
     username: string
     passwordHash: string
+    failedLoginAttempts: number
+    lockedUntil: Date | null
     status: string
     lastLoginAt: Date | null
     createdById: string | null
@@ -3900,6 +4632,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   createdOrganizationSettings<T extends Prisma.User$createdOrganizationSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdOrganizationSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrganizationSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   updatedOrganizationSettings<T extends Prisma.User$updatedOrganizationSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedOrganizationSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrganizationSettingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordHistory<T extends Prisma.User$passwordHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPasswordHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  passwordResetTokens<T extends Prisma.User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3939,6 +4673,8 @@ export interface UserFieldRefs {
   readonly mobileNumber: Prisma.FieldRef<"User", 'String'>
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly failedLoginAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly status: Prisma.FieldRef<"User", 'String'>
   readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdById: Prisma.FieldRef<"User", 'String'>
@@ -4645,6 +5381,54 @@ export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.UserSessionScalarFieldEnum | Prisma.UserSessionScalarFieldEnum[]
+}
+
+/**
+ * User.passwordHistory
+ */
+export type User$passwordHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserPasswordHistory
+   */
+  select?: Prisma.UserPasswordHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserPasswordHistory
+   */
+  omit?: Prisma.UserPasswordHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserPasswordHistoryInclude<ExtArgs> | null
+  where?: Prisma.UserPasswordHistoryWhereInput
+  orderBy?: Prisma.UserPasswordHistoryOrderByWithRelationInput | Prisma.UserPasswordHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserPasswordHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserPasswordHistoryScalarFieldEnum | Prisma.UserPasswordHistoryScalarFieldEnum[]
+}
+
+/**
+ * User.passwordResetTokens
+ */
+export type User$passwordResetTokensArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PasswordResetToken
+   */
+  select?: Prisma.PasswordResetTokenSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PasswordResetToken
+   */
+  omit?: Prisma.PasswordResetTokenOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PasswordResetTokenInclude<ExtArgs> | null
+  where?: Prisma.PasswordResetTokenWhereInput
+  orderBy?: Prisma.PasswordResetTokenOrderByWithRelationInput | Prisma.PasswordResetTokenOrderByWithRelationInput[]
+  cursor?: Prisma.PasswordResetTokenWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PasswordResetTokenScalarFieldEnum | Prisma.PasswordResetTokenScalarFieldEnum[]
 }
 
 /**

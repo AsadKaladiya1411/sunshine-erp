@@ -83,6 +83,21 @@ export type FinancialYear = Prisma.FinancialYearModel
 export type OrganizationSetting = Prisma.OrganizationSettingModel
 /**
  * Model UserSession
- * 
+ *
  */
 export type UserSession = Prisma.UserSessionModel
+/**
+ * Model UserPasswordHistory
+ *
+ */
+export type UserPasswordHistory = Prisma.UserPasswordHistoryModel
+/**
+ * Model PasswordResetToken
+ *
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model UserSessionTokenHistory
+ *
+ */
+export type UserSessionTokenHistory = Prisma.UserSessionTokenHistoryModel

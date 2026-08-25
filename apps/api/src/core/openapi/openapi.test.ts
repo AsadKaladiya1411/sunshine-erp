@@ -68,6 +68,20 @@ describe("OpenAPI foundation", () => {
     expect(openApiDocument.paths["/health/db"]?.get).toBeDefined();
   });
 
+  it("documents the actual database health response payload", () => {
+    expect(
+      openApiDocument.components?.schemas?.DatabaseHealthResponse,
+    ).toMatchObject({
+      type: "object",
+      properties: {
+        status: { type: "string", enum: ["ok"] },
+        database: { type: "string", enum: ["connected"] },
+      },
+      required: ["status", "database"],
+      additionalProperties: false,
+    });
+  });
+
   it("documents standard and validation error schemas", () => {
     expect(
       openApiDocument.components?.schemas?.StandardErrorResponse,
@@ -95,5 +109,21 @@ describe("OpenAPI foundation", () => {
       description:
         "Version 1 API namespace. Future module operations are registered below this root.",
     });
+  });
+
+  it("documents the authentication contract without refresh credentials in response schemas", () => {
+    expect(openApiDocument.paths["/api/v1/auth/login"]?.post).toBeDefined();
+    expect(openApiDocument.paths["/api/v1/auth/refresh"]?.post).toBeDefined();
+    expect(openApiDocument.paths["/api/v1/auth/logout"]?.post).toBeDefined();
+    expect(openApiDocument.paths["/api/v1/auth/me"]?.get).toBeDefined();
+    expect(
+      openApiDocument.paths["/api/v1/auth/change-password"]?.post,
+    ).toBeDefined();
+    expect(openApiDocument.components?.securitySchemes?.bearerAuth).toMatchObject(
+      { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+    );
+    expect(JSON.stringify(openApiDocument.components?.schemas?.LoginResponse)).not.toContain(
+      "refreshToken",
+    );
   });
 });

@@ -18,7 +18,7 @@ const corsOptions: CorsOptions = {
 
     callback(new CorsOriginError());
   },
-  credentials: false,
+  credentials: true,
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
   allowedHeaders: ["Authorization", "Content-Type", "X-Correlation-ID"],
   exposedHeaders: ["X-Correlation-ID", "RateLimit", "Retry-After"],

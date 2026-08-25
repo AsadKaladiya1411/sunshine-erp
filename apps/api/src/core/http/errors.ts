@@ -32,6 +32,42 @@ export class AuthenticationError extends AppError {
   }
 }
 
+export class InvalidCredentialsError extends AppError {
+  constructor(message = "Invalid organization or credentials.") {
+    super("INVALID_CREDENTIALS", 401, message);
+  }
+}
+
+export class InvalidRefreshTokenError extends AppError {
+  constructor(message = "Refresh token is invalid or expired.") {
+    super("INVALID_REFRESH_TOKEN", 401, message);
+  }
+}
+
+export class InvalidPasswordResetTokenError extends AppError {
+  constructor(message = "Password reset token is invalid or expired.") {
+    super("INVALID_PASSWORD_RESET_TOKEN", 401, message);
+  }
+}
+
+export class SessionLimitError extends AppError {
+  constructor(message = "The maximum number of active sessions is reached.") {
+    super("SESSION_LIMIT_REACHED", 409, message);
+  }
+}
+
+export class PasswordPolicyError extends AppError {
+  constructor(message: string) {
+    super("PASSWORD_POLICY_VIOLATION", 400, message);
+  }
+}
+
+export class CsrfOriginError extends AppError {
+  constructor(message = "Request origin is not allowed for this operation.") {
+    super("CSRF_ORIGIN_DENIED", 403, message);
+  }
+}
+
 export class AuthorizationError extends AppError {
   constructor(message = "You are not authorized to perform this action") {
     super("AUTHORIZATION_ERROR", 403, message);

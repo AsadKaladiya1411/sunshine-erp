@@ -59,7 +59,10 @@ export const ModelName = {
   User: 'User',
   FinancialYear: 'FinancialYear',
   OrganizationSetting: 'OrganizationSetting',
-  UserSession: 'UserSession'
+  UserSession: 'UserSession',
+  UserPasswordHistory: 'UserPasswordHistory',
+  PasswordResetToken: 'PasswordResetToken',
+  UserSessionTokenHistory: 'UserSessionTokenHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -168,6 +171,8 @@ export const UserScalarFieldEnum = {
   mobileNumber: 'mobileNumber',
   username: 'username',
   passwordHash: 'passwordHash',
+  failedLoginAttempts: 'failedLoginAttempts',
+  lockedUntil: 'lockedUntil',
   status: 'status',
   lastLoginAt: 'lastLoginAt',
   createdById: 'createdById',
@@ -204,6 +209,7 @@ export const OrganizationSettingScalarFieldEnum = {
   defaultTimeZone: 'defaultTimeZone',
   financialYearId: 'financialYearId',
   dateFormat: 'dateFormat',
+  maxConcurrentSessions: 'maxConcurrentSessions',
   status: 'status',
   createdById: 'createdById',
   createdAt: 'createdAt',
@@ -216,12 +222,16 @@ export type OrganizationSettingScalarFieldEnum = (typeof OrganizationSettingScal
 
 export const UserSessionScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   userId: 'userId',
   sessionTokenHash: 'sessionTokenHash',
+  currentTokenIssuedAt: 'currentTokenIssuedAt',
   loginAt: 'loginAt',
   lastActivityAt: 'lastActivityAt',
   expiresAt: 'expiresAt',
   logoutAt: 'logoutAt',
+  revokedAt: 'revokedAt',
+  revocationReason: 'revocationReason',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   deviceInfo: 'deviceInfo',
@@ -231,6 +241,47 @@ export const UserSessionScalarFieldEnum = {
 } as const
 
 export type UserSessionScalarFieldEnum = (typeof UserSessionScalarFieldEnum)[keyof typeof UserSessionScalarFieldEnum]
+
+
+export const UserPasswordHistoryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  passwordHash: 'passwordHash',
+  createdAt: 'createdAt'
+} as const
+
+export type UserPasswordHistoryScalarFieldEnum = (typeof UserPasswordHistoryScalarFieldEnum)[keyof typeof UserPasswordHistoryScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  tokenHash: 'tokenHash',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const UserSessionTokenHistoryScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userSessionId: 'userSessionId',
+  tokenHash: 'tokenHash',
+  issuedAt: 'issuedAt',
+  expiresAt: 'expiresAt',
+  retiredAt: 'retiredAt',
+  retirementReason: 'retirementReason',
+  createdAt: 'createdAt'
+} as const
+
+export type UserSessionTokenHistoryScalarFieldEnum = (typeof UserSessionTokenHistoryScalarFieldEnum)[keyof typeof UserSessionTokenHistoryScalarFieldEnum]
 
 
 export const SortOrder = {

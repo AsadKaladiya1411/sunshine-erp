@@ -128,7 +128,7 @@ describe("HTTP security middleware foundation", () => {
     );
   });
 
-  it("allows a configured browser origin without credentials", async () => {
+  it("allows a configured browser origin with explicit credentials", async () => {
     const response = await fetch(`${apiServer.baseUrl}/health`, {
       headers: {
         Origin: "http://localhost:3000",
@@ -139,7 +139,9 @@ describe("HTTP security middleware foundation", () => {
     expect(response.headers.get("access-control-allow-origin")).toBe(
       "http://localhost:3000",
     );
-    expect(response.headers.get("access-control-allow-credentials")).toBeNull();
+    expect(response.headers.get("access-control-allow-credentials")).toBe(
+      "true",
+    );
   });
 
   it("rejects a browser origin outside the configured allowlist", async () => {

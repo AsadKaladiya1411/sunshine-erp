@@ -14,6 +14,12 @@ const migrationPath = fileURLToPath(
     import.meta.url,
   ),
 );
+const authenticationMigrationPath = fileURLToPath(
+  new URL(
+    "../../../../../prisma/migrations/20260825220000_authentication_foundation/migration.sql",
+    import.meta.url,
+  ),
+);
 
 const expectedTables = [
   "cities",
@@ -69,8 +75,13 @@ describe("common and administration database foundation", () => {
     await adminClient.query(`CREATE SCHEMA ${quotedSchemaName}`);
 
     const migrationSql = await readFile(migrationPath, "utf8");
+    const authenticationMigrationSql = await readFile(
+      authenticationMigrationPath,
+      "utf8",
+    );
     await adminClient.query(`SET search_path TO ${quotedSchemaName}`);
     await adminClient.query(migrationSql);
+    await adminClient.query(authenticationMigrationSql);
     await adminClient.query("RESET search_path");
 
     sqlClient = new Client({
@@ -160,7 +171,7 @@ describe("common and administration database foundation", () => {
     }
   });
 
-  it("creates only the nine approved foundation tables", async () => {
+  it("retains exactly the nine approved common and administration foundation tables", async () => {
     const result = await sqlClient.query<{ table_name: string }>(
       `SELECT table_name
        FROM information_schema.tables
@@ -169,9 +180,12 @@ describe("common and administration database foundation", () => {
       [schemaName],
     );
 
-    expect(result.rows.map(({ table_name }) => table_name)).toEqual(
-      expectedTables,
-    );
+    const tableNames = result.rows.map(({ table_name }) => table_name);
+    expect(tableNames.filter((tableName) =>
+      expectedTables.includes(tableName as (typeof expectedTables)[number]),
+    )).toEqual(expectedTables);
+    expect(tableNames).not.toContain("SystemCheck");
+    expect(tableNames).not.toContain("system_checks");
   });
 
   it("enforces and exposes the Country to State to City relationships", async () => {
@@ -416,31 +430,45 @@ describe("common and administration database foundation", () => {
 
   it("links User Session to User and enforces hash uniqueness", async () => {
     const expiresAt = new Date(Date.now() + 60_000);
-    const session = await prisma.userSession.create({
-      data: {
+    const sessionId = randomUUID();
+    await sqlClient.query(
+      `INSERT INTO user_sessions
+         (id, organization_id, user_id, session_token_hash, expires_at, ip_address, device_info, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        sessionId,
+        organizationId,
         userId,
-        sessionTokenHash: "sha256:test-session-hash",
+        "sha256:test-session-hash",
         expiresAt,
-        ipAddress: "127.0.0.1",
-        deviceInfo: { type: "integration-test" },
-        status: "Active",
-      },
-      include: { user: true },
-    });
+        "127.0.0.1",
+        { type: "integration-test" },
+        "Active",
+      ],
+    );
 
-    expect(session.user.id).toBe(userId);
+    const session = await sqlClient.query<{ user_id: string }>(
+      "SELECT user_id FROM user_sessions WHERE id = $1",
+      [sessionId],
+    );
+    expect(session.rows[0]?.user_id).toBe(userId);
 
     await expectErrorCode(
       () =>
-        prisma.userSession.create({
-          data: {
+        sqlClient.query(
+          `INSERT INTO user_sessions
+             (id, organization_id, user_id, session_token_hash, expires_at, status)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            randomUUID(),
+            organizationId,
             userId,
-            sessionTokenHash: "sha256:test-session-hash",
+            "sha256:test-session-hash",
             expiresAt,
-            status: "Active",
-          },
-        }),
-      "P2002",
+            "Active",
+          ],
+        ),
+      "23505",
     );
   });
 });

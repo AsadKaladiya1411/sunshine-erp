@@ -20,8 +20,18 @@ export type OrganizationSettingModel = runtime.Types.Result.DefaultSelection<Pri
 
 export type AggregateOrganizationSetting = {
   _count: OrganizationSettingCountAggregateOutputType | null
+  _avg: OrganizationSettingAvgAggregateOutputType | null
+  _sum: OrganizationSettingSumAggregateOutputType | null
   _min: OrganizationSettingMinAggregateOutputType | null
   _max: OrganizationSettingMaxAggregateOutputType | null
+}
+
+export type OrganizationSettingAvgAggregateOutputType = {
+  maxConcurrentSessions: number | null
+}
+
+export type OrganizationSettingSumAggregateOutputType = {
+  maxConcurrentSessions: number | null
 }
 
 export type OrganizationSettingMinAggregateOutputType = {
@@ -32,6 +42,7 @@ export type OrganizationSettingMinAggregateOutputType = {
   defaultTimeZone: string | null
   financialYearId: string | null
   dateFormat: string | null
+  maxConcurrentSessions: number | null
   status: string | null
   createdById: string | null
   createdAt: Date | null
@@ -47,6 +58,7 @@ export type OrganizationSettingMaxAggregateOutputType = {
   defaultTimeZone: string | null
   financialYearId: string | null
   dateFormat: string | null
+  maxConcurrentSessions: number | null
   status: string | null
   createdById: string | null
   createdAt: Date | null
@@ -62,6 +74,7 @@ export type OrganizationSettingCountAggregateOutputType = {
   defaultTimeZone: number
   financialYearId: number
   dateFormat: number
+  maxConcurrentSessions: number
   status: number
   createdById: number
   createdAt: number
@@ -71,6 +84,14 @@ export type OrganizationSettingCountAggregateOutputType = {
 }
 
 
+export type OrganizationSettingAvgAggregateInputType = {
+  maxConcurrentSessions?: true
+}
+
+export type OrganizationSettingSumAggregateInputType = {
+  maxConcurrentSessions?: true
+}
+
 export type OrganizationSettingMinAggregateInputType = {
   id?: true
   organizationId?: true
@@ -79,6 +100,7 @@ export type OrganizationSettingMinAggregateInputType = {
   defaultTimeZone?: true
   financialYearId?: true
   dateFormat?: true
+  maxConcurrentSessions?: true
   status?: true
   createdById?: true
   createdAt?: true
@@ -94,6 +116,7 @@ export type OrganizationSettingMaxAggregateInputType = {
   defaultTimeZone?: true
   financialYearId?: true
   dateFormat?: true
+  maxConcurrentSessions?: true
   status?: true
   createdById?: true
   createdAt?: true
@@ -109,6 +132,7 @@ export type OrganizationSettingCountAggregateInputType = {
   defaultTimeZone?: true
   financialYearId?: true
   dateFormat?: true
+  maxConcurrentSessions?: true
   status?: true
   createdById?: true
   createdAt?: true
@@ -148,10 +172,22 @@ export type OrganizationSettingAggregateArgs<ExtArgs extends runtime.Types.Exten
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   * 
+   *
    * Count returned OrganizationSettings
   **/
   _count?: true | OrganizationSettingCountAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to average
+  **/
+  _avg?: OrganizationSettingAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+  **/
+  _sum?: OrganizationSettingSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
@@ -185,6 +221,8 @@ export type OrganizationSettingGroupByArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   _count?: OrganizationSettingCountAggregateInputType | true
+  _avg?: OrganizationSettingAvgAggregateInputType
+  _sum?: OrganizationSettingSumAggregateInputType
   _min?: OrganizationSettingMinAggregateInputType
   _max?: OrganizationSettingMaxAggregateInputType
 }
@@ -197,12 +235,15 @@ export type OrganizationSettingGroupByOutputType = {
   defaultTimeZone: string
   financialYearId: string | null
   dateFormat: string
+  maxConcurrentSessions: number
   status: string
   createdById: string | null
   createdAt: Date
   updatedById: string | null
   updatedAt: Date
   _count: OrganizationSettingCountAggregateOutputType | null
+  _avg: OrganizationSettingAvgAggregateOutputType | null
+  _sum: OrganizationSettingSumAggregateOutputType | null
   _min: OrganizationSettingMinAggregateOutputType | null
   _max: OrganizationSettingMaxAggregateOutputType | null
 }
@@ -233,6 +274,7 @@ export type OrganizationSettingWhereInput = {
   defaultTimeZone?: Prisma.StringFilter<"OrganizationSetting"> | string
   financialYearId?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   dateFormat?: Prisma.StringFilter<"OrganizationSetting"> | string
+  maxConcurrentSessions?: Prisma.IntFilter<"OrganizationSetting"> | number
   status?: Prisma.StringFilter<"OrganizationSetting"> | string
   createdById?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrganizationSetting"> | Date | string
@@ -252,6 +294,7 @@ export type OrganizationSettingOrderByWithRelationInput = {
   defaultTimeZone?: Prisma.SortOrder
   financialYearId?: Prisma.SortOrderInput | Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
+  maxConcurrentSessions?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -274,6 +317,7 @@ export type OrganizationSettingWhereUniqueInput = Prisma.AtLeast<{
   defaultTimeZone?: Prisma.StringFilter<"OrganizationSetting"> | string
   financialYearId?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   dateFormat?: Prisma.StringFilter<"OrganizationSetting"> | string
+  maxConcurrentSessions?: Prisma.IntFilter<"OrganizationSetting"> | number
   status?: Prisma.StringFilter<"OrganizationSetting"> | string
   createdById?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrganizationSetting"> | Date | string
@@ -293,14 +337,17 @@ export type OrganizationSettingOrderByWithAggregationInput = {
   defaultTimeZone?: Prisma.SortOrder
   financialYearId?: Prisma.SortOrderInput | Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
+  maxConcurrentSessions?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationSettingCountOrderByAggregateInput
+  _avg?: Prisma.OrganizationSettingAvgOrderByAggregateInput
   _max?: Prisma.OrganizationSettingMaxOrderByAggregateInput
   _min?: Prisma.OrganizationSettingMinOrderByAggregateInput
+  _sum?: Prisma.OrganizationSettingSumOrderByAggregateInput
 }
 
 export type OrganizationSettingScalarWhereWithAggregatesInput = {
@@ -314,6 +361,7 @@ export type OrganizationSettingScalarWhereWithAggregatesInput = {
   defaultTimeZone?: Prisma.StringWithAggregatesFilter<"OrganizationSetting"> | string
   financialYearId?: Prisma.UuidNullableWithAggregatesFilter<"OrganizationSetting"> | string | null
   dateFormat?: Prisma.StringWithAggregatesFilter<"OrganizationSetting"> | string
+  maxConcurrentSessions?: Prisma.IntWithAggregatesFilter<"OrganizationSetting"> | number
   status?: Prisma.StringWithAggregatesFilter<"OrganizationSetting"> | string
   createdById?: Prisma.UuidNullableWithAggregatesFilter<"OrganizationSetting"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrganizationSetting"> | Date | string
@@ -327,6 +375,7 @@ export type OrganizationSettingCreateInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -344,6 +393,7 @@ export type OrganizationSettingUncheckedCreateInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -357,6 +407,7 @@ export type OrganizationSettingUpdateInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -374,6 +425,7 @@ export type OrganizationSettingUncheckedUpdateInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -389,6 +441,7 @@ export type OrganizationSettingCreateManyInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -402,6 +455,7 @@ export type OrganizationSettingUpdateManyMutationInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,6 +469,7 @@ export type OrganizationSettingUncheckedUpdateManyInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -445,11 +500,16 @@ export type OrganizationSettingCountOrderByAggregateInput = {
   defaultTimeZone?: Prisma.SortOrder
   financialYearId?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
+  maxConcurrentSessions?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type OrganizationSettingAvgOrderByAggregateInput = {
+  maxConcurrentSessions?: Prisma.SortOrder
 }
 
 export type OrganizationSettingMaxOrderByAggregateInput = {
@@ -460,6 +520,7 @@ export type OrganizationSettingMaxOrderByAggregateInput = {
   defaultTimeZone?: Prisma.SortOrder
   financialYearId?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
+  maxConcurrentSessions?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -475,11 +536,16 @@ export type OrganizationSettingMinOrderByAggregateInput = {
   defaultTimeZone?: Prisma.SortOrder
   financialYearId?: Prisma.SortOrder
   dateFormat?: Prisma.SortOrder
+  maxConcurrentSessions?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedById?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type OrganizationSettingSumOrderByAggregateInput = {
+  maxConcurrentSessions?: Prisma.SortOrder
 }
 
 export type OrganizationSettingCreateNestedOneWithoutOrganizationInput = {
@@ -646,6 +712,7 @@ export type OrganizationSettingCreateWithoutOrganizationInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -661,6 +728,7 @@ export type OrganizationSettingUncheckedCreateWithoutOrganizationInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -690,6 +758,7 @@ export type OrganizationSettingUpdateWithoutOrganizationInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -705,6 +774,7 @@ export type OrganizationSettingUncheckedUpdateWithoutOrganizationInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -718,6 +788,7 @@ export type OrganizationSettingCreateWithoutCreatedByInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -734,6 +805,7 @@ export type OrganizationSettingUncheckedCreateWithoutCreatedByInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedById?: string | null
@@ -756,6 +828,7 @@ export type OrganizationSettingCreateWithoutUpdatedByInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -772,6 +845,7 @@ export type OrganizationSettingUncheckedCreateWithoutUpdatedByInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -815,6 +889,7 @@ export type OrganizationSettingScalarWhereInput = {
   defaultTimeZone?: Prisma.StringFilter<"OrganizationSetting"> | string
   financialYearId?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   dateFormat?: Prisma.StringFilter<"OrganizationSetting"> | string
+  maxConcurrentSessions?: Prisma.IntFilter<"OrganizationSetting"> | number
   status?: Prisma.StringFilter<"OrganizationSetting"> | string
   createdById?: Prisma.UuidNullableFilter<"OrganizationSetting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrganizationSetting"> | Date | string
@@ -844,6 +919,7 @@ export type OrganizationSettingCreateWithoutFinancialYearInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -859,6 +935,7 @@ export type OrganizationSettingUncheckedCreateWithoutFinancialYearInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -900,6 +977,7 @@ export type OrganizationSettingCreateManyCreatedByInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdAt?: Date | string
   updatedById?: string | null
@@ -914,6 +992,7 @@ export type OrganizationSettingCreateManyUpdatedByInput = {
   defaultTimeZone: string
   financialYearId?: string | null
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -926,6 +1005,7 @@ export type OrganizationSettingUpdateWithoutCreatedByInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -942,6 +1022,7 @@ export type OrganizationSettingUncheckedUpdateWithoutCreatedByInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -956,6 +1037,7 @@ export type OrganizationSettingUncheckedUpdateManyWithoutCreatedByInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -968,6 +1050,7 @@ export type OrganizationSettingUpdateWithoutUpdatedByInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -984,6 +1067,7 @@ export type OrganizationSettingUncheckedUpdateWithoutUpdatedByInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -998,6 +1082,7 @@ export type OrganizationSettingUncheckedUpdateManyWithoutUpdatedByInput = {
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1011,6 +1096,7 @@ export type OrganizationSettingCreateManyFinancialYearInput = {
   defaultLanguage: string
   defaultTimeZone: string
   dateFormat: string
+  maxConcurrentSessions?: number
   status: string
   createdById?: string | null
   createdAt?: Date | string
@@ -1024,6 +1110,7 @@ export type OrganizationSettingUpdateWithoutFinancialYearInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1039,6 +1126,7 @@ export type OrganizationSettingUncheckedUpdateWithoutFinancialYearInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1053,6 +1141,7 @@ export type OrganizationSettingUncheckedUpdateManyWithoutFinancialYearInput = {
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
   dateFormat?: Prisma.StringFieldUpdateOperationsInput | string
+  maxConcurrentSessions?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1070,6 +1159,7 @@ export type OrganizationSettingSelect<ExtArgs extends runtime.Types.Extensions.I
   defaultTimeZone?: boolean
   financialYearId?: boolean
   dateFormat?: boolean
+  maxConcurrentSessions?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -1089,6 +1179,7 @@ export type OrganizationSettingSelectCreateManyAndReturn<ExtArgs extends runtime
   defaultTimeZone?: boolean
   financialYearId?: boolean
   dateFormat?: boolean
+  maxConcurrentSessions?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -1108,6 +1199,7 @@ export type OrganizationSettingSelectUpdateManyAndReturn<ExtArgs extends runtime
   defaultTimeZone?: boolean
   financialYearId?: boolean
   dateFormat?: boolean
+  maxConcurrentSessions?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -1127,6 +1219,7 @@ export type OrganizationSettingSelectScalar = {
   defaultTimeZone?: boolean
   financialYearId?: boolean
   dateFormat?: boolean
+  maxConcurrentSessions?: boolean
   status?: boolean
   createdById?: boolean
   createdAt?: boolean
@@ -1134,7 +1227,7 @@ export type OrganizationSettingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrganizationSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "defaultCurrency" | "defaultLanguage" | "defaultTimeZone" | "financialYearId" | "dateFormat" | "status" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["organizationSetting"]>
+export type OrganizationSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "defaultCurrency" | "defaultLanguage" | "defaultTimeZone" | "financialYearId" | "dateFormat" | "maxConcurrentSessions" | "status" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["organizationSetting"]>
 export type OrganizationSettingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   organization?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   financialYear?: boolean | Prisma.OrganizationSetting$financialYearArgs<ExtArgs>
@@ -1170,6 +1263,7 @@ export type $OrganizationSettingPayload<ExtArgs extends runtime.Types.Extensions
     defaultTimeZone: string
     financialYearId: string | null
     dateFormat: string
+    maxConcurrentSessions: number
     status: string
     createdById: string | null
     createdAt: Date
@@ -1609,6 +1703,7 @@ export interface OrganizationSettingFieldRefs {
   readonly defaultTimeZone: Prisma.FieldRef<"OrganizationSetting", 'String'>
   readonly financialYearId: Prisma.FieldRef<"OrganizationSetting", 'String'>
   readonly dateFormat: Prisma.FieldRef<"OrganizationSetting", 'String'>
+  readonly maxConcurrentSessions: Prisma.FieldRef<"OrganizationSetting", 'Int'>
   readonly status: Prisma.FieldRef<"OrganizationSetting", 'String'>
   readonly createdById: Prisma.FieldRef<"OrganizationSetting", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrganizationSetting", 'DateTime'>
