@@ -49,3 +49,27 @@ export class ConflictError extends AppError {
     super("CONFLICT", 409, message);
   }
 }
+
+export class CorsOriginError extends AppError {
+  constructor(message = "Request origin is not allowed.") {
+    super("CORS_ORIGIN_DENIED", 403, message);
+  }
+}
+
+export class RateLimitError extends AppError {
+  constructor(message = "Too many requests. Please try again later.") {
+    super("RATE_LIMIT_EXCEEDED", 429, message);
+  }
+}
+
+export class PayloadTooLargeError extends AppError {
+  constructor(message = "Request payload is too large.") {
+    super("PAYLOAD_TOO_LARGE", 413, message);
+  }
+}
+
+export class MalformedJsonError extends AppError {
+  constructor(message = "Request body contains malformed JSON.") {
+    super("MALFORMED_JSON", 400, message);
+  }
+}

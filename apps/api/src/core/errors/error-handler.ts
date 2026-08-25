@@ -1,15 +1,49 @@
 import type { ErrorRequestHandler } from "express";
 import { logger } from "../logging/logger.js";
-import { AppError, ValidationError } from "../http/errors.js";
+import {
+  AppError,
+  MalformedJsonError,
+  PayloadTooLargeError,
+  ValidationError,
+} from "../http/errors.js";
 
-export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
-  if (error instanceof AppError) {
+function hasRequestParsingProperties(
+  error: unknown,
+): error is { status?: unknown; type?: unknown } {
+  return typeof error === "object" && error !== null;
+}
+
+function normalizeRequestError(error: unknown): unknown {
+  if (!hasRequestParsingProperties(error)) {
+    return error;
+  }
+
+  if (error.status === 413 || error.type === "entity.too.large") {
+    return new PayloadTooLargeError();
+  }
+
+  if (error.status === 400 && error.type === "entity.parse.failed") {
+    return new MalformedJsonError();
+  }
+
+  return error;
+}
+
+export const errorHandler: ErrorRequestHandler = (
+  error: unknown,
+  _req,
+  res,
+  _next,
+) => {
+  const normalizedError = normalizeRequestError(error);
+
+  if (normalizedError instanceof AppError) {
     logger.warn(
       {
-        code: error.code,
-        statusCode: error.statusCode,
+        code: normalizedError.code,
+        statusCode: normalizedError.statusCode,
       },
-      error.message,
+      normalizedError.message,
     );
 
     const errorBody: {
@@ -17,15 +51,15 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
       message: string;
       details?: ValidationError["details"];
     } = {
-      code: error.code,
-      message: error.message,
+      code: normalizedError.code,
+      message: normalizedError.message,
     };
 
-    if (error instanceof ValidationError) {
-      errorBody.details = error.details;
+    if (normalizedError instanceof ValidationError) {
+      errorBody.details = normalizedError.details;
     }
 
-    res.status(error.statusCode).json({
+    res.status(normalizedError.statusCode).json({
       success: false,
       error: errorBody,
     });
@@ -33,7 +67,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     return;
   }
 
-  logger.error({ err: error }, "Unhandled API error");
+  logger.error({ err: normalizedError }, "Unhandled API error");
 
   res.status(500).json({
     success: false,
