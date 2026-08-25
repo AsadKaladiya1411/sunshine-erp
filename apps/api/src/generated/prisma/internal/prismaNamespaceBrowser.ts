@@ -51,7 +51,15 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-
+  Country: 'Country',
+  State: 'State',
+  City: 'City',
+  Organization: 'Organization',
+  Department: 'Department',
+  User: 'User',
+  FinancialYear: 'FinancialYear',
+  OrganizationSetting: 'OrganizationSetting',
+  UserSession: 'UserSession'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -68,4 +76,200 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const CountryScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CountryScalarFieldEnum = (typeof CountryScalarFieldEnum)[keyof typeof CountryScalarFieldEnum]
+
+
+export const StateScalarFieldEnum = {
+  id: 'id',
+  countryId: 'countryId',
+  code: 'code',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StateScalarFieldEnum = (typeof StateScalarFieldEnum)[keyof typeof StateScalarFieldEnum]
+
+
+export const CityScalarFieldEnum = {
+  id: 'id',
+  stateId: 'stateId',
+  code: 'code',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CityScalarFieldEnum = (typeof CityScalarFieldEnum)[keyof typeof CityScalarFieldEnum]
+
+
+export const OrganizationScalarFieldEnum = {
+  id: 'id',
+  organizationCode: 'organizationCode',
+  organizationName: 'organizationName',
+  legalName: 'legalName',
+  gstNumber: 'gstNumber',
+  panNumber: 'panNumber',
+  email: 'email',
+  phone: 'phone',
+  website: 'website',
+  address: 'address',
+  cityId: 'cityId',
+  stateId: 'stateId',
+  countryId: 'countryId',
+  pincode: 'pincode',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+export const DepartmentScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  departmentCode: 'departmentCode',
+  departmentName: 'departmentName',
+  description: 'description',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
+export const UserScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  departmentId: 'departmentId',
+  employeeCode: 'employeeCode',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  mobileNumber: 'mobileNumber',
+  username: 'username',
+  passwordHash: 'passwordHash',
+  status: 'status',
+  lastLoginAt: 'lastLoginAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FinancialYearScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  financialYearCode: 'financialYearCode',
+  financialYearName: 'financialYearName',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinancialYearScalarFieldEnum = (typeof FinancialYearScalarFieldEnum)[keyof typeof FinancialYearScalarFieldEnum]
+
+
+export const OrganizationSettingScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  defaultCurrency: 'defaultCurrency',
+  defaultLanguage: 'defaultLanguage',
+  defaultTimeZone: 'defaultTimeZone',
+  financialYearId: 'financialYearId',
+  dateFormat: 'dateFormat',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrganizationSettingScalarFieldEnum = (typeof OrganizationSettingScalarFieldEnum)[keyof typeof OrganizationSettingScalarFieldEnum]
+
+
+export const UserSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sessionTokenHash: 'sessionTokenHash',
+  loginAt: 'loginAt',
+  lastActivityAt: 'lastActivityAt',
+  expiresAt: 'expiresAt',
+  logoutAt: 'logoutAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  deviceInfo: 'deviceInfo',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserSessionScalarFieldEnum = (typeof UserSessionScalarFieldEnum)[keyof typeof UserSessionScalarFieldEnum]
+
+
+export const SortOrder = {
+  asc: 'asc',
+  desc: 'desc'
+} as const
+
+export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

@@ -7,3 +7,242 @@ datasource db {
   provider = "postgresql"
 }
 
+model Country {
+  id            String         @id @default(uuid()) @db.Uuid
+  code          String         @unique @db.VarChar(20)
+  name          String         @unique @db.VarChar(150)
+  status        String         @db.VarChar(30)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  states        State[]
+  organizations Organization[]
+
+  @@index([status])
+  @@map("countries")
+}
+
+model State {
+  id            String         @id @default(uuid()) @db.Uuid
+  countryId     String         @map("country_id") @db.Uuid
+  code          String         @db.VarChar(20)
+  name          String         @db.VarChar(150)
+  status        String         @db.VarChar(30)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  country       Country        @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  cities        City[]
+  organizations Organization[]
+
+  @@unique([countryId, code])
+  @@unique([countryId, name])
+  @@index([countryId])
+  @@index([status])
+  @@map("states")
+}
+
+model City {
+  id            String         @id @default(uuid()) @db.Uuid
+  stateId       String         @map("state_id") @db.Uuid
+  code          String         @db.VarChar(20)
+  name          String         @db.VarChar(150)
+  status        String         @db.VarChar(30)
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  state         State          @relation(fields: [stateId], references: [id], onDelete: Restrict)
+  organizations Organization[]
+
+  @@unique([stateId, code])
+  @@unique([stateId, name])
+  @@index([stateId])
+  @@index([status])
+  @@map("cities")
+}
+
+model Organization {
+  id               String   @id @default(uuid()) @db.Uuid
+  organizationCode String   @unique @map("organization_code") @db.VarChar(50)
+  organizationName String   @unique @map("organization_name") @db.VarChar(150)
+  legalName        String?  @map("legal_name") @db.VarChar(200)
+  gstNumber        String?  @map("gst_number") @db.VarChar(20)
+  panNumber        String?  @map("pan_number") @db.VarChar(20)
+  email            String?  @db.VarChar(150)
+  phone            String?  @db.VarChar(30)
+  website          String?  @db.VarChar(200)
+  address          String?  @db.Text
+  cityId           String?  @map("city_id") @db.Uuid
+  stateId          String?  @map("state_id") @db.Uuid
+  countryId        String?  @map("country_id") @db.Uuid
+  pincode          String?  @db.VarChar(20)
+  status           String   @db.VarChar(30)
+  createdById      String?  @map("created_by") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById      String?  @map("updated_by") @db.Uuid
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  city           City?                @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  state          State?               @relation(fields: [stateId], references: [id], onDelete: Restrict)
+  country        Country?             @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  createdBy      User?                @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy      User?                @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  departments    Department[]
+  users          User[]               @relation("OrganizationUsers")
+  financialYears FinancialYear[]
+  settings       OrganizationSetting?
+
+  @@index([cityId])
+  @@index([stateId])
+  @@index([countryId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([status])
+  @@map("organizations")
+}
+
+model Department {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  departmentCode String   @map("department_code") @db.VarChar(50)
+  departmentName String   @map("department_name") @db.VarChar(150)
+  description    String?  @db.Text
+  status         String   @db.VarChar(30)
+  createdById    String?  @map("created_by") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById    String?  @map("updated_by") @db.Uuid
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy    User?        @relation("DepartmentCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy    User?        @relation("DepartmentUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  users        User[]       @relation("DepartmentUsers")
+
+  @@unique([organizationId, departmentCode])
+  @@unique([organizationId, departmentName])
+  @@index([organizationId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([status])
+  @@map("departments")
+}
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  departmentId   String    @map("department_id") @db.Uuid
+  employeeCode   String?   @map("employee_code") @db.VarChar(50)
+  firstName      String    @map("first_name") @db.VarChar(100)
+  lastName       String?   @map("last_name") @db.VarChar(100)
+  email          String    @db.VarChar(150)
+  mobileNumber   String?   @map("mobile_number") @db.VarChar(30)
+  username       String    @db.VarChar(100)
+  passwordHash   String    @map("password_hash") @db.Text
+  status         String    @db.VarChar(30)
+  lastLoginAt    DateTime? @map("last_login_at") @db.Timestamptz(6)
+  createdById    String?   @map("created_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById    String?   @map("updated_by") @db.Uuid
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization                Organization          @relation("OrganizationUsers", fields: [organizationId], references: [id], onDelete: Restrict)
+  department                  Department            @relation("DepartmentUsers", fields: [departmentId], references: [id], onDelete: Restrict)
+  createdBy                   User?                 @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy                   User?                 @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdUsers                User[]                @relation("UserCreatedBy")
+  updatedUsers                User[]                @relation("UserUpdatedBy")
+  createdOrganizations        Organization[]        @relation("OrganizationCreatedBy")
+  updatedOrganizations        Organization[]        @relation("OrganizationUpdatedBy")
+  createdDepartments          Department[]          @relation("DepartmentCreatedBy")
+  updatedDepartments          Department[]          @relation("DepartmentUpdatedBy")
+  createdFinancialYears       FinancialYear[]       @relation("FinancialYearCreatedBy")
+  updatedFinancialYears       FinancialYear[]       @relation("FinancialYearUpdatedBy")
+  createdOrganizationSettings OrganizationSetting[] @relation("OrganizationSettingCreatedBy")
+  updatedOrganizationSettings OrganizationSetting[] @relation("OrganizationSettingUpdatedBy")
+  sessions                    UserSession[]
+
+  @@unique([organizationId, username])
+  @@unique([organizationId, email])
+  @@unique([organizationId, employeeCode])
+  @@index([organizationId])
+  @@index([departmentId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([status])
+  @@map("users")
+}
+
+model FinancialYear {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  financialYearCode String   @map("financial_year_code") @db.VarChar(30)
+  financialYearName String   @map("financial_year_name") @db.VarChar(100)
+  startDate         DateTime @map("start_date") @db.Date
+  endDate           DateTime @map("end_date") @db.Date
+  status            String   @db.VarChar(30)
+  createdById       String?  @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById       String?  @map("updated_by") @db.Uuid
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy            User?                 @relation("FinancialYearCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy            User?                 @relation("FinancialYearUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  organizationSettings OrganizationSetting[]
+
+  @@unique([organizationId, financialYearCode])
+  @@index([organizationId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+  @@map("financial_years")
+}
+
+model OrganizationSetting {
+  id              String   @id @default(uuid()) @db.Uuid
+  organizationId  String   @unique @map("organization_id") @db.Uuid
+  defaultCurrency String   @map("default_currency") @db.VarChar(10)
+  defaultLanguage String   @map("default_language") @db.VarChar(20)
+  defaultTimeZone String   @map("default_time_zone") @db.VarChar(100)
+  financialYearId String?  @map("financial_year_id") @db.Uuid
+  dateFormat      String   @map("date_format") @db.VarChar(30)
+  status          String   @db.VarChar(30)
+  createdById     String?  @map("created_by") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById     String?  @map("updated_by") @db.Uuid
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  financialYear FinancialYear? @relation(fields: [financialYearId], references: [id], onDelete: Restrict)
+  createdBy     User?          @relation("OrganizationSettingCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy     User?          @relation("OrganizationSettingUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+
+  @@index([financialYearId])
+  @@index([createdById])
+  @@index([updatedById])
+  @@index([status])
+  @@map("organization_settings")
+}
+
+model UserSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  sessionTokenHash String    @unique @map("session_token_hash") @db.Text
+  loginAt          DateTime  @default(now()) @map("login_at") @db.Timestamptz(6)
+  lastActivityAt   DateTime  @default(now()) @map("last_activity_at") @db.Timestamptz(6)
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(6)
+  logoutAt         DateTime? @map("logout_at") @db.Timestamptz(6)
+  ipAddress        String?   @map("ip_address") @db.Inet
+  userAgent        String?   @map("user_agent") @db.Text
+  deviceInfo       Json?     @map("device_info") @db.JsonB
+  status           String    @db.VarChar(30)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([loginAt])
+  @@map("user_sessions")
+}

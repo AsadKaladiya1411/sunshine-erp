@@ -17,4 +17,48 @@ import * as Prisma from './internal/prismaNamespaceBrowser.js'
 export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
-
+/**
+ * Model Country
+ * 
+ */
+export type Country = Prisma.CountryModel
+/**
+ * Model State
+ * 
+ */
+export type State = Prisma.StateModel
+/**
+ * Model City
+ * 
+ */
+export type City = Prisma.CityModel
+/**
+ * Model Organization
+ * 
+ */
+export type Organization = Prisma.OrganizationModel
+/**
+ * Model Department
+ * 
+ */
+export type Department = Prisma.DepartmentModel
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model FinancialYear
+ * 
+ */
+export type FinancialYear = Prisma.FinancialYearModel
+/**
+ * Model OrganizationSetting
+ * 
+ */
+export type OrganizationSetting = Prisma.OrganizationSettingModel
+/**
+ * Model UserSession
+ * 
+ */
+export type UserSession = Prisma.UserSessionModel
