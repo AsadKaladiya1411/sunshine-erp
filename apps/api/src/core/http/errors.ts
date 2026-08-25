@@ -9,8 +9,19 @@ export class AppError extends Error {
   }
 }
 
+export type ValidationSource = "body" | "params" | "query";
+
+export interface ValidationErrorDetail {
+  readonly source: ValidationSource;
+  readonly path: readonly (string | number)[];
+  readonly message: string;
+}
+
 export class ValidationError extends AppError {
-  constructor(message = "Validation failed") {
+  constructor(
+    public readonly details: readonly ValidationErrorDetail[],
+    message = "Request validation failed.",
+  ) {
     super("VALIDATION_ERROR", 400, message);
   }
 }

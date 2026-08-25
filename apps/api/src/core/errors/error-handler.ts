@@ -1,13 +1,8 @@
 import type { ErrorRequestHandler } from "express";
 import { logger } from "../logging/logger.js";
-import { AppError } from "../http/errors.js";
+import { AppError, ValidationError } from "../http/errors.js";
 
-export const errorHandler: ErrorRequestHandler = (
-  error,
-  _req,
-  res,
-  _next,
-) => {
+export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof AppError) {
     logger.warn(
       {
@@ -17,12 +12,22 @@ export const errorHandler: ErrorRequestHandler = (
       error.message,
     );
 
+    const errorBody: {
+      code: string;
+      message: string;
+      details?: ValidationError["details"];
+    } = {
+      code: error.code,
+      message: error.message,
+    };
+
+    if (error instanceof ValidationError) {
+      errorBody.details = error.details;
+    }
+
     res.status(error.statusCode).json({
       success: false,
-      error: {
-        code: error.code,
-        message: error.message,
-      },
+      error: errorBody,
     });
 
     return;
