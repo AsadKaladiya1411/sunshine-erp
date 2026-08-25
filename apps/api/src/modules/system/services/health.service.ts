@@ -1,7 +1,12 @@
-import { prisma } from "../../../core/database/prisma.js";
+import { checkDatabaseConnection } from "../repositories/health.repository.js";
 
-export async function getHealthStatus() {
-  await prisma.$queryRaw`SELECT 1`;
+export interface HealthStatus {
+  status: "ok";
+  database: "connected";
+}
+
+export async function getHealthStatus(): Promise<HealthStatus> {
+  await checkDatabaseConnection();
 
   return {
     status: "ok",

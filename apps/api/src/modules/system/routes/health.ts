@@ -1,12 +1,5 @@
 import type { RequestHandler } from "express";
-import { getHealthStatus } from "../services/health.service.js";
+import { getDatabaseHealth } from "../controllers/health.controller.js";
 
-export const healthHandler: RequestHandler = async (_req, res, next) => {
-  try {
-    const health = await getHealthStatus();
-
-    res.json(health);
-  } catch (error) {
-    next(error);
-  }
-};
+export const healthHandler: RequestHandler = (req, res, next) =>
+  getDatabaseHealth(req, res, next);
