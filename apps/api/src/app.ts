@@ -5,7 +5,10 @@ import { apiRateLimitMiddleware } from "./core/middleware/api-rate-limit.middlew
 import { correlationIdMiddleware } from "./core/middleware/correlation-id.middleware.js";
 import { corsMiddleware } from "./core/middleware/cors.middleware.js";
 import { securityHeadersMiddleware } from "./core/middleware/security-headers.middleware.js";
-import { healthHandler } from "./modules/system/routes/health.js";
+import {
+  healthHandler,
+  redisHealthHandler,
+} from "./modules/system/routes/health.js";
 import { apiV1Router } from "./routes/api-v1.js";
 import { docsRouter } from "./routes/docs.js";
 
@@ -27,6 +30,7 @@ app.get("/health", (_req, res) => {
   });
 });
 app.get("/health/db", healthHandler);
+app.get("/health/redis", redisHealthHandler);
 app.use("/docs", docsRouter);
 app.use("/api/v1", apiRateLimitMiddleware, apiV1Router);
 app.use(errorHandler);

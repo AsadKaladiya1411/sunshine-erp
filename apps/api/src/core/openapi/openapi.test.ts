@@ -63,9 +63,24 @@ describe("OpenAPI foundation", () => {
     });
   });
 
-  it("documents both health endpoints", () => {
+  it("documents the application and distinct infrastructure health endpoints", () => {
     expect(openApiDocument.paths["/health"]?.get).toBeDefined();
     expect(openApiDocument.paths["/health/db"]?.get).toBeDefined();
+    expect(openApiDocument.paths["/health/redis"]?.get).toBeDefined();
+  });
+
+  it("documents the Redis health response independently from PostgreSQL", () => {
+    expect(openApiDocument.components?.schemas?.RedisHealthResponse).toMatchObject(
+      {
+        type: "object",
+        properties: {
+          status: { type: "string", enum: ["ok"] },
+          redis: { type: "string", enum: ["connected"] },
+        },
+        required: ["status", "redis"],
+        additionalProperties: false,
+      },
+    );
   });
 
   it("documents the actual database health response payload", () => {

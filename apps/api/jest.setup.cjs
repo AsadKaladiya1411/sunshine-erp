@@ -25,4 +25,7 @@ process.env.REFRESH_COOKIE_SECURE ??= "false";
 process.env.REFRESH_COOKIE_SAME_SITE ??= "strict";
 process.env.REFRESH_COOKIE_PATH ??= "/api/v1/auth";
 process.env.PASSWORD_RESET_TOKEN_LIFETIME_SECONDS ??= "1800";
+process.env.REDIS_URL ??= "redis://127.0.0.1:6379";
+process.env.REDIS_CONNECT_TIMEOUT_MS ??= "500";
+process.env.REDIS_KEY_PREFIX ??= "sunshine";
 process.env.LOG_LEVEL = "fatal";

@@ -22,8 +22,9 @@ export function createApiRateLimitMiddleware(
   });
 }
 
-// Temporary per-process limiter. Replace or extend its memory store when
-// distributed rate limiting is approved with the Redis foundation.
+// The approved current security contract remains per process. The
+// RateLimitCounterStore boundary in core/cache is available for a future,
+// explicitly approved distributed-store integration.
 export const apiRateLimitMiddleware = createApiRateLimitMiddleware({
   windowMs: env.RATE_LIMIT_WINDOW_MS,
   limit: env.RATE_LIMIT_MAX_REQUESTS,

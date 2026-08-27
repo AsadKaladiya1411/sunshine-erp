@@ -73,6 +73,25 @@ export const openApiDocument: OpenAPIV3.Document = {
         },
       },
     },
+    "/health/redis": {
+      get: {
+        operationId: "getRedisHealth",
+        tags: ["System"],
+        summary: "Check Redis connectivity",
+        description:
+          "Reports Redis infrastructure availability independently from PostgreSQL transactional health.",
+        responses: {
+          "200": {
+            description: "Redis is reachable.",
+            content: jsonContent("RedisHealthResponse"),
+          },
+          "503": {
+            description: "Redis is disabled or unavailable.",
+            content: jsonContent("StandardErrorResponse"),
+          },
+        },
+      },
+    },
     "/api/v1/auth/login": {
       post: {
         operationId: "login",

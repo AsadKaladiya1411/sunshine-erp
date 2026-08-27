@@ -9,6 +9,14 @@ const booleanFromEnvironment = z
   .enum(["true", "false"])
   .transform((value) => value === "true");
 
+const redisUrlSchema = z.string().url().refine(
+  (value) => {
+    const protocol = new URL(value).protocol;
+    return protocol === "redis:" || protocol === "rediss:";
+  },
+  { message: "REDIS_URL must use the redis or rediss protocol." },
+);
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -107,7 +115,18 @@ const envSchema = z.object({
     .positive()
     .default(1_800),
 
-  REDIS_URL: z.string().url().optional(),
+  REDIS_URL: redisUrlSchema.optional(),
+
+  REDIS_CONNECT_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(5_000),
+
+  REDIS_KEY_PREFIX: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9_-]*$/)
+    .default("sunshine"),
 
   KAFKA_BROKERS: z.string().min(1).optional(),
 
@@ -158,4 +177,12 @@ const envSchema = z.object({
   }
 });
 
-export const env = envSchema.parse(process.env);
+export type Environment = z.infer<typeof envSchema>;
+
+export function parseEnvironment(
+  input: Record<string, string | undefined>,
+): Environment {
+  return envSchema.parse(input);
+}
+
+export const env = parseEnvironment(process.env);

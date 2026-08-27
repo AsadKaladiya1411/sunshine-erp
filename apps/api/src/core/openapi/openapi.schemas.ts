@@ -14,6 +14,10 @@ const databaseHealthResponseSchema = healthResponseSchema.extend({
   database: z.literal("connected"),
 });
 
+const redisHealthResponseSchema = healthResponseSchema.extend({
+  redis: z.literal("connected"),
+});
+
 const standardErrorResponseSchema = z.object({
   success: z.literal(false),
   error: z.object({
@@ -91,6 +95,7 @@ export const openApiSchemas = {
     databaseHealthResponseSchema,
     "output",
   ),
+  RedisHealthResponse: zodToOpenApiSchema(redisHealthResponseSchema, "output"),
   StandardErrorResponse: zodToOpenApiSchema(
     standardErrorResponseSchema,
     "output",

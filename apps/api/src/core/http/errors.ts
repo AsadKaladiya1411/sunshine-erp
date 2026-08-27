@@ -98,6 +98,12 @@ export class RateLimitError extends AppError {
   }
 }
 
+export class InfrastructureUnavailableError extends AppError {
+  constructor(code: string, message: string) {
+    super(code, 503, message);
+  }
+}
+
 export class PayloadTooLargeError extends AppError {
   constructor(message = "Request payload is too large.") {
     super("PAYLOAD_TOO_LARGE", 413, message);
