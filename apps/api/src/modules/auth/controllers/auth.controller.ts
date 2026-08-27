@@ -1,4 +1,5 @@
 import type { Request, RequestHandler } from "express";
+import { getActivityRequestMetadata } from "../../../core/audit/request-metadata.js";
 import {
   clearRefreshTokenCookie,
   readRefreshTokenCookie,
@@ -30,13 +31,13 @@ function getAuthenticatedContext(
 export const login: RequestHandler = async (request, response, next) => {
   try {
     const { body } = getValidatedRequest(request, loginRequestSchemas);
+    const metadata = getActivityRequestMetadata(request);
     const result = await authenticationService.login({
       organizationCode: body.organizationCode,
       username: body.username,
       email: body.email,
       password: body.password,
-      ipAddress: request.ip,
-      userAgent: request.get("User-Agent"),
+      ...metadata,
     });
 
     setRefreshTokenCookie(response, result.refreshToken);
@@ -59,7 +60,10 @@ export const refresh: RequestHandler = async (request, response, next) => {
       throw new InvalidRefreshTokenError();
     }
 
-    const result = await authenticationService.refresh(refreshToken);
+    const result = await authenticationService.refresh(
+      refreshToken,
+      getActivityRequestMetadata(request),
+    );
     setRefreshTokenCookie(response, result.refreshToken);
     sendSuccess(response, {
       accessToken: result.accessToken,
@@ -75,7 +79,12 @@ export const refresh: RequestHandler = async (request, response, next) => {
 export const logout: RequestHandler = async (request, response, next) => {
   try {
     const context = getAuthenticatedContext(request);
-    await authenticationService.logout(context.sessionId);
+    await authenticationService.logout(
+      context.sessionId,
+      context.userId,
+      context.organizationId,
+      getActivityRequestMetadata(request),
+    );
     clearRefreshTokenCookie(response);
     sendSuccess(response, { loggedOut: true });
   } catch (error: unknown) {
@@ -115,6 +124,7 @@ export const changePassword: RequestHandler = async (
       context.sessionId,
       body.currentPassword,
       body.newPassword,
+      getActivityRequestMetadata(request),
     );
     sendSuccess(response, { passwordChanged: true });
   } catch (error: unknown) {

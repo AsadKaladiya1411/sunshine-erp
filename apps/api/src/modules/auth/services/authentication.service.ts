@@ -1,5 +1,13 @@
 import { env } from "@sunshine-erp/config";
 import {
+  auditService,
+  type AuditService,
+} from "../../../core/audit/audit.service.js";
+import {
+  SECURITY_ACTIVITY_ACTIONS,
+  type ActivityRequestMetadata,
+} from "../../../core/audit/activity-log.types.js";
+import {
   accessTokenService,
   type AccessTokenService,
 } from "../../../core/auth/access-token.service.js";
@@ -34,13 +42,11 @@ import {
 const dummyPasswordHash =
   "$2b$12$DKHbVzn3kkKcGzRqZbVgwuixDaeMldptl2j4ZiHJe6yFkWBMeTC.S";
 
-export interface LoginInput {
+export interface LoginInput extends ActivityRequestMetadata {
   readonly organizationCode: string;
   readonly username?: string;
   readonly email?: string;
   readonly password: string;
-  readonly ipAddress?: string;
-  readonly userAgent?: string;
 }
 
 export interface AuthenticationTokens {
@@ -62,6 +68,7 @@ export class AuthenticationService {
     private readonly sessions: SessionService = sessionService,
     private readonly resetTokens: PasswordResetTokenService =
       passwordResetTokenService,
+    private readonly audit: AuditService = auditService,
   ) {}
 
   async login(input: LoginInput, now = new Date()): Promise<LoginResult> {
@@ -88,17 +95,50 @@ export class AuthenticationService {
       account.status !== "Active" ||
       temporarilyLocked
     ) {
+      let accountLockCreated = false;
       if (
         !passwordMatches &&
         account.status === "Active" &&
         !temporarilyLocked
       ) {
-        await this.repository.recordFailedLogin(
+        const failedLogin = await this.repository.recordFailedLogin(
           account.userId,
           now,
           env.ACCOUNT_LOCK_FAILED_ATTEMPTS,
           env.ACCOUNT_LOCK_DURATION_MS,
         );
+        accountLockCreated =
+          account.failedLoginAttempts < env.ACCOUNT_LOCK_FAILED_ATTEMPTS &&
+          failedLogin.lockedUntil !== null;
+      }
+
+      await this.audit.recordActivity({
+        userId: account.userId,
+        organizationId: account.organizationId,
+        module: "Authentication",
+        entityName: "User",
+        recordId: account.userId,
+        action: SECURITY_ACTIVITY_ACTIONS.loginFailed,
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+        deviceInfo: input.deviceInfo,
+        performedAt: now,
+        remarks: "Login attempt was denied.",
+      });
+      if (accountLockCreated) {
+        await this.audit.recordActivity({
+          userId: account.userId,
+          organizationId: account.organizationId,
+          module: "Authentication",
+          entityName: "User",
+          recordId: account.userId,
+          action: SECURITY_ACTIVITY_ACTIONS.accountLocked,
+          ipAddress: input.ipAddress,
+          userAgent: input.userAgent,
+          deviceInfo: input.deviceInfo,
+          performedAt: now,
+          remarks: "Account locked after repeated failed login attempts.",
+        });
       }
 
       throw new InvalidCredentialsError();
@@ -124,6 +164,19 @@ export class AuthenticationService {
       organizationId: account.organizationId,
       sessionId,
     });
+    await this.audit.recordActivity({
+      userId: account.userId,
+      organizationId: account.organizationId,
+      module: "Authentication",
+      entityName: "UserSession",
+      recordId: sessionId,
+      action: SECURITY_ACTIVITY_ACTIONS.loginSucceeded,
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+      deviceInfo: input.deviceInfo,
+      performedAt: now,
+      remarks: "Login succeeded.",
+    });
 
     return Object.freeze({
       accessToken,
@@ -133,7 +186,11 @@ export class AuthenticationService {
     });
   }
 
-  async refresh(refreshToken: string, now = new Date()): Promise<AuthenticationTokens> {
+  async refresh(
+    refreshToken: string,
+    metadata: ActivityRequestMetadata = {},
+    now = new Date(),
+  ): Promise<AuthenticationTokens> {
     const presentedTokenHash = this.refreshTokens.digest(refreshToken);
     const replacementCredential = this.refreshTokens.generate(now);
     const identity = await this.sessions.rotate(
@@ -142,7 +199,21 @@ export class AuthenticationService {
       now,
     );
 
-    if (!identity || identity === "reused") {
+    if (!identity) {
+      throw new InvalidRefreshTokenError();
+    }
+    if ("kind" in identity) {
+      await this.audit.recordActivity({
+        userId: identity.identity.userId,
+        organizationId: identity.identity.organizationId,
+        module: "Authentication",
+        entityName: "UserSession",
+        recordId: identity.identity.sessionId,
+        action: SECURITY_ACTIVITY_ACTIONS.refreshTokenCompromised,
+        ...metadata,
+        performedAt: now,
+        remarks: "Refresh credential reuse compromised the session.",
+      });
       throw new InvalidRefreshTokenError();
     }
 
@@ -155,8 +226,25 @@ export class AuthenticationService {
     });
   }
 
-  logout(sessionId: string, now = new Date()): Promise<void> {
-    return this.sessions.logout(sessionId, now);
+  async logout(
+    sessionId: string,
+    userId: string,
+    organizationId: string,
+    metadata: ActivityRequestMetadata = {},
+    now = new Date(),
+  ): Promise<void> {
+    await this.sessions.logout(sessionId, now);
+    await this.audit.recordActivity({
+      userId,
+      organizationId,
+      module: "Authentication",
+      entityName: "UserSession",
+      recordId: sessionId,
+      action: SECURITY_ACTIVITY_ACTIONS.logout,
+      ...metadata,
+      performedAt: now,
+      remarks: "Session logged out.",
+    });
   }
 
   getCurrentUser(
@@ -173,6 +261,7 @@ export class AuthenticationService {
     currentSessionId: string,
     currentPassword: string,
     newPassword: string,
+    metadata: ActivityRequestMetadata = {},
     now = new Date(),
   ): Promise<void> {
     const account = await this.repository.getPasswordAccount(
@@ -206,6 +295,17 @@ export class AuthenticationService {
     if (!changed) {
       throw new AuthenticationError();
     }
+    await this.audit.recordActivity({
+      userId,
+      organizationId,
+      module: "Authentication",
+      entityName: "User",
+      recordId: userId,
+      action: SECURITY_ACTIVITY_ACTIONS.passwordChanged,
+      ...metadata,
+      performedAt: now,
+      remarks: "Password changed.",
+    });
   }
 
   async createPasswordResetCredential(
@@ -227,6 +327,7 @@ export class AuthenticationService {
   async resetPassword(
     token: string,
     newPassword: string,
+    metadata: ActivityRequestMetadata = {},
     now = new Date(),
   ): Promise<void> {
     const tokenHash = this.resetTokens.digest(token);
@@ -258,6 +359,17 @@ export class AuthenticationService {
     if (!reset) {
       throw new InvalidPasswordResetTokenError();
     }
+    await this.audit.recordActivity({
+      userId: account.userId,
+      organizationId: account.organizationId,
+      module: "Authentication",
+      entityName: "User",
+      recordId: account.userId,
+      action: SECURITY_ACTIVITY_ACTIONS.passwordResetCompleted,
+      ...metadata,
+      performedAt: now,
+      remarks: "Password reset completed.",
+    });
   }
 }
 

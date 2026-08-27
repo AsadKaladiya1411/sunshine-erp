@@ -96,6 +96,11 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     }
     const response = await request("/api/v1/auth/login", {
       method: "POST",
+      headers: {
+        "User-Agent": "Authentication-Integration-Agent/1.0",
+        "Sec-CH-UA-Platform": '"Windows"',
+        "Sec-CH-UA-Mobile": "?0",
+      },
       body: JSON.stringify({
         organizationCode,
         [identity]: user[identity],
@@ -184,6 +189,7 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       });
     }
     if (organizationId) {
+      await prisma.activityLog.deleteMany({ where: { organizationId } });
       await prisma.passwordResetToken.deleteMany({ where: { organizationId } });
       await prisma.userSessionTokenHistory.deleteMany({ where: { organizationId } });
       await prisma.userPasswordHistory.deleteMany({ where: { organizationId } });
@@ -206,6 +212,21 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect(setCookie).toContain("SameSite=Strict");
     expect(setCookie).toContain(`Path=${env.REFRESH_COOKIE_PATH}`);
     expect(setCookie).not.toContain("Secure");
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: {
+          userId: users.get("main")?.id,
+          action: "LoginSucceeded",
+        },
+        orderBy: { performedAt: "desc" },
+      }),
+    ).resolves.toMatchObject({
+      organizationId,
+      module: "Authentication",
+      ipAddress: "127.0.0.1",
+      userAgent: "Authentication-Integration-Agent/1.0",
+      deviceInfo: { platform: "Windows", mobile: false },
+    });
 
     const byEmail = await login("main", initialPassword, "email");
     expect(byEmail.response.status).toBe(200);
@@ -253,6 +274,16 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect(failureUser.failedLoginAttempts).toBe(5);
     expect(failureUser.lockedUntil?.getTime()).toBeGreaterThan(Date.now());
     expect((await login("failures")).response.status).toBe(401);
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: { userId: failureUser.id, action: "LoginFailed" },
+      }),
+    ).resolves.toMatchObject({ organizationId });
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: { userId: failureUser.id, action: "AccountLocked" },
+      }),
+    ).resolves.toMatchObject({ organizationId });
   });
 
   it("rotates refresh tokens and compromises the family when a retired token is reused", async () => {
@@ -285,6 +316,15 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       status: "Compromised",
       revocationReason: "RefreshTokenReuse",
     });
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: {
+          userId: users.get("main")?.id,
+          action: "RefreshTokenCompromised",
+          recordId: originalSession.id,
+        },
+      }),
+    ).resolves.toMatchObject({ organizationId });
   });
 
   it("rejects missing Origin, expired sessions, and revoked sessions during refresh", async () => {
@@ -368,6 +408,11 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     await expect(
       prisma.userSessionTokenHistory.count({ where: { userSessionId: session.id } }),
     ).resolves.toBe(1);
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: { action: "Logout", recordId: session.id },
+      }),
+    ).resolves.toMatchObject({ userId: users.get("logout")?.id, organizationId });
   });
 
   it("changes passwords with history enforcement and revokes other sessions", async () => {
@@ -399,6 +444,11 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect((await login("change", initialPassword)).response.status).toBe(401);
     expect((await login("change", changedPassword)).response.status).toBe(200);
     expect(second.accessToken).toBeDefined();
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: { userId: users.get("change")?.id, action: "PasswordChanged" },
+      }),
+    ).resolves.toMatchObject({ organizationId });
   });
 
   it("persists one-time password reset state and revokes active sessions", async () => {
@@ -420,6 +470,11 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       authenticationService.resetPassword(token, "Another-Password-2026"),
     ).rejects.toMatchObject({ code: "INVALID_PASSWORD_RESET_TOKEN" });
     expect((await login("passwordReset", resetPassword)).response.status).toBe(200);
+    await expect(
+      prisma.activityLog.findFirstOrThrow({
+        where: { userId: user.id, action: "PasswordResetCompleted" },
+      }),
+    ).resolves.toMatchObject({ organizationId });
   });
 
   it("rejects a sixth active login without revoking existing sessions", async () => {
@@ -433,5 +488,25 @@ describe("authentication HTTP and PostgreSQL integration", () => {
         where: { userId: users.get("sessionLimit")?.id, status: "Active" },
       }),
     ).resolves.toBe(5);
+  });
+
+  it("never persists authentication credentials in Activity Logs", async () => {
+    const serializedLogs = JSON.stringify(
+      await prisma.activityLog.findMany({ where: { organizationId } }),
+    );
+    for (const forbiddenValue of [
+      initialPassword,
+      changedPassword,
+      resetPassword,
+      "Wrong-Password-2026",
+      "passwordHash",
+      "sessionTokenHash",
+      "refreshToken",
+      "Authorization",
+      env.REFRESH_COOKIE_NAME,
+    ]) {
+      expect(serializedLogs).not.toContain(forbiddenValue);
+    }
+    expect(serializedLogs).not.toMatch(/eyJ[A-Za-z0-9_-]+\./);
   });
 });

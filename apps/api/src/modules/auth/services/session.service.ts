@@ -16,6 +16,11 @@ export interface CreateSessionInput {
   readonly userAgent?: string;
 }
 
+export interface ReusedRefreshSession {
+  readonly kind: "reused";
+  readonly identity: AuthenticatedUserIdentity;
+}
+
 export class SessionService {
   constructor(private readonly repository: AuthRepository = authRepository) {}
 
@@ -89,7 +94,7 @@ export class SessionService {
     presentedTokenHash: string,
     replacementCredential: RefreshTokenCredential,
     now = new Date(),
-  ): Promise<AuthenticatedUserIdentity | "reused" | null> {
+  ): Promise<AuthenticatedUserIdentity | ReusedRefreshSession | null> {
     const result = await this.repository.rotateRefreshSession({
       presentedTokenHash,
       replacementTokenHash: replacementCredential.tokenHash,
@@ -102,7 +107,9 @@ export class SessionService {
       return result.identity;
     }
 
-    return result.kind === "reused" ? "reused" : null;
+    return result.kind === "reused"
+      ? Object.freeze({ kind: "reused", identity: result.identity })
+      : null;
   }
 
   logout(sessionId: string, now = new Date()): Promise<void> {

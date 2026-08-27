@@ -1,4 +1,9 @@
 import { prisma } from "../../../core/database/prisma.js";
+import {
+  AuditService,
+} from "../../../core/audit/audit.service.js";
+import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
+import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import {
   ACTIVE_AUTHORIZATION_STATUS,
@@ -29,12 +34,20 @@ const rolePermissionSelection = {
 } as const;
 
 export class RolePermissionRepository {
-  constructor(private readonly database: PrismaClient = prisma) {}
+  private readonly audit: AuditService;
+
+  constructor(
+    private readonly database: PrismaClient = prisma,
+    audit?: AuditService,
+  ) {
+    this.audit =
+      audit ?? new AuditService(new ActivityLogRepository(this.database));
+  }
 
   async assign(
     input: AssignPermissionToRoleInput,
   ): Promise<RolePermissionRecord | null> {
-    return this.database.$transaction(async (transaction) => {
+    const assignment = await this.database.$transaction(async (transaction) => {
       const role = await transaction.role.findFirst({
         where: { id: input.roleId, organizationId: input.organizationId },
         select: { id: true },
@@ -79,23 +92,67 @@ export class RolePermissionRepository {
 
       return mapRolePermission(assignment);
     });
+    if (!assignment) {
+      return null;
+    }
+    await this.audit.recordActivity({
+      userId: input.assignedById,
+      organizationId: input.organizationId,
+      module: "Authorization",
+      entityName: "RolePermission",
+      recordId: assignment.id,
+      action: SECURITY_ACTIVITY_ACTIONS.rolePermissionAssigned,
+      performedAt: assignment.assignedAt,
+      remarks: "Permission assigned to role.",
+    });
+    return assignment;
   }
 
   async deactivate(
     roleId: string,
     permissionId: string,
     organizationId: string,
+    deactivatedById: string,
   ): Promise<boolean> {
-    const result = await this.database.rolePermission.updateMany({
-      where: {
-        roleId,
-        permissionId,
-        role: { organizationId },
-        status: ACTIVE_AUTHORIZATION_STATUS,
-      },
-      data: { status: "Inactive" },
+    const result = await this.database.$transaction(async (transaction) => {
+      const actor = await transaction.user.findFirst({
+        where: { id: deactivatedById, organizationId },
+        select: { id: true },
+      });
+      if (!actor) {
+        return { count: 0, assignmentId: null };
+      }
+      const assignment = await transaction.rolePermission.findFirst({
+        where: {
+          roleId,
+          permissionId,
+          role: { organizationId },
+          status: ACTIVE_AUTHORIZATION_STATUS,
+        },
+        select: { id: true },
+      });
+      if (!assignment) {
+        return { count: 0, assignmentId: null };
+      }
+      const updated = await transaction.rolePermission.updateMany({
+        where: { id: assignment.id, status: ACTIVE_AUTHORIZATION_STATUS },
+        data: { status: "Inactive" },
+      });
+      return { count: updated.count, assignmentId: assignment.id };
     });
-    return result.count === 1;
+    if (result.count !== 1 || !result.assignmentId) {
+      return false;
+    }
+    await this.audit.recordActivity({
+      userId: deactivatedById,
+      organizationId,
+      module: "Authorization",
+      entityName: "RolePermission",
+      recordId: result.assignmentId,
+      action: SECURITY_ACTIVITY_ACTIONS.rolePermissionDeactivated,
+      remarks: "Role permission deactivated.",
+    });
+    return true;
   }
 
   async listByRole(

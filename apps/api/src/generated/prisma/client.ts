@@ -24,7 +24,7 @@ export * as $Enums from './enums.js'
 export * from "./enums.js"
 /**
  * ## Prisma Client
- * 
+ *
  * Type-safe database client for TypeScript
  * @example
  * ```
@@ -34,7 +34,7 @@ export * from "./enums.js"
  * // Fetch zero or more Countries
  * const countries = await prisma.country.findMany()
  * ```
- * 
+ *
  * Read more in our [docs](https://pris.ly/d/client).
  */
 export const PrismaClient = $Class.getPrismaClientClass()
@@ -43,37 +43,37 @@ export { Prisma }
 
 /**
  * Model Country
- * 
+ *
  */
 export type Country = Prisma.CountryModel
 /**
  * Model State
- * 
+ *
  */
 export type State = Prisma.StateModel
 /**
  * Model City
- * 
+ *
  */
 export type City = Prisma.CityModel
 /**
  * Model Organization
- * 
+ *
  */
 export type Organization = Prisma.OrganizationModel
 /**
  * Model Department
- * 
+ *
  */
 export type Department = Prisma.DepartmentModel
 /**
  * Model User
- * 
+ *
  */
 export type User = Prisma.UserModel
 /**
  * Model FinancialYear
- * 
+ *
  */
 export type FinancialYear = Prisma.FinancialYearModel
 /**
@@ -121,3 +121,8 @@ export type RolePermission = Prisma.RolePermissionModel
  *
  */
 export type RoleAssignment = Prisma.RoleAssignmentModel
+/**
+ * Model ActivityLog
+ *
+ */
+export type ActivityLog = Prisma.ActivityLogModel

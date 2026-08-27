@@ -46,8 +46,16 @@ export type RotateSessionResult =
       readonly kind: "rotated";
       readonly identity: AuthenticatedUserIdentity;
     }
-  | { readonly kind: "reused" }
+  | {
+      readonly kind: "reused";
+      readonly identity: AuthenticatedUserIdentity;
+    }
   | { readonly kind: "invalid" };
+
+export interface FailedLoginResult {
+  readonly failedLoginAttempts: number;
+  readonly lockedUntil: Date | null;
+}
 
 interface ChangePasswordInput {
   readonly userId: string;
@@ -245,8 +253,8 @@ export class AuthRepository {
     now: Date,
     failureThreshold: number,
     lockDurationMs: number,
-  ): Promise<void> {
-    await prisma.$transaction(async (transaction) => {
+  ): Promise<FailedLoginResult> {
+    return prisma.$transaction(async (transaction) => {
       await lockUser(transaction, userId);
       const user = await transaction.user.findUniqueOrThrow({
         where: { id: userId },
@@ -254,7 +262,10 @@ export class AuthRepository {
       });
 
       if (user.lockedUntil && user.lockedUntil > now) {
-        return;
+        return Object.freeze({
+          failedLoginAttempts: user.failedLoginAttempts,
+          lockedUntil: user.lockedUntil,
+        });
       }
 
       const failedLoginAttempts = user.failedLoginAttempts + 1;
@@ -267,6 +278,7 @@ export class AuthRepository {
         where: { id: userId },
         data: { failedLoginAttempts, lockedUntil },
       });
+      return Object.freeze({ failedLoginAttempts, lockedUntil });
     });
   }
 
@@ -455,7 +467,10 @@ export class AuthRepository {
             revocationReason: "RefreshTokenReuse",
           },
         });
-        return { kind: "reused" } as const;
+        return {
+          kind: "reused",
+          identity: mapIdentity(session),
+        } as const;
       }
 
       if (

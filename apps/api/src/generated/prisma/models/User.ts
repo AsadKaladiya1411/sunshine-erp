@@ -190,7 +190,7 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   cursor?: Prisma.UserWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-   * 
+   *
    * Take `±n` Users from the position of the cursor.
    */
   take?: number
@@ -345,6 +345,7 @@ export type UserWhereInput = {
   roleAssignments?: Prisma.RoleAssignmentListRelationFilter
   createdRoleAssignments?: Prisma.RoleAssignmentListRelationFilter
   updatedRoleAssignments?: Prisma.RoleAssignmentListRelationFilter
+  activityLogs?: Prisma.ActivityLogListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -391,6 +392,7 @@ export type UserOrderByWithRelationInput = {
   roleAssignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
   createdRoleAssignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
   updatedRoleAssignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
+  activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -444,6 +446,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   roleAssignments?: Prisma.RoleAssignmentListRelationFilter
   createdRoleAssignments?: Prisma.RoleAssignmentListRelationFilter
   updatedRoleAssignments?: Prisma.RoleAssignmentListRelationFilter
+  activityLogs?: Prisma.ActivityLogListRelationFilter
 }, "id" | "id_organizationId" | "organizationId_username" | "organizationId_email" | "organizationId_employeeCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -536,6 +539,7 @@ export type UserCreateInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -578,6 +582,7 @@ export type UserUncheckedCreateInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -620,6 +625,7 @@ export type UserUpdateInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -662,6 +668,7 @@ export type UserUncheckedUpdateInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1340,6 +1347,20 @@ export type UserUpdateOneWithoutUpdatedRoleAssignmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedRoleAssignmentsInput, Prisma.UserUpdateWithoutUpdatedRoleAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutUpdatedRoleAssignmentsInput>
 }
 
+export type UserCreateNestedOneWithoutActivityLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutActivityLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityLogsInput
+  upsert?: Prisma.UserUpsertWithoutActivityLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActivityLogsInput, Prisma.UserUpdateWithoutActivityLogsInput>, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+}
+
 export type UserCreateWithoutCreatedOrganizationsInput = {
   id?: string
   employeeCode?: string | null
@@ -1379,6 +1400,7 @@ export type UserCreateWithoutCreatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedOrganizationsInput = {
@@ -1420,6 +1442,7 @@ export type UserUncheckedCreateWithoutCreatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedOrganizationsInput = {
@@ -1466,6 +1489,7 @@ export type UserCreateWithoutUpdatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedOrganizationsInput = {
@@ -1507,6 +1531,7 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedOrganizationsInput = {
@@ -1553,6 +1578,7 @@ export type UserCreateWithoutOrganizationInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -1594,6 +1620,7 @@ export type UserUncheckedCreateWithoutOrganizationInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -1656,6 +1683,7 @@ export type UserUpdateWithoutCreatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedOrganizationsInput = {
@@ -1697,6 +1725,7 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedOrganizationsInput = {
@@ -1749,6 +1778,7 @@ export type UserUpdateWithoutUpdatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedOrganizationsInput = {
@@ -1790,6 +1820,7 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -1871,6 +1902,7 @@ export type UserCreateWithoutCreatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedDepartmentsInput = {
@@ -1912,6 +1944,7 @@ export type UserUncheckedCreateWithoutCreatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedDepartmentsInput = {
@@ -1958,6 +1991,7 @@ export type UserCreateWithoutUpdatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedDepartmentsInput = {
@@ -1999,6 +2033,7 @@ export type UserUncheckedCreateWithoutUpdatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedDepartmentsInput = {
@@ -2045,6 +2080,7 @@ export type UserCreateWithoutDepartmentInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
@@ -2086,6 +2122,7 @@ export type UserUncheckedCreateWithoutDepartmentInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentInput = {
@@ -2148,6 +2185,7 @@ export type UserUpdateWithoutCreatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedDepartmentsInput = {
@@ -2189,6 +2227,7 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedDepartmentsInput = {
@@ -2241,6 +2280,7 @@ export type UserUpdateWithoutUpdatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedDepartmentsInput = {
@@ -2282,6 +2322,7 @@ export type UserUncheckedUpdateWithoutUpdatedDepartmentsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -2339,6 +2380,7 @@ export type UserCreateWithoutCreatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -2380,6 +2422,7 @@ export type UserUncheckedCreateWithoutCreatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -2426,6 +2469,7 @@ export type UserCreateWithoutUpdatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedUsersInput = {
@@ -2467,6 +2511,7 @@ export type UserUncheckedCreateWithoutUpdatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedUsersInput = {
@@ -2513,6 +2558,7 @@ export type UserCreateWithoutCreatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -2554,6 +2600,7 @@ export type UserUncheckedCreateWithoutCreatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -2605,6 +2652,7 @@ export type UserCreateWithoutUpdatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedByInput = {
@@ -2646,6 +2694,7 @@ export type UserUncheckedCreateWithoutUpdatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedByInput = {
@@ -2708,6 +2757,7 @@ export type UserUpdateWithoutCreatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -2749,6 +2799,7 @@ export type UserUncheckedUpdateWithoutCreatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedUsersInput = {
@@ -2801,6 +2852,7 @@ export type UserUpdateWithoutUpdatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
@@ -2842,6 +2894,7 @@ export type UserUncheckedUpdateWithoutUpdatedUsersInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -2915,6 +2968,7 @@ export type UserCreateWithoutCreatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedFinancialYearsInput = {
@@ -2956,6 +3010,7 @@ export type UserUncheckedCreateWithoutCreatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedFinancialYearsInput = {
@@ -3002,6 +3057,7 @@ export type UserCreateWithoutUpdatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedFinancialYearsInput = {
@@ -3043,6 +3099,7 @@ export type UserUncheckedCreateWithoutUpdatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedFinancialYearsInput = {
@@ -3100,6 +3157,7 @@ export type UserUpdateWithoutCreatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedFinancialYearsInput = {
@@ -3141,6 +3199,7 @@ export type UserUncheckedUpdateWithoutCreatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedFinancialYearsInput = {
@@ -3193,6 +3252,7 @@ export type UserUpdateWithoutUpdatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedFinancialYearsInput = {
@@ -3234,6 +3294,7 @@ export type UserUncheckedUpdateWithoutUpdatedFinancialYearsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedOrganizationSettingsInput = {
@@ -3275,6 +3336,7 @@ export type UserCreateWithoutCreatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedOrganizationSettingsInput = {
@@ -3316,6 +3378,7 @@ export type UserUncheckedCreateWithoutCreatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedOrganizationSettingsInput = {
@@ -3362,6 +3425,7 @@ export type UserCreateWithoutUpdatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedOrganizationSettingsInput = {
@@ -3403,6 +3467,7 @@ export type UserUncheckedCreateWithoutUpdatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedOrganizationSettingsInput = {
@@ -3460,6 +3525,7 @@ export type UserUpdateWithoutCreatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedOrganizationSettingsInput = {
@@ -3501,6 +3567,7 @@ export type UserUncheckedUpdateWithoutCreatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedOrganizationSettingsInput = {
@@ -3553,6 +3620,7 @@ export type UserUpdateWithoutUpdatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedOrganizationSettingsInput = {
@@ -3594,6 +3662,7 @@ export type UserUncheckedUpdateWithoutUpdatedOrganizationSettingsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -3635,6 +3704,7 @@ export type UserCreateWithoutSessionsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -3676,6 +3746,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -3733,6 +3804,7 @@ export type UserUpdateWithoutSessionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -3774,6 +3846,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordHistoryInput = {
@@ -3815,6 +3888,7 @@ export type UserCreateWithoutPasswordHistoryInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordHistoryInput = {
@@ -3856,6 +3930,7 @@ export type UserUncheckedCreateWithoutPasswordHistoryInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordHistoryInput = {
@@ -3913,6 +3988,7 @@ export type UserUpdateWithoutPasswordHistoryInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordHistoryInput = {
@@ -3954,6 +4030,7 @@ export type UserUncheckedUpdateWithoutPasswordHistoryInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPasswordResetTokensInput = {
@@ -3995,6 +4072,7 @@ export type UserCreateWithoutPasswordResetTokensInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -4036,6 +4114,7 @@ export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -4093,6 +4172,7 @@ export type UserUpdateWithoutPasswordResetTokensInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -4134,6 +4214,7 @@ export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedRolesInput = {
@@ -4175,6 +4256,7 @@ export type UserCreateWithoutCreatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedRolesInput = {
@@ -4216,6 +4298,7 @@ export type UserUncheckedCreateWithoutCreatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedRolesInput = {
@@ -4262,6 +4345,7 @@ export type UserCreateWithoutUpdatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedRolesInput = {
@@ -4303,6 +4387,7 @@ export type UserUncheckedCreateWithoutUpdatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedRolesInput = {
@@ -4360,6 +4445,7 @@ export type UserUpdateWithoutCreatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedRolesInput = {
@@ -4401,6 +4487,7 @@ export type UserUncheckedUpdateWithoutCreatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedRolesInput = {
@@ -4453,6 +4540,7 @@ export type UserUpdateWithoutUpdatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedRolesInput = {
@@ -4494,6 +4582,7 @@ export type UserUncheckedUpdateWithoutUpdatedRolesInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCreatedPermissionsInput = {
@@ -4535,6 +4624,7 @@ export type UserCreateWithoutCreatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedPermissionsInput = {
@@ -4576,6 +4666,7 @@ export type UserUncheckedCreateWithoutCreatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedPermissionsInput = {
@@ -4622,6 +4713,7 @@ export type UserCreateWithoutUpdatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedPermissionsInput = {
@@ -4663,6 +4755,7 @@ export type UserUncheckedCreateWithoutUpdatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedPermissionsInput = {
@@ -4720,6 +4813,7 @@ export type UserUpdateWithoutCreatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedPermissionsInput = {
@@ -4761,6 +4855,7 @@ export type UserUncheckedUpdateWithoutCreatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedPermissionsInput = {
@@ -4813,6 +4908,7 @@ export type UserUpdateWithoutUpdatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedPermissionsInput = {
@@ -4854,6 +4950,7 @@ export type UserUncheckedUpdateWithoutUpdatedPermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAssignedRolePermissionsInput = {
@@ -4895,6 +4992,7 @@ export type UserCreateWithoutAssignedRolePermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedRolePermissionsInput = {
@@ -4936,6 +5034,7 @@ export type UserUncheckedCreateWithoutAssignedRolePermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedRolePermissionsInput = {
@@ -4993,6 +5092,7 @@ export type UserUpdateWithoutAssignedRolePermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedRolePermissionsInput = {
@@ -5034,6 +5134,7 @@ export type UserUncheckedUpdateWithoutAssignedRolePermissionsInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRoleAssignmentsInput = {
@@ -5075,6 +5176,7 @@ export type UserCreateWithoutRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionCreateNestedManyWithoutAssignedByInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -5116,6 +5218,7 @@ export type UserUncheckedCreateWithoutRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedCreateNestedManyWithoutAssignedByInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -5162,6 +5265,7 @@ export type UserCreateWithoutCreatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionCreateNestedManyWithoutAssignedByInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedRoleAssignmentsInput = {
@@ -5203,6 +5307,7 @@ export type UserUncheckedCreateWithoutCreatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedCreateNestedManyWithoutAssignedByInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedRoleAssignmentsInput = {
@@ -5249,6 +5354,7 @@ export type UserCreateWithoutUpdatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionCreateNestedManyWithoutAssignedByInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedRoleAssignmentsInput = {
@@ -5290,6 +5396,7 @@ export type UserUncheckedCreateWithoutUpdatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedCreateNestedManyWithoutAssignedByInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedRoleAssignmentsInput = {
@@ -5347,6 +5454,7 @@ export type UserUpdateWithoutRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUpdateManyWithoutAssignedByNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -5388,6 +5496,7 @@ export type UserUncheckedUpdateWithoutRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedUpdateManyWithoutAssignedByNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedRoleAssignmentsInput = {
@@ -5440,6 +5549,7 @@ export type UserUpdateWithoutCreatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUpdateManyWithoutAssignedByNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedRoleAssignmentsInput = {
@@ -5481,6 +5591,7 @@ export type UserUncheckedUpdateWithoutCreatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedUpdateManyWithoutAssignedByNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutUpdatedRoleAssignmentsInput = {
@@ -5533,6 +5644,7 @@ export type UserUpdateWithoutUpdatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUpdateManyWithoutAssignedByNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedRoleAssignmentsInput = {
@@ -5574,6 +5686,191 @@ export type UserUncheckedUpdateWithoutUpdatedRoleAssignmentsInput = {
   assignedRolePermissions?: Prisma.RolePermissionUncheckedUpdateManyWithoutAssignedByNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutActivityLogsInput = {
+  id?: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  organization: Prisma.OrganizationCreateNestedOneWithoutUsersInput
+  department: Prisma.DepartmentCreateNestedOneWithoutUsersInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedUsersInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedUsersInput
+  createdUsers?: Prisma.UserCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput
+  createdRoles?: Prisma.RoleCreateNestedManyWithoutCreatedByInput
+  updatedRoles?: Prisma.RoleCreateNestedManyWithoutUpdatedByInput
+  createdPermissions?: Prisma.PermissionCreateNestedManyWithoutCreatedByInput
+  updatedPermissions?: Prisma.PermissionCreateNestedManyWithoutUpdatedByInput
+  assignedRolePermissions?: Prisma.RolePermissionCreateNestedManyWithoutAssignedByInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUserInput
+  createdRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutCreatedByInput
+  updatedRoleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutUpdatedByInput
+}
+
+export type UserUncheckedCreateWithoutActivityLogsInput = {
+  id?: string
+  organizationId: string
+  departmentId: string
+  employeeCode?: string | null
+  firstName: string
+  lastName?: string | null
+  email: string
+  mobileNumber?: string | null
+  username: string
+  passwordHash: string
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  status: string
+  lastLoginAt?: Date | string | null
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  createdUsers?: Prisma.UserUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedUsers?: Prisma.UserUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedCreateNestedManyWithoutUpdatedByInput
+  sessions?: Prisma.UserSessionUncheckedCreateNestedManyWithoutUserInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedCreateNestedManyWithoutUserInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+  createdRoles?: Prisma.RoleUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedRoles?: Prisma.RoleUncheckedCreateNestedManyWithoutUpdatedByInput
+  createdPermissions?: Prisma.PermissionUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedPermissions?: Prisma.PermissionUncheckedCreateNestedManyWithoutUpdatedByInput
+  assignedRolePermissions?: Prisma.RolePermissionUncheckedCreateNestedManyWithoutAssignedByInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUserInput
+  createdRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutCreatedByInput
+  updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutUpdatedByInput
+}
+
+export type UserCreateOrConnectWithoutActivityLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+}
+
+export type UserUpsertWithoutActivityLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutActivityLogsInput, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutActivityLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutActivityLogsInput, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+}
+
+export type UserUpdateWithoutActivityLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  organization?: Prisma.OrganizationUpdateOneRequiredWithoutUsersNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutUsersNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedUsersNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedUsersNestedInput
+  createdUsers?: Prisma.UserUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput
+  createdRoles?: Prisma.RoleUpdateManyWithoutCreatedByNestedInput
+  updatedRoles?: Prisma.RoleUpdateManyWithoutUpdatedByNestedInput
+  createdPermissions?: Prisma.PermissionUpdateManyWithoutCreatedByNestedInput
+  updatedPermissions?: Prisma.PermissionUpdateManyWithoutUpdatedByNestedInput
+  assignedRolePermissions?: Prisma.RolePermissionUpdateManyWithoutAssignedByNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
+  createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
+  updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutActivityLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  mobileNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdUsers?: Prisma.UserUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedUsers?: Prisma.UserUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizations?: Prisma.OrganizationUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedFinancialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedOrganizationSettings?: Prisma.OrganizationSettingUncheckedUpdateManyWithoutUpdatedByNestedInput
+  sessions?: Prisma.UserSessionUncheckedUpdateManyWithoutUserNestedInput
+  passwordHistory?: Prisma.UserPasswordHistoryUncheckedUpdateManyWithoutUserNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+  createdRoles?: Prisma.RoleUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedRoles?: Prisma.RoleUncheckedUpdateManyWithoutUpdatedByNestedInput
+  createdPermissions?: Prisma.PermissionUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedPermissions?: Prisma.PermissionUncheckedUpdateManyWithoutUpdatedByNestedInput
+  assignedRolePermissions?: Prisma.RolePermissionUncheckedUpdateManyWithoutAssignedByNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
+  createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
+  updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
 }
 
 export type UserCreateManyOrganizationInput = {
@@ -5635,6 +5932,7 @@ export type UserUpdateWithoutOrganizationInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -5676,6 +5974,7 @@ export type UserUncheckedUpdateWithoutOrganizationInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -5757,6 +6056,7 @@ export type UserUpdateWithoutDepartmentInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
@@ -5798,6 +6098,7 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
@@ -5899,6 +6200,7 @@ export type UserUpdateWithoutCreatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -5940,6 +6242,7 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -6001,6 +6304,7 @@ export type UserUpdateWithoutUpdatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedByInput = {
@@ -6042,6 +6346,7 @@ export type UserUncheckedUpdateWithoutUpdatedByInput = {
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUserNestedInput
   createdRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutCreatedByNestedInput
   updatedRoleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutUpdatedByNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -6091,6 +6396,7 @@ export type UserCountOutputType = {
   roleAssignments: number
   createdRoleAssignments: number
   updatedRoleAssignments: number
+  activityLogs: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6115,6 +6421,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   roleAssignments?: boolean | UserCountOutputTypeCountRoleAssignmentsArgs
   createdRoleAssignments?: boolean | UserCountOutputTypeCountCreatedRoleAssignmentsArgs
   updatedRoleAssignments?: boolean | UserCountOutputTypeCountUpdatedRoleAssignmentsArgs
+  activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
 }
 
 /**
@@ -6274,6 +6581,13 @@ export type UserCountOutputTypeCountUpdatedRoleAssignmentsArgs<ExtArgs extends r
   where?: Prisma.RoleAssignmentWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountActivityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ActivityLogWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -6319,6 +6633,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   roleAssignments?: boolean | Prisma.User$roleAssignmentsArgs<ExtArgs>
   createdRoleAssignments?: boolean | Prisma.User$createdRoleAssignmentsArgs<ExtArgs>
   updatedRoleAssignments?: boolean | Prisma.User$updatedRoleAssignmentsArgs<ExtArgs>
+  activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -6420,6 +6735,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   roleAssignments?: boolean | Prisma.User$roleAssignmentsArgs<ExtArgs>
   createdRoleAssignments?: boolean | Prisma.User$createdRoleAssignmentsArgs<ExtArgs>
   updatedRoleAssignments?: boolean | Prisma.User$updatedRoleAssignmentsArgs<ExtArgs>
+  activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6463,6 +6779,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     roleAssignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
     createdRoleAssignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
     updatedRoleAssignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
+    activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -6902,6 +7219,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   roleAssignments<T extends Prisma.User$roleAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdRoleAssignments<T extends Prisma.User$createdRoleAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdRoleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   updatedRoleAssignments<T extends Prisma.User$updatedRoleAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedRoleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activityLogs<T extends Prisma.User$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7889,6 +8207,30 @@ export type User$updatedRoleAssignmentsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.RoleAssignmentScalarFieldEnum | Prisma.RoleAssignmentScalarFieldEnum[]
+}
+
+/**
+ * User.activityLogs
+ */
+export type User$activityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ActivityLog
+   */
+  select?: Prisma.ActivityLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ActivityLog
+   */
+  omit?: Prisma.ActivityLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ActivityLogInclude<ExtArgs> | null
+  where?: Prisma.ActivityLogWhereInput
+  orderBy?: Prisma.ActivityLogOrderByWithRelationInput | Prisma.ActivityLogOrderByWithRelationInput[]
+  cursor?: Prisma.ActivityLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ActivityLogScalarFieldEnum | Prisma.ActivityLogScalarFieldEnum[]
 }
 
 /**

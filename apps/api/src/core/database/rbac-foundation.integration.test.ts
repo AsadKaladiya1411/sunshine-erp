@@ -18,6 +18,7 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260825220000_authentication_foundation/migration.sql",
   "../../../../../prisma/migrations/20260827052012_rbac_authorization/migration.sql",
   "../../../../../prisma/migrations/20260827090000_rbac_source_compliance/migration.sql",
+  "../../../../../prisma/migrations/20260827120000_activity_logs/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
 );
@@ -497,6 +498,7 @@ describe("RBAC database and authorization foundation", () => {
         secondRoleAId,
         writePermissionId,
         organizationAId,
+        actorAId,
       ),
     ).resolves.toBe(true);
     await expect(
@@ -617,6 +619,33 @@ describe("RBAC database and authorization foundation", () => {
       "Active",
       "Revoked",
     ]);
+  });
+
+  it("records the approved RBAC security mutations", async () => {
+    await expect(
+      permissions.updateStatus(
+        writePermissionId,
+        "Inactive",
+        organizationAId,
+        actorAId,
+      ),
+    ).resolves.toBe(true);
+
+    const actions = (
+      await database.activityLog.findMany({
+        where: { organizationId: organizationAId },
+        select: { action: true },
+      })
+    ).map(({ action }) => action);
+    expect(actions).toEqual(
+      expect.arrayContaining([
+        "RoleAssigned",
+        "RoleRevoked",
+        "RolePermissionAssigned",
+        "RolePermissionDeactivated",
+        "PermissionStatusChanged",
+      ]),
+    );
   });
 
   it("protects assigned Roles from physical deletion", async () => {

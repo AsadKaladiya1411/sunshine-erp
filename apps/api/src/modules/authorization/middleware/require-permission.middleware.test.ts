@@ -10,6 +10,10 @@ function requestWithContext(
 ): Request {
   return {
     requestContext,
+    ip: "127.0.0.1",
+    get: jest.fn((header: string) =>
+      header === "User-Agent" ? "RBAC-Test-Agent/1.0" : undefined,
+    ),
     body: { organizationId: "client-supplied-organization" },
     query: { organizationId: "client-supplied-organization" },
     params: { organizationId: "client-supplied-organization" },
@@ -30,12 +34,16 @@ describe("requirePermission middleware", () => {
       requirePermission: jest.fn<() => Promise<void>>().mockResolvedValue(),
     };
     const nextMock = jest.fn();
+    const audit = {
+      recordAuthenticatedActivity: jest.fn<() => Promise<void>>().mockResolvedValue(),
+    };
     const next = nextMock as unknown as NextFunction;
-    const middleware = createRequirePermission(authorizer)(protectedPermission);
+    const middleware = createRequirePermission(authorizer, audit)(protectedPermission);
 
     await invoke(middleware, requestWithContext(), next);
 
     expect(authorizer.requirePermission).not.toHaveBeenCalled();
+    expect(audit.recordAuthenticatedActivity).not.toHaveBeenCalled();
     expect(nextMock).toHaveBeenCalledWith(
       expect.objectContaining({ code: "AUTHENTICATION_ERROR", statusCode: 401 }),
     );
@@ -48,8 +56,11 @@ describe("requirePermission middleware", () => {
         .mockRejectedValue(new AuthorizationError()),
     };
     const nextMock = jest.fn();
+    const audit = {
+      recordAuthenticatedActivity: jest.fn<() => Promise<void>>().mockResolvedValue(),
+    };
     const next = nextMock as unknown as NextFunction;
-    const middleware = createRequirePermission(authorizer)(protectedPermission);
+    const middleware = createRequirePermission(authorizer, audit)(protectedPermission);
 
     await invoke(
       middleware,
@@ -67,6 +78,18 @@ describe("requirePermission middleware", () => {
     expect(nextMock).toHaveBeenCalledWith(
       expect.objectContaining({ code: "AUTHORIZATION_ERROR", statusCode: 403 }),
     );
+    expect(audit.recordAuthenticatedActivity).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          userId: "user-a",
+          organizationId: "organization-a",
+        }),
+        recordId: protectedPermission,
+        action: "AuthorizationDenied",
+        ipAddress: "127.0.0.1",
+        userAgent: "RBAC-Test-Agent/1.0",
+      }),
+    );
   });
 
   it("calls next and ignores client-supplied organization identifiers when allowed", async () => {
@@ -74,8 +97,11 @@ describe("requirePermission middleware", () => {
       requirePermission: jest.fn<() => Promise<void>>().mockResolvedValue(),
     };
     const nextMock = jest.fn();
+    const audit = {
+      recordAuthenticatedActivity: jest.fn<() => Promise<void>>().mockResolvedValue(),
+    };
     const next = nextMock as unknown as NextFunction;
-    const middleware = createRequirePermission(authorizer)(protectedPermission);
+    const middleware = createRequirePermission(authorizer, audit)(protectedPermission);
 
     await invoke(
       middleware,
@@ -96,5 +122,6 @@ describe("requirePermission middleware", () => {
       protectedPermission,
     );
     expect(nextMock).toHaveBeenCalledWith();
+    expect(audit.recordAuthenticatedActivity).not.toHaveBeenCalled();
   });
 });

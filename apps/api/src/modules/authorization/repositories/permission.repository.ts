@@ -1,4 +1,9 @@
 import { prisma } from "../../../core/database/prisma.js";
+import {
+  AuditService,
+} from "../../../core/audit/audit.service.js";
+import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
+import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import type { PermissionRecord } from "../types/authorization.types.js";
 
@@ -29,7 +34,15 @@ const permissionSelection = {
 } as const;
 
 export class PermissionRepository {
-  constructor(private readonly database: PrismaClient = prisma) {}
+  private readonly audit: AuditService;
+
+  constructor(
+    private readonly database: PrismaClient = prisma,
+    audit?: AuditService,
+  ) {
+    this.audit =
+      audit ?? new AuditService(new ActivityLogRepository(this.database));
+  }
 
   async findById(id: string): Promise<PermissionRecord | null> {
     const permission = await this.database.permission.findUnique({
@@ -77,13 +90,33 @@ export class PermissionRepository {
   async updateStatus(
     id: string,
     status: string,
-    updatedById?: string,
+    organizationId: string,
+    updatedById: string,
   ): Promise<boolean> {
+    const actor = await this.database.user.findFirst({
+      where: { id: updatedById, organizationId },
+      select: { id: true },
+    });
+    if (!actor) {
+      return false;
+    }
     const result = await this.database.permission.updateMany({
       where: { id },
       data: { status, updatedById },
     });
-    return result.count === 1;
+    if (result.count !== 1) {
+      return false;
+    }
+    await this.audit.recordActivity({
+      userId: updatedById,
+      organizationId,
+      module: "Authorization",
+      entityName: "Permission",
+      recordId: id,
+      action: SECURITY_ACTIVITY_ACTIONS.permissionStatusChanged,
+      remarks: "Permission status changed to " + status + ".",
+    });
+    return true;
   }
 }
 

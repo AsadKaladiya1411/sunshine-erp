@@ -90,6 +90,7 @@ model Organization {
   settings        OrganizationSetting?
   roles           Role[]
   roleAssignments RoleAssignment[]
+  activityLogs    ActivityLog[]
 
   @@index([cityId])
   @@index([stateId])
@@ -171,6 +172,7 @@ model User {
   roleAssignments             RoleAssignment[]      @relation("AssignedUserRoles")
   createdRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentCreatedBy")
   updatedRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentUpdatedBy")
+  activityLogs                ActivityLog[]
 
   @@unique([id, organizationId])
   @@unique([organizationId, username])
@@ -417,4 +419,30 @@ model RoleAssignment {
   @@index([createdById])
   @@index([updatedById])
   @@map("role_assignments")
+}
+
+model ActivityLog {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  module         String    @db.VarChar(100)
+  entityName     String    @map("entity_name") @db.VarChar(100)
+  recordId       String?   @map("record_id") @db.VarChar(100)
+  action         String    @db.VarChar(100)
+  ipAddress      String?   @map("ip_address") @db.Inet
+  userAgent      String?   @map("user_agent") @db.Text
+  deviceInfo     Json?     @map("device_info") @db.JsonB
+  performedAt    DateTime  @default(now()) @map("performed_at") @db.Timestamptz(6)
+  remarks        String?   @db.Text
+
+  user         User         @relation(fields: [userId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([userId, performedAt])
+  @@index([organizationId, performedAt])
+  @@index([module, performedAt])
+  @@index([entityName, performedAt])
+  @@index([entityName, recordId, performedAt])
+  @@index([performedAt])
+  @@map("activity_logs")
 }

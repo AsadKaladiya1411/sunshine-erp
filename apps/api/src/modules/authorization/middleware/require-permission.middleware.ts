@@ -1,5 +1,11 @@
 import type { RequestHandler } from "express";
 import {
+  auditService,
+} from "../../../core/audit/audit.service.js";
+import type { RecordAuthenticatedActivityInput } from "../../../core/audit/activity-log.types.js";
+import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
+import { getActivityRequestMetadata } from "../../../core/audit/request-metadata.js";
+import {
   AuthenticationError,
   AuthorizationError,
 } from "../../../core/http/errors.js";
@@ -14,8 +20,15 @@ export interface PermissionAuthorizer {
   ): Promise<void>;
 }
 
+export interface AuthenticatedActivityRecorder {
+  recordAuthenticatedActivity(
+    input: RecordAuthenticatedActivityInput,
+  ): Promise<unknown>;
+}
+
 export function createRequirePermission(
   authorizer: PermissionAuthorizer = authorizationService,
+  audit: AuthenticatedActivityRecorder = auditService,
 ): (permission: string) => RequestHandler {
   return (permission: string): RequestHandler => {
     if (permission.length === 0) {
@@ -35,6 +48,25 @@ export function createRequirePermission(
         );
         next();
       } catch (error: unknown) {
+        if (
+          error instanceof AuthorizationError &&
+          isAuthenticatedRequestContext(request.requestContext)
+        ) {
+          try {
+            await audit.recordAuthenticatedActivity({
+              context: request.requestContext,
+              module: "Authorization",
+              entityName: "Permission",
+              recordId: permission,
+              action: SECURITY_ACTIVITY_ACTIONS.authorizationDenied,
+              ...getActivityRequestMetadata(request),
+              remarks: "Permission check denied.",
+            });
+          } catch (auditError: unknown) {
+            next(auditError);
+            return;
+          }
+        }
         next(error);
       }
     };
