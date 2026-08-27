@@ -62,7 +62,11 @@ export const ModelName = {
   UserSession: 'UserSession',
   UserPasswordHistory: 'UserPasswordHistory',
   PasswordResetToken: 'PasswordResetToken',
-  UserSessionTokenHistory: 'UserSessionTokenHistory'
+  UserSessionTokenHistory: 'UserSessionTokenHistory',
+  Role: 'Role',
+  Permission: 'Permission',
+  RolePermission: 'RolePermission',
+  RoleAssignment: 'RoleAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -282,6 +286,71 @@ export const UserSessionTokenHistoryScalarFieldEnum = {
 } as const
 
 export type UserSessionTokenHistoryScalarFieldEnum = (typeof UserSessionTokenHistoryScalarFieldEnum)[keyof typeof UserSessionTokenHistoryScalarFieldEnum]
+
+
+export const RoleScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  roleCode: 'roleCode',
+  roleName: 'roleName',
+  description: 'description',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const PermissionScalarFieldEnum = {
+  id: 'id',
+  permissionCode: 'permissionCode',
+  permissionName: 'permissionName',
+  module: 'module',
+  resource: 'resource',
+  action: 'action',
+  description: 'description',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
+
+
+export const RolePermissionScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  permissionId: 'permissionId',
+  assignedById: 'assignedById',
+  assignedAt: 'assignedAt',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnum)[keyof typeof RolePermissionScalarFieldEnum]
+
+
+export const RoleAssignmentScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  userId: 'userId',
+  roleId: 'roleId',
+  assignedAt: 'assignedAt',
+  expiresAt: 'expiresAt',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RoleAssignmentScalarFieldEnum = (typeof RoleAssignmentScalarFieldEnum)[keyof typeof RoleAssignmentScalarFieldEnum]
 
 
 export const SortOrder = {

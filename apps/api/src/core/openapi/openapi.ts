@@ -194,7 +194,7 @@ export const openApiDocument: OpenAPIV3.Document = {
         scheme: "bearer",
         bearerFormat: "JWT",
         description:
-          "Short-lived access JWT. Authorization remains subject to authoritative PostgreSQL User Session validation.",
+          "Short-lived access JWT. Authentication remains subject to authoritative PostgreSQL User Session validation. Permission-protected operations additionally require an active User Role Assignment, active Role, active Role Permission, and active Permission; unauthenticated requests return 401 and insufficient permissions return 403.",
       },
     },
     parameters: {

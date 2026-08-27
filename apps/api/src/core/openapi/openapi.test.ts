@@ -126,4 +126,18 @@ describe("OpenAPI foundation", () => {
       "refreshToken",
     );
   });
+
+  it("documents permission-based authorization and standardized 401/403 behavior", () => {
+    expect(
+      openApiDocument.components?.securitySchemes?.bearerAuth,
+    ).toMatchObject({
+      type: "http",
+      scheme: "bearer",
+      description: expect.stringContaining("active User Role Assignment"),
+    });
+    expect(
+      openApiDocument.components?.responses?.AuthenticationError,
+    ).toBeDefined();
+    expect(openApiDocument.components?.responses?.Forbidden).toBeDefined();
+  });
 });

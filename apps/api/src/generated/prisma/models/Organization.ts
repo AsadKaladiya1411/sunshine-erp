@@ -303,6 +303,8 @@ export type OrganizationWhereInput = {
   users?: Prisma.UserListRelationFilter
   financialYears?: Prisma.FinancialYearListRelationFilter
   settings?: Prisma.XOR<Prisma.OrganizationSettingNullableScalarRelationFilter, Prisma.OrganizationSettingWhereInput> | null
+  roles?: Prisma.RoleListRelationFilter
+  roleAssignments?: Prisma.RoleAssignmentListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -334,6 +336,8 @@ export type OrganizationOrderByWithRelationInput = {
   users?: Prisma.UserOrderByRelationAggregateInput
   financialYears?: Prisma.FinancialYearOrderByRelationAggregateInput
   settings?: Prisma.OrganizationSettingOrderByWithRelationInput
+  roles?: Prisma.RoleOrderByRelationAggregateInput
+  roleAssignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -368,6 +372,8 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   users?: Prisma.UserListRelationFilter
   financialYears?: Prisma.FinancialYearListRelationFilter
   settings?: Prisma.XOR<Prisma.OrganizationSettingNullableScalarRelationFilter, Prisma.OrganizationSettingWhereInput> | null
+  roles?: Prisma.RoleListRelationFilter
+  roleAssignments?: Prisma.RoleAssignmentListRelationFilter
 }, "id" | "organizationCode" | "organizationName">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -444,6 +450,8 @@ export type OrganizationCreateInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -470,6 +478,8 @@ export type OrganizationUncheckedCreateInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
@@ -496,6 +506,8 @@ export type OrganizationUpdateInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -522,6 +534,8 @@ export type OrganizationUncheckedUpdateInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -936,6 +950,34 @@ export type OrganizationUpdateOneRequiredWithoutSettingsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutSettingsInput, Prisma.OrganizationUpdateWithoutSettingsInput>, Prisma.OrganizationUncheckedUpdateWithoutSettingsInput>
 }
 
+export type OrganizationCreateNestedOneWithoutRolesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutRolesInput, Prisma.OrganizationUncheckedCreateWithoutRolesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutRolesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutRolesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutRolesInput, Prisma.OrganizationUncheckedCreateWithoutRolesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutRolesInput
+  upsert?: Prisma.OrganizationUpsertWithoutRolesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutRolesInput, Prisma.OrganizationUpdateWithoutRolesInput>, Prisma.OrganizationUncheckedUpdateWithoutRolesInput>
+}
+
+export type OrganizationCreateNestedOneWithoutRoleAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedCreateWithoutRoleAssignmentsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutRoleAssignmentsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutRoleAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedCreateWithoutRoleAssignmentsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutRoleAssignmentsInput
+  upsert?: Prisma.OrganizationUpsertWithoutRoleAssignmentsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutRoleAssignmentsInput, Prisma.OrganizationUpdateWithoutRoleAssignmentsInput>, Prisma.OrganizationUncheckedUpdateWithoutRoleAssignmentsInput>
+}
+
 export type OrganizationCreateWithoutCountryInput = {
   id?: string
   organizationCode: string
@@ -959,6 +1001,8 @@ export type OrganizationCreateWithoutCountryInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCountryInput = {
@@ -984,6 +1028,8 @@ export type OrganizationUncheckedCreateWithoutCountryInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCountryInput = {
@@ -1060,6 +1106,8 @@ export type OrganizationCreateWithoutStateInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutStateInput = {
@@ -1085,6 +1133,8 @@ export type OrganizationUncheckedCreateWithoutStateInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutStateInput = {
@@ -1136,6 +1186,8 @@ export type OrganizationCreateWithoutCityInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCityInput = {
@@ -1161,6 +1213,8 @@ export type OrganizationUncheckedCreateWithoutCityInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCityInput = {
@@ -1212,6 +1266,8 @@ export type OrganizationCreateWithoutDepartmentsInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -1237,6 +1293,8 @@ export type OrganizationUncheckedCreateWithoutDepartmentsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -1278,6 +1336,8 @@ export type OrganizationUpdateWithoutDepartmentsInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -1303,6 +1363,8 @@ export type OrganizationUncheckedUpdateWithoutDepartmentsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutUsersInput = {
@@ -1328,6 +1390,8 @@ export type OrganizationCreateWithoutUsersInput = {
   departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutUsersInput = {
@@ -1353,6 +1417,8 @@ export type OrganizationUncheckedCreateWithoutUsersInput = {
   departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutUsersInput = {
@@ -1383,6 +1449,8 @@ export type OrganizationCreateWithoutCreatedByInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCreatedByInput = {
@@ -1408,6 +1476,8 @@ export type OrganizationUncheckedCreateWithoutCreatedByInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCreatedByInput = {
@@ -1443,6 +1513,8 @@ export type OrganizationCreateWithoutUpdatedByInput = {
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutUpdatedByInput = {
@@ -1468,6 +1540,8 @@ export type OrganizationUncheckedCreateWithoutUpdatedByInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutUpdatedByInput = {
@@ -1514,6 +1588,8 @@ export type OrganizationUpdateWithoutUsersInput = {
   departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutUsersInput = {
@@ -1539,6 +1615,8 @@ export type OrganizationUncheckedUpdateWithoutUsersInput = {
   departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -1596,6 +1674,8 @@ export type OrganizationCreateWithoutFinancialYearsInput = {
   departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutFinancialYearsInput = {
@@ -1621,6 +1701,8 @@ export type OrganizationUncheckedCreateWithoutFinancialYearsInput = {
   departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutFinancialYearsInput = {
@@ -1662,6 +1744,8 @@ export type OrganizationUpdateWithoutFinancialYearsInput = {
   departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutFinancialYearsInput = {
@@ -1687,6 +1771,8 @@ export type OrganizationUncheckedUpdateWithoutFinancialYearsInput = {
   departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutSettingsInput = {
@@ -1712,6 +1798,8 @@ export type OrganizationCreateWithoutSettingsInput = {
   departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutSettingsInput = {
@@ -1737,6 +1825,8 @@ export type OrganizationUncheckedCreateWithoutSettingsInput = {
   departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
   financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutSettingsInput = {
@@ -1778,6 +1868,8 @@ export type OrganizationUpdateWithoutSettingsInput = {
   departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSettingsInput = {
@@ -1803,6 +1895,256 @@ export type OrganizationUncheckedUpdateWithoutSettingsInput = {
   departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutRolesInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  pincode?: string | null
+  status: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  city?: Prisma.CityCreateNestedOneWithoutOrganizationsInput
+  state?: Prisma.StateCreateNestedOneWithoutOrganizationsInput
+  country?: Prisma.CountryCreateNestedOneWithoutOrganizationsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedOrganizationsInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedOrganizationsInput
+  departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutRolesInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  cityId?: string | null
+  stateId?: string | null
+  countryId?: string | null
+  pincode?: string | null
+  status: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutRolesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutRolesInput, Prisma.OrganizationUncheckedCreateWithoutRolesInput>
+}
+
+export type OrganizationUpsertWithoutRolesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutRolesInput, Prisma.OrganizationUncheckedUpdateWithoutRolesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutRolesInput, Prisma.OrganizationUncheckedCreateWithoutRolesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutRolesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutRolesInput, Prisma.OrganizationUncheckedUpdateWithoutRolesInput>
+}
+
+export type OrganizationUpdateWithoutRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  city?: Prisma.CityUpdateOneWithoutOrganizationsNestedInput
+  state?: Prisma.StateUpdateOneWithoutOrganizationsNestedInput
+  country?: Prisma.CountryUpdateOneWithoutOrganizationsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedOrganizationsNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedOrganizationsNestedInput
+  departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutRolesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutRoleAssignmentsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  pincode?: string | null
+  status: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  city?: Prisma.CityCreateNestedOneWithoutOrganizationsInput
+  state?: Prisma.StateCreateNestedOneWithoutOrganizationsInput
+  country?: Prisma.CountryCreateNestedOneWithoutOrganizationsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedOrganizationsInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedOrganizationsInput
+  departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  cityId?: string | null
+  stateId?: string | null
+  countryId?: string | null
+  pincode?: string | null
+  status: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedCreateWithoutRoleAssignmentsInput>
+}
+
+export type OrganizationUpsertWithoutRoleAssignmentsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedUpdateWithoutRoleAssignmentsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedCreateWithoutRoleAssignmentsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutRoleAssignmentsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutRoleAssignmentsInput, Prisma.OrganizationUncheckedUpdateWithoutRoleAssignmentsInput>
+}
+
+export type OrganizationUpdateWithoutRoleAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  city?: Prisma.CityUpdateOneWithoutOrganizationsNestedInput
+  state?: Prisma.StateUpdateOneWithoutOrganizationsNestedInput
+  country?: Prisma.CountryUpdateOneWithoutOrganizationsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedOrganizationsNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedOrganizationsNestedInput
+  departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyCountryInput = {
@@ -1849,6 +2191,8 @@ export type OrganizationUpdateWithoutCountryInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCountryInput = {
@@ -1874,6 +2218,8 @@ export type OrganizationUncheckedUpdateWithoutCountryInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCountryInput = {
@@ -1941,6 +2287,8 @@ export type OrganizationUpdateWithoutStateInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutStateInput = {
@@ -1966,6 +2314,8 @@ export type OrganizationUncheckedUpdateWithoutStateInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutStateInput = {
@@ -2033,6 +2383,8 @@ export type OrganizationUpdateWithoutCityInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCityInput = {
@@ -2058,6 +2410,8 @@ export type OrganizationUncheckedUpdateWithoutCityInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCityInput = {
@@ -2146,6 +2500,8 @@ export type OrganizationUpdateWithoutCreatedByInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
@@ -2171,6 +2527,8 @@ export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCreatedByInput = {
@@ -2217,6 +2575,8 @@ export type OrganizationUpdateWithoutUpdatedByInput = {
   users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
@@ -2242,6 +2602,8 @@ export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
   financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -2274,12 +2636,16 @@ export type OrganizationCountOutputType = {
   departments: number
   users: number
   financialYears: number
+  roles: number
+  roleAssignments: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   departments?: boolean | OrganizationCountOutputTypeCountDepartmentsArgs
   users?: boolean | OrganizationCountOutputTypeCountUsersArgs
   financialYears?: boolean | OrganizationCountOutputTypeCountFinancialYearsArgs
+  roles?: boolean | OrganizationCountOutputTypeCountRolesArgs
+  roleAssignments?: boolean | OrganizationCountOutputTypeCountRoleAssignmentsArgs
 }
 
 /**
@@ -2313,6 +2679,20 @@ export type OrganizationCountOutputTypeCountFinancialYearsArgs<ExtArgs extends r
   where?: Prisma.FinancialYearWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RoleWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountRoleAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RoleAssignmentWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2343,6 +2723,8 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   users?: boolean | Prisma.Organization$usersArgs<ExtArgs>
   financialYears?: boolean | Prisma.Organization$financialYearsArgs<ExtArgs>
   settings?: boolean | Prisma.Organization$settingsArgs<ExtArgs>
+  roles?: boolean | Prisma.Organization$rolesArgs<ExtArgs>
+  roleAssignments?: boolean | Prisma.Organization$roleAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -2433,6 +2815,8 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   users?: boolean | Prisma.Organization$usersArgs<ExtArgs>
   financialYears?: boolean | Prisma.Organization$financialYearsArgs<ExtArgs>
   settings?: boolean | Prisma.Organization$settingsArgs<ExtArgs>
+  roles?: boolean | Prisma.Organization$rolesArgs<ExtArgs>
+  roleAssignments?: boolean | Prisma.Organization$roleAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2462,6 +2846,8 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     users: Prisma.$UserPayload<ExtArgs>[]
     financialYears: Prisma.$FinancialYearPayload<ExtArgs>[]
     settings: Prisma.$OrganizationSettingPayload<ExtArgs> | null
+    roles: Prisma.$RolePayload<ExtArgs>[]
+    roleAssignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2886,6 +3272,8 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   users<T extends Prisma.Organization$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financialYears<T extends Prisma.Organization$financialYearsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$financialYearsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinancialYearPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   settings<T extends Prisma.Organization$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$settingsArgs<ExtArgs>>): Prisma.Prisma__OrganizationSettingClient<runtime.Types.Result.GetResult<Prisma.$OrganizationSettingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  roles<T extends Prisma.Organization$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  roleAssignments<T extends Prisma.Organization$roleAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$roleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3518,6 +3906,54 @@ export type Organization$settingsArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.OrganizationSettingInclude<ExtArgs> | null
   where?: Prisma.OrganizationSettingWhereInput
+}
+
+/**
+ * Organization.roles
+ */
+export type Organization$rolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Role
+   */
+  select?: Prisma.RoleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Role
+   */
+  omit?: Prisma.RoleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RoleInclude<ExtArgs> | null
+  where?: Prisma.RoleWhereInput
+  orderBy?: Prisma.RoleOrderByWithRelationInput | Prisma.RoleOrderByWithRelationInput[]
+  cursor?: Prisma.RoleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RoleScalarFieldEnum | Prisma.RoleScalarFieldEnum[]
+}
+
+/**
+ * Organization.roleAssignments
+ */
+export type Organization$roleAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RoleAssignment
+   */
+  select?: Prisma.RoleAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RoleAssignment
+   */
+  omit?: Prisma.RoleAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RoleAssignmentInclude<ExtArgs> | null
+  where?: Prisma.RoleAssignmentWhereInput
+  orderBy?: Prisma.RoleAssignmentOrderByWithRelationInput | Prisma.RoleAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.RoleAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RoleAssignmentScalarFieldEnum | Prisma.RoleAssignmentScalarFieldEnum[]
 }
 
 /**

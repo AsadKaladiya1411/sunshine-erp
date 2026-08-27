@@ -79,15 +79,17 @@ model Organization {
   updatedById      String?  @map("updated_by") @db.Uuid
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  city           City?                @relation(fields: [cityId], references: [id], onDelete: Restrict)
-  state          State?               @relation(fields: [stateId], references: [id], onDelete: Restrict)
-  country        Country?             @relation(fields: [countryId], references: [id], onDelete: Restrict)
-  createdBy      User?                @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy      User?                @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
-  departments    Department[]
-  users          User[]               @relation("OrganizationUsers")
-  financialYears FinancialYear[]
-  settings       OrganizationSetting?
+  city            City?                @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  state           State?               @relation(fields: [stateId], references: [id], onDelete: Restrict)
+  country         Country?             @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  createdBy       User?                @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy       User?                @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  departments     Department[]
+  users           User[]               @relation("OrganizationUsers")
+  financialYears  FinancialYear[]
+  settings        OrganizationSetting?
+  roles           Role[]
+  roleAssignments RoleAssignment[]
 
   @@index([cityId])
   @@index([stateId])
@@ -161,6 +163,14 @@ model User {
   sessions                    UserSession[]
   passwordHistory             UserPasswordHistory[]
   passwordResetTokens         PasswordResetToken[]
+  createdRoles                Role[]                @relation("RoleCreatedBy")
+  updatedRoles                Role[]                @relation("RoleUpdatedBy")
+  createdPermissions          Permission[]          @relation("PermissionCreatedBy")
+  updatedPermissions          Permission[]          @relation("PermissionUpdatedBy")
+  assignedRolePermissions     RolePermission[]      @relation("RolePermissionAssignedBy")
+  roleAssignments             RoleAssignment[]      @relation("AssignedUserRoles")
+  createdRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentCreatedBy")
+  updatedRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentUpdatedBy")
 
   @@unique([id, organizationId])
   @@unique([organizationId, username])
@@ -308,4 +318,103 @@ model UserSessionTokenHistory {
   @@index([organizationId, userSessionId, retiredAt(sort: Desc)])
   @@index([organizationId, tokenHash])
   @@map("user_session_token_history")
+}
+
+model Role {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  roleCode       String   @map("role_code") @db.VarChar(50)
+  roleName       String   @map("role_name") @db.VarChar(150)
+  description    String?  @db.Text
+  status         String   @db.VarChar(30)
+  createdById    String?  @map("created_by") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById    String?  @map("updated_by") @db.Uuid
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy       User?            @relation("RoleCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy       User?            @relation("RoleUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  rolePermissions RolePermission[]
+  assignments     RoleAssignment[]
+
+  @@unique([id, organizationId])
+  @@unique([organizationId, roleCode])
+  @@unique([organizationId, roleName])
+  @@index([organizationId, status])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("roles")
+}
+
+model Permission {
+  id             String   @id @default(uuid()) @db.Uuid
+  permissionCode String   @unique @map("permission_code") @db.VarChar(150)
+  permissionName String   @map("permission_name") @db.VarChar(150)
+  module         String   @db.VarChar(100)
+  resource       String?  @db.VarChar(100)
+  action         String   @db.VarChar(100)
+  description    String?  @db.Text
+  status         String   @db.VarChar(30)
+  createdById    String?  @map("created_by") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById    String?  @map("updated_by") @db.Uuid
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  createdBy       User?            @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy       User?            @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  rolePermissions RolePermission[]
+
+  @@index([module, action])
+  @@index([status])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(uuid()) @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  assignedById String   @map("assigned_by") @db.Uuid
+  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  status       String   @db.VarChar(30)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+  assignedBy User       @relation("RolePermissionAssignedBy", fields: [assignedById], references: [id], onDelete: Restrict)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId, status])
+  @@index([permissionId, status])
+  @@index([assignedById])
+  @@map("role_permissions")
+}
+
+model RoleAssignment {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String    @map("organization_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  roleId         String    @map("role_id") @db.Uuid
+  assignedAt     DateTime  @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz(6)
+  status         String    @db.VarChar(30)
+  createdById    String?   @map("created_by") @db.Uuid
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById    String?   @map("updated_by") @db.Uuid
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  user         User         @relation("AssignedUserRoles", fields: [userId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  role         Role         @relation(fields: [roleId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy    User?        @relation("RoleAssignmentCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy    User?        @relation("RoleAssignmentUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
+
+  @@index([organizationId, userId, status])
+  @@index([organizationId, roleId, status])
+  @@index([createdById])
+  @@index([updatedById])
+  @@map("role_assignments")
 }

@@ -78,7 +78,7 @@ export type User = Prisma.UserModel
 export type FinancialYear = Prisma.FinancialYearModel
 /**
  * Model OrganizationSetting
- * 
+ *
  */
 export type OrganizationSetting = Prisma.OrganizationSettingModel
 /**
@@ -101,3 +101,23 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  *
  */
 export type UserSessionTokenHistory = Prisma.UserSessionTokenHistoryModel
+/**
+ * Model Role
+ *
+ */
+export type Role = Prisma.RoleModel
+/**
+ * Model Permission
+ *
+ */
+export type Permission = Prisma.PermissionModel
+/**
+ * Model RolePermission
+ *
+ */
+export type RolePermission = Prisma.RolePermissionModel
+/**
+ * Model RoleAssignment
+ *
+ */
+export type RoleAssignment = Prisma.RoleAssignmentModel
