@@ -4,16 +4,16 @@ import {
   createDomainEvent,
   defineDomainEventType,
 } from "../domain-event.types.js";
-import type {
-  KafkaProducerTransport,
-  KafkaWireMessage,
-} from "./kafka-client.js";
-import { KafkaPublicationError } from "./kafka.errors.js";
+import {
+  createKafkaTopicName,
+  KafkaPublicationError,
+  type KafkaProducerTransport,
+  type KafkaWireMessage,
+} from "@sunshine-erp/messaging";
 import {
   KafkaDomainEventProducer,
   kafkaEventHeaderNames,
 } from "./kafka-producer.js";
-import { createKafkaTopicName } from "./kafka-topic.js";
 
 const kafkaCompatibilityEvent = defineDomainEventType<{
   readonly probe: "kafka-foundation";

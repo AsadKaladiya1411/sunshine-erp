@@ -1,15 +1,14 @@
 import type { AnyDomainEvent } from "../domain-event.types.js";
-import type {
-  KafkaProducerTransport,
-  KafkaWireMessage,
-} from "./kafka-client.js";
 import {
   KafkaConnectionError,
   KafkaDisconnectionError,
   KafkaMessageInvalidError,
   KafkaPublicationError,
-} from "./kafka.errors.js";
-import { createKafkaMessageKey, type KafkaTopicName } from "./kafka-topic.js";
+  createKafkaMessageKey,
+  type KafkaProducerTransport,
+  type KafkaTopicName,
+  type KafkaWireMessage,
+} from "@sunshine-erp/messaging";
 
 export const kafkaEventHeaderNames = Object.freeze({
   eventId: "event-id",

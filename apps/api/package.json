@@ -4,10 +4,10 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "pretest": "npm run build --workspace=@sunshine-erp/config",
+    "pretest": "npm run build --workspace=@sunshine-erp/config --workspace=@sunshine-erp/messaging",
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --runInBand",
     "dev": "tsx watch --env-file=../../.env src/server.ts",
-    "prebuild": "npm run build --workspace=@sunshine-erp/config",
+    "prebuild": "npm run build --workspace=@sunshine-erp/config --workspace=@sunshine-erp/messaging",
     "build": "tsc -p tsconfig.build.json",
     "start": "node --env-file=../../.env dist/server.js",
     "check-types": "tsc --noEmit"
@@ -17,7 +17,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@confluentinc/kafka-javascript": "^1.9.0",
+    "@sunshine-erp/messaging": "*",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
