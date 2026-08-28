@@ -446,3 +446,31 @@ model ActivityLog {
   @@index([performedAt])
   @@map("activity_logs")
 }
+
+model OutboxEvent {
+  id             String    @id @default(uuid()) @db.Uuid
+  eventId        String    @unique @map("event_id") @db.Uuid
+  eventType      String    @map("event_type") @db.VarChar(200)
+  eventVersion   Int       @map("event_version")
+  occurredAt     DateTime  @map("occurred_at") @db.Timestamptz(6)
+  organizationId String?   @map("organization_id") @db.Uuid
+  aggregateType  String?   @map("aggregate_type") @db.VarChar(100)
+  aggregateId    String?   @map("aggregate_id") @db.Uuid
+  actorId        String?   @map("actor_id") @db.Uuid
+  correlationId  String    @map("correlation_id") @db.VarChar(255)
+  causationId    String?   @map("causation_id") @db.VarChar(255)
+  payload        Json      @db.JsonB
+  status         String    @default("Pending") @db.VarChar(20)
+  attempts       Int       @default(0)
+  availableAt    DateTime  @default(now()) @map("available_at") @db.Timestamptz(6)
+  publishedAt    DateTime? @map("published_at") @db.Timestamptz(6)
+  lastError      String?   @map("last_error") @db.Text
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, availableAt, occurredAt, createdAt, eventId], map: "outbox_events_pending_poll_idx")
+  @@index([organizationId, occurredAt])
+  @@index([aggregateType, aggregateId, occurredAt])
+  @@index([correlationId])
+  @@map("outbox_events")
+}

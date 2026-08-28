@@ -67,7 +67,8 @@ export const ModelName = {
   Permission: 'Permission',
   RolePermission: 'RolePermission',
   RoleAssignment: 'RoleAssignment',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  OutboxEvent: 'OutboxEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -372,6 +373,31 @@ export const ActivityLogScalarFieldEnum = {
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
+export const OutboxEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  eventType: 'eventType',
+  eventVersion: 'eventVersion',
+  occurredAt: 'occurredAt',
+  organizationId: 'organizationId',
+  aggregateType: 'aggregateType',
+  aggregateId: 'aggregateId',
+  actorId: 'actorId',
+  correlationId: 'correlationId',
+  causationId: 'causationId',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  availableAt: 'availableAt',
+  publishedAt: 'publishedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -386,6 +412,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

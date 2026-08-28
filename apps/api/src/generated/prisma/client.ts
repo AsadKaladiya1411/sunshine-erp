@@ -126,3 +126,8 @@ export type RoleAssignment = Prisma.RoleAssignmentModel
  *
  */
 export type ActivityLog = Prisma.ActivityLogModel
+/**
+ * Model OutboxEvent
+ *
+ */
+export type OutboxEvent = Prisma.OutboxEventModel

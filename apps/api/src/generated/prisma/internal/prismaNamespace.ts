@@ -413,7 +413,8 @@ export const ModelName = {
   Permission: 'Permission',
   RolePermission: 'RolePermission',
   RoleAssignment: 'RoleAssignment',
-  ActivityLog: 'ActivityLog'
+  ActivityLog: 'ActivityLog',
+  OutboxEvent: 'OutboxEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "country" | "state" | "city" | "organization" | "department" | "user" | "financialYear" | "organizationSetting" | "userSession" | "userPasswordHistory" | "passwordResetToken" | "userSessionTokenHistory" | "role" | "permission" | "rolePermission" | "roleAssignment" | "activityLog"
+    modelProps: "country" | "state" | "city" | "organization" | "department" | "user" | "financialYear" | "organizationSetting" | "userSession" | "userPasswordHistory" | "passwordResetToken" | "userSessionTokenHistory" | "role" | "permission" | "rolePermission" | "roleAssignment" | "activityLog" | "outboxEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1691,6 +1692,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OutboxEvent: {
+      payload: Prisma.$OutboxEventPayload<ExtArgs>
+      fields: Prisma.OutboxEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutboxEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutboxEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        findFirst: {
+          args: Prisma.OutboxEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutboxEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        findMany: {
+          args: Prisma.OutboxEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        create: {
+          args: Prisma.OutboxEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        createMany: {
+          args: Prisma.OutboxEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutboxEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        delete: {
+          args: Prisma.OutboxEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        update: {
+          args: Prisma.OutboxEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutboxEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutboxEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutboxEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutboxEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        aggregate: {
+          args: Prisma.OutboxEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutboxEvent>
+        }
+        groupBy: {
+          args: Prisma.OutboxEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutboxEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2016,6 +2091,31 @@ export const ActivityLogScalarFieldEnum = {
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
 
 
+export const OutboxEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  eventType: 'eventType',
+  eventVersion: 'eventVersion',
+  occurredAt: 'occurredAt',
+  organizationId: 'organizationId',
+  aggregateType: 'aggregateType',
+  aggregateId: 'aggregateId',
+  actorId: 'actorId',
+  correlationId: 'correlationId',
+  causationId: 'causationId',
+  payload: 'payload',
+  status: 'status',
+  attempts: 'attempts',
+  availableAt: 'availableAt',
+  publishedAt: 'publishedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2030,6 +2130,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2300,6 +2407,7 @@ export type GlobalOmitConfig = {
   rolePermission?: Prisma.RolePermissionOmit
   roleAssignment?: Prisma.RoleAssignmentOmit
   activityLog?: Prisma.ActivityLogOmit
+  outboxEvent?: Prisma.OutboxEventOmit
 }
 
 /* Types for Logging */
