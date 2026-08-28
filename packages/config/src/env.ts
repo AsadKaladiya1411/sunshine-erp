@@ -17,6 +17,30 @@ const redisUrlSchema = z.string().url().refine(
   { message: "REDIS_URL must use the redis or rediss protocol." },
 );
 
+const kafkaBrokerSchema = z.string().trim().refine(
+  (value) => {
+    const match = /^(?:\[[0-9A-Fa-f:]+\]|[A-Za-z0-9.-]+):(\d{1,5})$/.exec(
+      value,
+    );
+    if (!match) {
+      return false;
+    }
+
+    const port = Number(match[1]);
+    return port > 0 && port <= 65_535;
+  },
+  {
+    message:
+      "Kafka brokers must use a host:port value without credentials or a protocol.",
+  },
+);
+
+const kafkaBrokersSchema = z
+  .string()
+  .transform((value) => value.split(",").map((broker) => broker.trim()))
+  .pipe(z.array(kafkaBrokerSchema).min(1))
+  .optional();
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -128,7 +152,14 @@ const envSchema = z.object({
     .regex(/^[a-z0-9][a-z0-9_-]*$/)
     .default("sunshine"),
 
-  KAFKA_BROKERS: z.string().min(1).optional(),
+  KAFKA_ENABLED: booleanFromEnvironment.default(false),
+
+  KAFKA_BROKERS: kafkaBrokersSchema,
+
+  KAFKA_CLIENT_ID: z
+    .string()
+    .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)
+    .default("sunshine-erp-api"),
 
   STORAGE_ENDPOINT: z.string().url().optional(),
 
@@ -173,6 +204,14 @@ const envSchema = z.object({
       code: "custom",
       path: ["REFRESH_COOKIE_SECURE"],
       message: "SameSite=None refresh cookies must be Secure.",
+    });
+  }
+
+  if (configuration.KAFKA_ENABLED && !configuration.KAFKA_BROKERS) {
+    context.addIssue({
+      code: "custom",
+      path: ["KAFKA_BROKERS"],
+      message: "KAFKA_BROKERS is required when Kafka is enabled.",
     });
   }
 });

@@ -2,13 +2,21 @@ import app from "./app.js";
 import { env } from "@sunshine-erp/config";
 import { redisClient } from "./core/cache/redis-client.js";
 import { prisma } from "./core/database/prisma.js";
+import { kafkaClient } from "./core/events/kafka/kafka-client.js";
 import { logger } from "./core/logging/logger.js";
 
 async function startApiServer(): Promise<void> {
-  const redisConnected = await redisClient.connect();
+  const [redisConnected, kafkaConnected] = await Promise.all([
+    redisClient.connect(),
+    kafkaClient.connect(),
+  ]);
   const server = app.listen(env.PORT, () => {
     logger.info(
-      { port: env.PORT, redisAvailable: redisConnected },
+      {
+        port: env.PORT,
+        redisAvailable: redisConnected,
+        kafkaAvailable: kafkaConnected,
+      },
       "API server started",
     );
   });
@@ -22,7 +30,11 @@ async function startApiServer(): Promise<void> {
     logger.info({ signal }, "API shutdown started");
 
     server.close(async (error) => {
-      await Promise.allSettled([redisClient.disconnect(), prisma.$disconnect()]);
+      await Promise.allSettled([
+        kafkaClient.disconnect(),
+        redisClient.disconnect(),
+        prisma.$disconnect(),
+      ]);
       if (error) {
         logger.error({ err: error }, "API shutdown failed");
         process.exitCode = 1;
