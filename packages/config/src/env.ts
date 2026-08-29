@@ -41,6 +41,38 @@ const kafkaBrokersSchema = z
   .pipe(z.array(kafkaBrokerSchema).min(1))
   .optional();
 
+const storageEndpointSchema = z.string().url().refine(
+  (value) => {
+    const endpoint = new URL(value);
+    return (
+      (endpoint.protocol === "http:" || endpoint.protocol === "https:") &&
+      endpoint.username.length === 0 &&
+      endpoint.password.length === 0 &&
+      (endpoint.pathname === "/" || endpoint.pathname.length === 0) &&
+      endpoint.search.length === 0 &&
+      endpoint.hash.length === 0
+    );
+  },
+  {
+    message:
+      "STORAGE_ENDPOINT must be an HTTP(S) origin without credentials, a path, a query, or a fragment.",
+  },
+);
+
+const storageBucketSchema = z
+  .string()
+  .min(3)
+  .max(63)
+  .regex(/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/)
+  .refine(
+    (value) =>
+      !value.includes("..") &&
+      !value.includes(".-") &&
+      !value.includes("-.") &&
+      !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(value),
+    { message: "STORAGE_BUCKET must be a valid S3-compatible bucket name." },
+  );
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -161,13 +193,20 @@ const envSchema = z.object({
     .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)
     .default("sunshine-erp-api"),
 
-  STORAGE_ENDPOINT: z.string().url().optional(),
+  STORAGE_ENABLED: booleanFromEnvironment.default(false),
 
-  STORAGE_ACCESS_KEY: z.string().min(1).optional(),
+  STORAGE_ENDPOINT: storageEndpointSchema.optional(),
 
-  STORAGE_SECRET_KEY: z.string().min(1).optional(),
+  STORAGE_ACCESS_KEY: z.string().min(3).max(128).optional(),
 
-  STORAGE_BUCKET: z.string().min(1).optional(),
+  STORAGE_SECRET_KEY: z.string().min(8).max(128).optional(),
+
+  STORAGE_BUCKET: storageBucketSchema.optional(),
+
+  STORAGE_REGION: z
+    .string()
+    .regex(/^[a-z0-9][a-z0-9-]{0,62}$/)
+    .default("us-east-1"),
 
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])
@@ -213,6 +252,25 @@ const envSchema = z.object({
       path: ["KAFKA_BROKERS"],
       message: "KAFKA_BROKERS is required when Kafka is enabled.",
     });
+  }
+
+  if (configuration.STORAGE_ENABLED) {
+    const requiredStorageValues = [
+      ["STORAGE_ENDPOINT", configuration.STORAGE_ENDPOINT],
+      ["STORAGE_ACCESS_KEY", configuration.STORAGE_ACCESS_KEY],
+      ["STORAGE_SECRET_KEY", configuration.STORAGE_SECRET_KEY],
+      ["STORAGE_BUCKET", configuration.STORAGE_BUCKET],
+    ] as const;
+
+    for (const [name, value] of requiredStorageValues) {
+      if (value === undefined) {
+        context.addIssue({
+          code: "custom",
+          path: [name],
+          message: `${name} is required when object storage is enabled.`,
+        });
+      }
+    }
   }
 });
 

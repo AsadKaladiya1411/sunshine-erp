@@ -4,11 +4,13 @@ import { redisClient } from "./core/cache/redis-client.js";
 import { prisma } from "./core/database/prisma.js";
 import { kafkaClient } from "./core/events/kafka/kafka-client.js";
 import { logger } from "./core/logging/logger.js";
+import { storageClient } from "./core/storage/storage-client.js";
 
 async function startApiServer(): Promise<void> {
-  const [redisConnected, kafkaConnected] = await Promise.all([
+  const [redisConnected, kafkaConnected, storageConnected] = await Promise.all([
     redisClient.connect(),
     kafkaClient.connect(),
+    storageClient.connect(),
   ]);
   const server = app.listen(env.PORT, () => {
     logger.info(
@@ -16,6 +18,7 @@ async function startApiServer(): Promise<void> {
         port: env.PORT,
         redisAvailable: redisConnected,
         kafkaAvailable: kafkaConnected,
+        storageAvailable: storageConnected,
       },
       "API server started",
     );
@@ -33,6 +36,7 @@ async function startApiServer(): Promise<void> {
       await Promise.allSettled([
         kafkaClient.disconnect(),
         redisClient.disconnect(),
+        storageClient.disconnect(),
         prisma.$disconnect(),
       ]);
       if (error) {

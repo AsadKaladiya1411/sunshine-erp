@@ -8,6 +8,7 @@ import { securityHeadersMiddleware } from "./core/middleware/security-headers.mi
 import {
   healthHandler,
   redisHealthHandler,
+  storageHealthHandler,
 } from "./modules/system/routes/health.js";
 import { apiV1Router } from "./routes/api-v1.js";
 import { docsRouter } from "./routes/docs.js";
@@ -31,6 +32,7 @@ app.get("/health", (_req, res) => {
 });
 app.get("/health/db", healthHandler);
 app.get("/health/redis", redisHealthHandler);
+app.get("/health/storage", storageHealthHandler);
 app.use("/docs", docsRouter);
 app.use("/api/v1", apiRateLimitMiddleware, apiV1Router);
 app.use(errorHandler);

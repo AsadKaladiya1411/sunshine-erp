@@ -92,6 +92,26 @@ export const openApiDocument: OpenAPIV3.Document = {
         },
       },
     },
+    "/health/storage": {
+      get: {
+        operationId: "getStorageHealth",
+        tags: ["System"],
+        summary: "Check object storage connectivity",
+        description:
+          "Reports S3-compatible object storage availability independently from PostgreSQL transactional health.",
+        responses: {
+          "200": {
+            description:
+              "Object storage and its configured bucket are reachable.",
+            content: jsonContent("StorageHealthResponse"),
+          },
+          "503": {
+            description: "Object storage is disabled or unavailable.",
+            content: jsonContent("StandardErrorResponse"),
+          },
+        },
+      },
+    },
     "/api/v1/auth/login": {
       post: {
         operationId: "login",

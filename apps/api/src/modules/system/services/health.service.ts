@@ -2,6 +2,7 @@ import { InfrastructureUnavailableError } from "../../../core/http/errors.js";
 import {
   checkDatabaseConnection,
   checkRedisConnection,
+  checkStorageConnection,
 } from "../repositories/health.repository.js";
 
 export interface HealthStatus {
@@ -12,6 +13,11 @@ export interface HealthStatus {
 export interface RedisHealthStatus {
   status: "ok";
   redis: "connected";
+}
+
+export interface StorageHealthStatus {
+  status: "ok";
+  storage: "connected";
 }
 
 export async function getHealthStatus(): Promise<HealthStatus> {
@@ -34,5 +40,19 @@ export async function getRedisHealthStatus(): Promise<RedisHealthStatus> {
   return {
     status: "ok",
     redis: "connected",
+  };
+}
+
+export async function getStorageHealthStatus(): Promise<StorageHealthStatus> {
+  if (!(await checkStorageConnection())) {
+    throw new InfrastructureUnavailableError(
+      "STORAGE_UNAVAILABLE",
+      "Object storage infrastructure is unavailable.",
+    );
+  }
+
+  return {
+    status: "ok",
+    storage: "connected",
   };
 }

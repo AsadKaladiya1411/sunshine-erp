@@ -67,6 +67,7 @@ describe("OpenAPI foundation", () => {
     expect(openApiDocument.paths["/health"]?.get).toBeDefined();
     expect(openApiDocument.paths["/health/db"]?.get).toBeDefined();
     expect(openApiDocument.paths["/health/redis"]?.get).toBeDefined();
+    expect(openApiDocument.paths["/health/storage"]?.get).toBeDefined();
   });
 
   it("documents the Redis health response independently from PostgreSQL", () => {
@@ -81,6 +82,20 @@ describe("OpenAPI foundation", () => {
         additionalProperties: false,
       },
     );
+  });
+
+  it("documents object storage health independently from PostgreSQL", () => {
+    expect(
+      openApiDocument.components?.schemas?.StorageHealthResponse,
+    ).toMatchObject({
+      type: "object",
+      properties: {
+        status: { type: "string", enum: ["ok"] },
+        storage: { type: "string", enum: ["connected"] },
+      },
+      required: ["status", "storage"],
+      additionalProperties: false,
+    });
   });
 
   it("documents the actual database health response payload", () => {

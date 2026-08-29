@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import {
   getHealthStatus,
   getRedisHealthStatus,
+  getStorageHealthStatus,
 } from "../services/health.service.js";
 
 export const getDatabaseHealth: RequestHandler = async (_req, res, next) => {
@@ -17,6 +18,14 @@ export const getDatabaseHealth: RequestHandler = async (_req, res, next) => {
 export const getRedisHealth: RequestHandler = async (_req, res, next) => {
   try {
     res.json(await getRedisHealthStatus());
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+export const getStorageHealth: RequestHandler = async (_req, res, next) => {
+  try {
+    res.json(await getStorageHealthStatus());
   } catch (error: unknown) {
     next(error);
   }
