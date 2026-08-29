@@ -68,6 +68,12 @@ export const ModelName = {
   RolePermission: 'RolePermission',
   RoleAssignment: 'RoleAssignment',
   ActivityLog: 'ActivityLog',
+  ApprovalConfiguration: 'ApprovalConfiguration',
+  ApprovalLevel: 'ApprovalLevel',
+  ApprovalRequest: 'ApprovalRequest',
+  ApprovalAction: 'ApprovalAction',
+  ApprovalHistory: 'ApprovalHistory',
+  ApprovalDelegation: 'ApprovalDelegation',
   OutboxEvent: 'OutboxEvent'
 } as const
 
@@ -371,6 +377,132 @@ export const ActivityLogScalarFieldEnum = {
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const ApprovalConfigurationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  configurationCode: 'configurationCode',
+  configurationName: 'configurationName',
+  moduleName: 'moduleName',
+  entityName: 'entityName',
+  approvalRequired: 'approvalRequired',
+  approvalMode: 'approvalMode',
+  submissionStatus: 'submissionStatus',
+  status: 'status',
+  remarks: 'remarks',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApprovalConfigurationScalarFieldEnum = (typeof ApprovalConfigurationScalarFieldEnum)[keyof typeof ApprovalConfigurationScalarFieldEnum]
+
+
+export const ApprovalLevelScalarFieldEnum = {
+  id: 'id',
+  approvalConfigurationId: 'approvalConfigurationId',
+  levelNumber: 'levelNumber',
+  levelName: 'levelName',
+  approverType: 'approverType',
+  approverUserId: 'approverUserId',
+  approverRoleId: 'approverRoleId',
+  isRequired: 'isRequired',
+  autoApprove: 'autoApprove',
+  status: 'status',
+  remarks: 'remarks',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApprovalLevelScalarFieldEnum = (typeof ApprovalLevelScalarFieldEnum)[keyof typeof ApprovalLevelScalarFieldEnum]
+
+
+export const ApprovalRequestScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  approvalConfigurationId: 'approvalConfigurationId',
+  approvalNumber: 'approvalNumber',
+  targetModule: 'targetModule',
+  targetEntity: 'targetEntity',
+  targetRecordId: 'targetRecordId',
+  requestedById: 'requestedById',
+  requestedAt: 'requestedAt',
+  currentLevelId: 'currentLevelId',
+  approvalStatus: 'approvalStatus',
+  submittedAt: 'submittedAt',
+  completedAt: 'completedAt',
+  remarks: 'remarks',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApprovalRequestScalarFieldEnum = (typeof ApprovalRequestScalarFieldEnum)[keyof typeof ApprovalRequestScalarFieldEnum]
+
+
+export const ApprovalActionScalarFieldEnum = {
+  id: 'id',
+  approvalRequestId: 'approvalRequestId',
+  approvalLevelId: 'approvalLevelId',
+  approverUserId: 'approverUserId',
+  actionType: 'actionType',
+  actionDate: 'actionDate',
+  comments: 'comments',
+  rejectionReason: 'rejectionReason',
+  returnReason: 'returnReason',
+  delegatedToUserId: 'delegatedToUserId',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApprovalActionScalarFieldEnum = (typeof ApprovalActionScalarFieldEnum)[keyof typeof ApprovalActionScalarFieldEnum]
+
+
+export const ApprovalHistoryScalarFieldEnum = {
+  id: 'id',
+  approvalRequestId: 'approvalRequestId',
+  approvalLevelId: 'approvalLevelId',
+  approvalActionId: 'approvalActionId',
+  eventType: 'eventType',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  performedById: 'performedById',
+  eventAt: 'eventAt',
+  reason: 'reason',
+  remarks: 'remarks',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ApprovalHistoryScalarFieldEnum = (typeof ApprovalHistoryScalarFieldEnum)[keyof typeof ApprovalHistoryScalarFieldEnum]
+
+
+export const ApprovalDelegationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  delegatorUserId: 'delegatorUserId',
+  delegateUserId: 'delegateUserId',
+  approvalConfigurationId: 'approvalConfigurationId',
+  approvalLevelId: 'approvalLevelId',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  reason: 'reason',
+  status: 'status',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ApprovalDelegationScalarFieldEnum = (typeof ApprovalDelegationScalarFieldEnum)[keyof typeof ApprovalDelegationScalarFieldEnum]
 
 
 export const OutboxEventScalarFieldEnum = {

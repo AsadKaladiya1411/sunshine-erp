@@ -79,18 +79,21 @@ model Organization {
   updatedById      String?  @map("updated_by") @db.Uuid
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  city            City?                @relation(fields: [cityId], references: [id], onDelete: Restrict)
-  state           State?               @relation(fields: [stateId], references: [id], onDelete: Restrict)
-  country         Country?             @relation(fields: [countryId], references: [id], onDelete: Restrict)
-  createdBy       User?                @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy       User?                @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
-  departments     Department[]
-  users           User[]               @relation("OrganizationUsers")
-  financialYears  FinancialYear[]
-  settings        OrganizationSetting?
-  roles           Role[]
-  roleAssignments RoleAssignment[]
-  activityLogs    ActivityLog[]
+  city                   City?                   @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  state                  State?                  @relation(fields: [stateId], references: [id], onDelete: Restrict)
+  country                Country?                @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  createdBy              User?                   @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy              User?                   @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  departments            Department[]
+  users                  User[]                  @relation("OrganizationUsers")
+  financialYears         FinancialYear[]
+  settings               OrganizationSetting?
+  roles                  Role[]
+  roleAssignments        RoleAssignment[]
+  activityLogs           ActivityLog[]
+  approvalConfigurations ApprovalConfiguration[]
+  approvalRequests       ApprovalRequest[]
+  approvalDelegations    ApprovalDelegation[]
 
   @@index([cityId])
   @@index([stateId])
@@ -147,32 +150,50 @@ model User {
   updatedById         String?   @map("updated_by") @db.Uuid
   updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  organization                Organization          @relation("OrganizationUsers", fields: [organizationId], references: [id], onDelete: Restrict)
-  department                  Department            @relation("DepartmentUsers", fields: [departmentId], references: [id], onDelete: Restrict)
-  createdBy                   User?                 @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy                   User?                 @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
-  createdUsers                User[]                @relation("UserCreatedBy")
-  updatedUsers                User[]                @relation("UserUpdatedBy")
-  createdOrganizations        Organization[]        @relation("OrganizationCreatedBy")
-  updatedOrganizations        Organization[]        @relation("OrganizationUpdatedBy")
-  createdDepartments          Department[]          @relation("DepartmentCreatedBy")
-  updatedDepartments          Department[]          @relation("DepartmentUpdatedBy")
-  createdFinancialYears       FinancialYear[]       @relation("FinancialYearCreatedBy")
-  updatedFinancialYears       FinancialYear[]       @relation("FinancialYearUpdatedBy")
-  createdOrganizationSettings OrganizationSetting[] @relation("OrganizationSettingCreatedBy")
-  updatedOrganizationSettings OrganizationSetting[] @relation("OrganizationSettingUpdatedBy")
-  sessions                    UserSession[]
-  passwordHistory             UserPasswordHistory[]
-  passwordResetTokens         PasswordResetToken[]
-  createdRoles                Role[]                @relation("RoleCreatedBy")
-  updatedRoles                Role[]                @relation("RoleUpdatedBy")
-  createdPermissions          Permission[]          @relation("PermissionCreatedBy")
-  updatedPermissions          Permission[]          @relation("PermissionUpdatedBy")
-  assignedRolePermissions     RolePermission[]      @relation("RolePermissionAssignedBy")
-  roleAssignments             RoleAssignment[]      @relation("AssignedUserRoles")
-  createdRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentCreatedBy")
-  updatedRoleAssignments      RoleAssignment[]      @relation("RoleAssignmentUpdatedBy")
-  activityLogs                ActivityLog[]
+  organization                  Organization            @relation("OrganizationUsers", fields: [organizationId], references: [id], onDelete: Restrict)
+  department                    Department              @relation("DepartmentUsers", fields: [departmentId], references: [id], onDelete: Restrict)
+  createdBy                     User?                   @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy                     User?                   @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdUsers                  User[]                  @relation("UserCreatedBy")
+  updatedUsers                  User[]                  @relation("UserUpdatedBy")
+  createdOrganizations          Organization[]          @relation("OrganizationCreatedBy")
+  updatedOrganizations          Organization[]          @relation("OrganizationUpdatedBy")
+  createdDepartments            Department[]            @relation("DepartmentCreatedBy")
+  updatedDepartments            Department[]            @relation("DepartmentUpdatedBy")
+  createdFinancialYears         FinancialYear[]         @relation("FinancialYearCreatedBy")
+  updatedFinancialYears         FinancialYear[]         @relation("FinancialYearUpdatedBy")
+  createdOrganizationSettings   OrganizationSetting[]   @relation("OrganizationSettingCreatedBy")
+  updatedOrganizationSettings   OrganizationSetting[]   @relation("OrganizationSettingUpdatedBy")
+  sessions                      UserSession[]
+  passwordHistory               UserPasswordHistory[]
+  passwordResetTokens           PasswordResetToken[]
+  createdRoles                  Role[]                  @relation("RoleCreatedBy")
+  updatedRoles                  Role[]                  @relation("RoleUpdatedBy")
+  createdPermissions            Permission[]            @relation("PermissionCreatedBy")
+  updatedPermissions            Permission[]            @relation("PermissionUpdatedBy")
+  assignedRolePermissions       RolePermission[]        @relation("RolePermissionAssignedBy")
+  roleAssignments               RoleAssignment[]        @relation("AssignedUserRoles")
+  createdRoleAssignments        RoleAssignment[]        @relation("RoleAssignmentCreatedBy")
+  updatedRoleAssignments        RoleAssignment[]        @relation("RoleAssignmentUpdatedBy")
+  activityLogs                  ActivityLog[]
+  createdApprovalConfigurations ApprovalConfiguration[] @relation("ApprovalConfigurationCreatedBy")
+  updatedApprovalConfigurations ApprovalConfiguration[] @relation("ApprovalConfigurationUpdatedBy")
+  assignedApprovalLevels        ApprovalLevel[]         @relation("ApprovalLevelApproverUser")
+  createdApprovalLevels         ApprovalLevel[]         @relation("ApprovalLevelCreatedBy")
+  updatedApprovalLevels         ApprovalLevel[]         @relation("ApprovalLevelUpdatedBy")
+  requestedApprovals            ApprovalRequest[]       @relation("ApprovalRequestRequestedBy")
+  createdApprovalRequests       ApprovalRequest[]       @relation("ApprovalRequestCreatedBy")
+  updatedApprovalRequests       ApprovalRequest[]       @relation("ApprovalRequestUpdatedBy")
+  performedApprovalActions      ApprovalAction[]        @relation("ApprovalActionApproverUser")
+  delegatedApprovalActions      ApprovalAction[]        @relation("ApprovalActionDelegatedToUser")
+  createdApprovalActions        ApprovalAction[]        @relation("ApprovalActionCreatedBy")
+  updatedApprovalActions        ApprovalAction[]        @relation("ApprovalActionUpdatedBy")
+  performedApprovalHistories    ApprovalHistory[]       @relation("ApprovalHistoryPerformedBy")
+  createdApprovalHistories      ApprovalHistory[]       @relation("ApprovalHistoryCreatedBy")
+  delegatedApprovals            ApprovalDelegation[]    @relation("ApprovalDelegationDelegator")
+  receivedApprovalDelegations   ApprovalDelegation[]    @relation("ApprovalDelegationDelegate")
+  createdApprovalDelegations    ApprovalDelegation[]    @relation("ApprovalDelegationCreatedBy")
+  updatedApprovalDelegations    ApprovalDelegation[]    @relation("ApprovalDelegationUpdatedBy")
 
   @@unique([id, organizationId])
   @@unique([organizationId, username])
@@ -339,6 +360,7 @@ model Role {
   updatedBy       User?            @relation("RoleUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
   rolePermissions RolePermission[]
   assignments     RoleAssignment[]
+  approvalLevels  ApprovalLevel[]
 
   @@unique([id, organizationId])
   @@unique([organizationId, roleCode])
@@ -422,18 +444,18 @@ model RoleAssignment {
 }
 
 model ActivityLog {
-  id             String    @id @default(uuid()) @db.Uuid
-  userId         String    @map("user_id") @db.Uuid
-  organizationId String    @map("organization_id") @db.Uuid
-  module         String    @db.VarChar(100)
-  entityName     String    @map("entity_name") @db.VarChar(100)
-  recordId       String?   @map("record_id") @db.VarChar(100)
-  action         String    @db.VarChar(100)
-  ipAddress      String?   @map("ip_address") @db.Inet
-  userAgent      String?   @map("user_agent") @db.Text
-  deviceInfo     Json?     @map("device_info") @db.JsonB
-  performedAt    DateTime  @default(now()) @map("performed_at") @db.Timestamptz(6)
-  remarks        String?   @db.Text
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  module         String   @db.VarChar(100)
+  entityName     String   @map("entity_name") @db.VarChar(100)
+  recordId       String?  @map("record_id") @db.VarChar(100)
+  action         String   @db.VarChar(100)
+  ipAddress      String?  @map("ip_address") @db.Inet
+  userAgent      String?  @map("user_agent") @db.Text
+  deviceInfo     Json?    @map("device_info") @db.JsonB
+  performedAt    DateTime @default(now()) @map("performed_at") @db.Timestamptz(6)
+  remarks        String?  @db.Text
 
   user         User         @relation(fields: [userId, organizationId], references: [id, organizationId], onDelete: Restrict)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
@@ -445,6 +467,224 @@ model ActivityLog {
   @@index([entityName, recordId, performedAt])
   @@index([performedAt])
   @@map("activity_logs")
+}
+
+model ApprovalConfiguration {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
+  configurationCode String   @map("configuration_code") @db.VarChar(50)
+  configurationName String   @map("configuration_name") @db.VarChar(150)
+  moduleName        String   @map("module_name") @db.VarChar(100)
+  entityName        String   @map("entity_name") @db.VarChar(100)
+  approvalRequired  Boolean  @default(true) @map("approval_required")
+  approvalMode      String   @map("approval_mode") @db.VarChar(30)
+  submissionStatus  String   @map("submission_status") @db.VarChar(30)
+  status            String   @db.VarChar(30)
+  remarks           String?  @db.Text
+  createdById       String?  @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById       String?  @map("updated_by") @db.Uuid
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy    User?                @relation("ApprovalConfigurationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy    User?                @relation("ApprovalConfigurationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  levels       ApprovalLevel[]
+  requests     ApprovalRequest[]
+  delegations  ApprovalDelegation[]
+
+  @@unique([organizationId, configurationCode])
+  @@index([organizationId])
+  @@index([configurationCode])
+  @@index([moduleName])
+  @@index([entityName])
+  @@index([approvalRequired])
+  @@index([approvalMode])
+  @@index([status])
+  @@map("approval_configurations")
+}
+
+model ApprovalLevel {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  approvalConfigurationId String   @map("approval_configuration_id") @db.Uuid
+  levelNumber             Int      @map("level_number")
+  levelName               String   @map("level_name") @db.VarChar(100)
+  approverType            String   @map("approver_type") @db.VarChar(30)
+  approverUserId          String?  @map("approver_user_id") @db.Uuid
+  approverRoleId          String?  @map("approver_role_id") @db.Uuid
+  isRequired              Boolean  @default(true) @map("is_required")
+  autoApprove             Boolean  @default(false) @map("auto_approve")
+  status                  String   @db.VarChar(30)
+  remarks                 String?  @db.Text
+  createdById             String?  @map("created_by") @db.Uuid
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById             String?  @map("updated_by") @db.Uuid
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
+  approverUser          User?                 @relation("ApprovalLevelApproverUser", fields: [approverUserId], references: [id], onDelete: Restrict)
+  approverRole          Role?                 @relation(fields: [approverRoleId], references: [id], onDelete: Restrict)
+  createdBy             User?                 @relation("ApprovalLevelCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy             User?                 @relation("ApprovalLevelUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  currentRequests       ApprovalRequest[]     @relation("ApprovalRequestCurrentLevel")
+  actions               ApprovalAction[]
+  histories             ApprovalHistory[]
+  delegations           ApprovalDelegation[]
+
+  @@unique([approvalConfigurationId, levelNumber])
+  @@index([approvalConfigurationId])
+  @@index([levelNumber])
+  @@index([approverType])
+  @@index([approverUserId])
+  @@index([approverRoleId])
+  @@index([status])
+  @@map("approval_levels")
+}
+
+model ApprovalRequest {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId          String    @map("organization_id") @db.Uuid
+  approvalConfigurationId String    @map("approval_configuration_id") @db.Uuid
+  approvalNumber          String    @map("approval_number") @db.VarChar(50)
+  targetModule            String    @map("target_module") @db.VarChar(100)
+  targetEntity            String    @map("target_entity") @db.VarChar(100)
+  targetRecordId          String    @map("target_record_id") @db.Uuid
+  requestedById           String    @map("requested_by") @db.Uuid
+  requestedAt             DateTime  @default(now()) @map("requested_at") @db.Timestamptz(6)
+  currentLevelId          String?   @map("current_level_id") @db.Uuid
+  approvalStatus          String    @map("approval_status") @db.VarChar(30)
+  submittedAt             DateTime? @map("submitted_at") @db.Timestamptz(6)
+  completedAt             DateTime? @map("completed_at") @db.Timestamptz(6)
+  remarks                 String?   @db.Text
+  createdById             String?   @map("created_by") @db.Uuid
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById             String?   @map("updated_by") @db.Uuid
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization          Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
+  requestedBy           User                  @relation("ApprovalRequestRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  currentLevel          ApprovalLevel?        @relation("ApprovalRequestCurrentLevel", fields: [currentLevelId], references: [id], onDelete: Restrict)
+  createdBy             User?                 @relation("ApprovalRequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy             User?                 @relation("ApprovalRequestUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  actions               ApprovalAction[]
+  histories             ApprovalHistory[]
+
+  @@unique([organizationId, approvalNumber])
+  @@index([organizationId])
+  @@index([approvalConfigurationId])
+  @@index([approvalNumber])
+  @@index([targetModule])
+  @@index([targetEntity])
+  @@index([targetRecordId])
+  @@index([requestedById])
+  @@index([currentLevelId])
+  @@index([approvalStatus])
+  @@index([requestedAt])
+  @@index([submittedAt])
+  @@map("approval_requests")
+}
+
+model ApprovalAction {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  approvalRequestId String   @map("approval_request_id") @db.Uuid
+  approvalLevelId   String   @map("approval_level_id") @db.Uuid
+  approverUserId    String   @map("approver_user_id") @db.Uuid
+  actionType        String   @map("action_type") @db.VarChar(30)
+  actionDate        DateTime @default(now()) @map("action_date") @db.Timestamptz(6)
+  comments          String?  @db.Text
+  rejectionReason   String?  @map("rejection_reason") @db.Text
+  returnReason      String?  @map("return_reason") @db.Text
+  delegatedToUserId String?  @map("delegated_to_user_id") @db.Uuid
+  status            String   @db.VarChar(30)
+  createdById       String?  @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById       String?  @map("updated_by") @db.Uuid
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  approvalRequest ApprovalRequest   @relation(fields: [approvalRequestId], references: [id], onDelete: Restrict)
+  approvalLevel   ApprovalLevel     @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
+  approverUser    User              @relation("ApprovalActionApproverUser", fields: [approverUserId], references: [id], onDelete: Restrict)
+  delegatedToUser User?             @relation("ApprovalActionDelegatedToUser", fields: [delegatedToUserId], references: [id], onDelete: Restrict)
+  createdBy       User?             @relation("ApprovalActionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy       User?             @relation("ApprovalActionUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  histories       ApprovalHistory[]
+
+  @@index([approvalRequestId])
+  @@index([approvalLevelId])
+  @@index([approverUserId])
+  @@index([actionType])
+  @@index([actionDate])
+  @@index([delegatedToUserId])
+  @@index([status])
+  @@map("approval_actions")
+}
+
+model ApprovalHistory {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  approvalRequestId String   @map("approval_request_id") @db.Uuid
+  approvalLevelId   String?  @map("approval_level_id") @db.Uuid
+  approvalActionId  String?  @map("approval_action_id") @db.Uuid
+  eventType         String   @map("event_type") @db.VarChar(40)
+  fromStatus        String?  @map("from_status") @db.VarChar(30)
+  toStatus          String?  @map("to_status") @db.VarChar(30)
+  performedById     String?  @map("performed_by") @db.Uuid
+  eventAt           DateTime @default(now()) @map("event_at") @db.Timestamptz(6)
+  reason            String?  @db.Text
+  remarks           String?  @db.Text
+  createdById       String?  @map("created_by") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Restrict)
+  approvalLevel   ApprovalLevel?  @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
+  approvalAction  ApprovalAction? @relation(fields: [approvalActionId], references: [id], onDelete: Restrict)
+  performedBy     User?           @relation("ApprovalHistoryPerformedBy", fields: [performedById], references: [id], onDelete: Restrict)
+  createdBy       User?           @relation("ApprovalHistoryCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([approvalRequestId])
+  @@index([approvalLevelId])
+  @@index([approvalActionId])
+  @@index([eventType])
+  @@index([performedById])
+  @@index([eventAt])
+  @@index([fromStatus])
+  @@index([toStatus])
+  @@map("approval_histories")
+}
+
+model ApprovalDelegation {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId          String    @map("organization_id") @db.Uuid
+  delegatorUserId         String    @map("delegator_user_id") @db.Uuid
+  delegateUserId          String    @map("delegate_user_id") @db.Uuid
+  approvalConfigurationId String?   @map("approval_configuration_id") @db.Uuid
+  approvalLevelId         String?   @map("approval_level_id") @db.Uuid
+  effectiveFrom           DateTime  @map("effective_from") @db.Timestamptz(6)
+  effectiveTo             DateTime? @map("effective_to") @db.Timestamptz(6)
+  reason                  String?   @db.Text
+  status                  String    @db.VarChar(30)
+  createdById             String?   @map("created_by") @db.Uuid
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedById             String?   @map("updated_by") @db.Uuid
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  organization          Organization           @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  delegatorUser         User                   @relation("ApprovalDelegationDelegator", fields: [delegatorUserId], references: [id], onDelete: Restrict)
+  delegateUser          User                   @relation("ApprovalDelegationDelegate", fields: [delegateUserId], references: [id], onDelete: Restrict)
+  approvalConfiguration ApprovalConfiguration? @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
+  approvalLevel         ApprovalLevel?         @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
+  createdBy             User?                  @relation("ApprovalDelegationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy             User?                  @relation("ApprovalDelegationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([delegatorUserId])
+  @@index([delegateUserId])
+  @@index([approvalConfigurationId])
+  @@index([approvalLevelId])
+  @@index([effectiveFrom])
+  @@index([effectiveTo])
+  @@index([status])
+  @@map("approval_delegations")
 }
 
 model OutboxEvent {

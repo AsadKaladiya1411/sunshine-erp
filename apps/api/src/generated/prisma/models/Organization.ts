@@ -306,6 +306,9 @@ export type OrganizationWhereInput = {
   roles?: Prisma.RoleListRelationFilter
   roleAssignments?: Prisma.RoleAssignmentListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
+  approvalConfigurations?: Prisma.ApprovalConfigurationListRelationFilter
+  approvalRequests?: Prisma.ApprovalRequestListRelationFilter
+  approvalDelegations?: Prisma.ApprovalDelegationListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -340,6 +343,9 @@ export type OrganizationOrderByWithRelationInput = {
   roles?: Prisma.RoleOrderByRelationAggregateInput
   roleAssignments?: Prisma.RoleAssignmentOrderByRelationAggregateInput
   activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationOrderByRelationAggregateInput
+  approvalRequests?: Prisma.ApprovalRequestOrderByRelationAggregateInput
+  approvalDelegations?: Prisma.ApprovalDelegationOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -377,6 +383,9 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   roles?: Prisma.RoleListRelationFilter
   roleAssignments?: Prisma.RoleAssignmentListRelationFilter
   activityLogs?: Prisma.ActivityLogListRelationFilter
+  approvalConfigurations?: Prisma.ApprovalConfigurationListRelationFilter
+  approvalRequests?: Prisma.ApprovalRequestListRelationFilter
+  approvalDelegations?: Prisma.ApprovalDelegationListRelationFilter
 }, "id" | "organizationCode" | "organizationName">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -456,6 +465,9 @@ export type OrganizationCreateInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -485,6 +497,9 @@ export type OrganizationUncheckedCreateInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUpdateInput = {
@@ -514,6 +529,9 @@ export type OrganizationUpdateInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -543,6 +561,9 @@ export type OrganizationUncheckedUpdateInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -999,6 +1020,48 @@ export type OrganizationUpdateOneRequiredWithoutActivityLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutActivityLogsInput, Prisma.OrganizationUpdateWithoutActivityLogsInput>, Prisma.OrganizationUncheckedUpdateWithoutActivityLogsInput>
 }
 
+export type OrganizationCreateNestedOneWithoutApprovalConfigurationsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalConfigurationsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalConfigurationsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutApprovalConfigurationsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalConfigurationsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalConfigurationsInput
+  upsert?: Prisma.OrganizationUpsertWithoutApprovalConfigurationsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApprovalConfigurationsInput, Prisma.OrganizationUpdateWithoutApprovalConfigurationsInput>, Prisma.OrganizationUncheckedUpdateWithoutApprovalConfigurationsInput>
+}
+
+export type OrganizationCreateNestedOneWithoutApprovalRequestsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalRequestsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalRequestsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutApprovalRequestsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalRequestsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalRequestsInput
+  upsert?: Prisma.OrganizationUpsertWithoutApprovalRequestsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApprovalRequestsInput, Prisma.OrganizationUpdateWithoutApprovalRequestsInput>, Prisma.OrganizationUncheckedUpdateWithoutApprovalRequestsInput>
+}
+
+export type OrganizationCreateNestedOneWithoutApprovalDelegationsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalDelegationsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalDelegationsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutApprovalDelegationsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalDelegationsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutApprovalDelegationsInput
+  upsert?: Prisma.OrganizationUpsertWithoutApprovalDelegationsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApprovalDelegationsInput, Prisma.OrganizationUpdateWithoutApprovalDelegationsInput>, Prisma.OrganizationUncheckedUpdateWithoutApprovalDelegationsInput>
+}
+
 export type OrganizationCreateWithoutCountryInput = {
   id?: string
   organizationCode: string
@@ -1025,6 +1088,9 @@ export type OrganizationCreateWithoutCountryInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCountryInput = {
@@ -1053,6 +1119,9 @@ export type OrganizationUncheckedCreateWithoutCountryInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCountryInput = {
@@ -1132,6 +1201,9 @@ export type OrganizationCreateWithoutStateInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutStateInput = {
@@ -1160,6 +1232,9 @@ export type OrganizationUncheckedCreateWithoutStateInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutStateInput = {
@@ -1214,6 +1289,9 @@ export type OrganizationCreateWithoutCityInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCityInput = {
@@ -1242,6 +1320,9 @@ export type OrganizationUncheckedCreateWithoutCityInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCityInput = {
@@ -1296,6 +1377,9 @@ export type OrganizationCreateWithoutDepartmentsInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutDepartmentsInput = {
@@ -1324,6 +1408,9 @@ export type OrganizationUncheckedCreateWithoutDepartmentsInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutDepartmentsInput = {
@@ -1368,6 +1455,9 @@ export type OrganizationUpdateWithoutDepartmentsInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutDepartmentsInput = {
@@ -1396,6 +1486,9 @@ export type OrganizationUncheckedUpdateWithoutDepartmentsInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutUsersInput = {
@@ -1424,6 +1517,9 @@ export type OrganizationCreateWithoutUsersInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutUsersInput = {
@@ -1452,6 +1548,9 @@ export type OrganizationUncheckedCreateWithoutUsersInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutUsersInput = {
@@ -1485,6 +1584,9 @@ export type OrganizationCreateWithoutCreatedByInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutCreatedByInput = {
@@ -1513,6 +1615,9 @@ export type OrganizationUncheckedCreateWithoutCreatedByInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutCreatedByInput = {
@@ -1551,6 +1656,9 @@ export type OrganizationCreateWithoutUpdatedByInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutUpdatedByInput = {
@@ -1579,6 +1687,9 @@ export type OrganizationUncheckedCreateWithoutUpdatedByInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutUpdatedByInput = {
@@ -1628,6 +1739,9 @@ export type OrganizationUpdateWithoutUsersInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutUsersInput = {
@@ -1656,6 +1770,9 @@ export type OrganizationUncheckedUpdateWithoutUsersInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -1716,6 +1833,9 @@ export type OrganizationCreateWithoutFinancialYearsInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutFinancialYearsInput = {
@@ -1744,6 +1864,9 @@ export type OrganizationUncheckedCreateWithoutFinancialYearsInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutFinancialYearsInput = {
@@ -1788,6 +1911,9 @@ export type OrganizationUpdateWithoutFinancialYearsInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutFinancialYearsInput = {
@@ -1816,6 +1942,9 @@ export type OrganizationUncheckedUpdateWithoutFinancialYearsInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutSettingsInput = {
@@ -1844,6 +1973,9 @@ export type OrganizationCreateWithoutSettingsInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutSettingsInput = {
@@ -1872,6 +2004,9 @@ export type OrganizationUncheckedCreateWithoutSettingsInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutSettingsInput = {
@@ -1916,6 +2051,9 @@ export type OrganizationUpdateWithoutSettingsInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSettingsInput = {
@@ -1944,6 +2082,9 @@ export type OrganizationUncheckedUpdateWithoutSettingsInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutRolesInput = {
@@ -1972,6 +2113,9 @@ export type OrganizationCreateWithoutRolesInput = {
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutRolesInput = {
@@ -2000,6 +2144,9 @@ export type OrganizationUncheckedCreateWithoutRolesInput = {
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutRolesInput = {
@@ -2044,6 +2191,9 @@ export type OrganizationUpdateWithoutRolesInput = {
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutRolesInput = {
@@ -2072,6 +2222,9 @@ export type OrganizationUncheckedUpdateWithoutRolesInput = {
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutRoleAssignmentsInput = {
@@ -2100,6 +2253,9 @@ export type OrganizationCreateWithoutRoleAssignmentsInput = {
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
@@ -2128,6 +2284,9 @@ export type OrganizationUncheckedCreateWithoutRoleAssignmentsInput = {
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutRoleAssignmentsInput = {
@@ -2172,6 +2331,9 @@ export type OrganizationUpdateWithoutRoleAssignmentsInput = {
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
@@ -2200,6 +2362,9 @@ export type OrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateWithoutActivityLogsInput = {
@@ -2228,6 +2393,9 @@ export type OrganizationCreateWithoutActivityLogsInput = {
   settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
   roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationUncheckedCreateWithoutActivityLogsInput = {
@@ -2256,6 +2424,9 @@ export type OrganizationUncheckedCreateWithoutActivityLogsInput = {
   settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
 }
 
 export type OrganizationCreateOrConnectWithoutActivityLogsInput = {
@@ -2300,6 +2471,9 @@ export type OrganizationUpdateWithoutActivityLogsInput = {
   settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutActivityLogsInput = {
@@ -2328,6 +2502,429 @@ export type OrganizationUncheckedUpdateWithoutActivityLogsInput = {
   settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutApprovalConfigurationsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  pincode?: string | null
+  status: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  city?: Prisma.CityCreateNestedOneWithoutOrganizationsInput
+  state?: Prisma.StateCreateNestedOneWithoutOrganizationsInput
+  country?: Prisma.CountryCreateNestedOneWithoutOrganizationsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedOrganizationsInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedOrganizationsInput
+  departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutApprovalConfigurationsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  cityId?: string | null
+  stateId?: string | null
+  countryId?: string | null
+  pincode?: string | null
+  status: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutApprovalConfigurationsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalConfigurationsInput>
+}
+
+export type OrganizationUpsertWithoutApprovalConfigurationsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalConfigurationsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalConfigurationsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutApprovalConfigurationsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalConfigurationsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalConfigurationsInput>
+}
+
+export type OrganizationUpdateWithoutApprovalConfigurationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  city?: Prisma.CityUpdateOneWithoutOrganizationsNestedInput
+  state?: Prisma.StateUpdateOneWithoutOrganizationsNestedInput
+  country?: Prisma.CountryUpdateOneWithoutOrganizationsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedOrganizationsNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedOrganizationsNestedInput
+  departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutApprovalConfigurationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutApprovalRequestsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  pincode?: string | null
+  status: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  city?: Prisma.CityCreateNestedOneWithoutOrganizationsInput
+  state?: Prisma.StateCreateNestedOneWithoutOrganizationsInput
+  country?: Prisma.CountryCreateNestedOneWithoutOrganizationsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedOrganizationsInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedOrganizationsInput
+  departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutApprovalRequestsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  cityId?: string | null
+  stateId?: string | null
+  countryId?: string | null
+  pincode?: string | null
+  status: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutApprovalRequestsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalRequestsInput>
+}
+
+export type OrganizationUpsertWithoutApprovalRequestsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalRequestsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalRequestsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutApprovalRequestsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalRequestsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalRequestsInput>
+}
+
+export type OrganizationUpdateWithoutApprovalRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  city?: Prisma.CityUpdateOneWithoutOrganizationsNestedInput
+  state?: Prisma.StateUpdateOneWithoutOrganizationsNestedInput
+  country?: Prisma.CountryUpdateOneWithoutOrganizationsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedOrganizationsNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedOrganizationsNestedInput
+  departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationCreateWithoutApprovalDelegationsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  pincode?: string | null
+  status: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  city?: Prisma.CityCreateNestedOneWithoutOrganizationsInput
+  state?: Prisma.StateCreateNestedOneWithoutOrganizationsInput
+  country?: Prisma.CountryCreateNestedOneWithoutOrganizationsInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedOrganizationsInput
+  updatedBy?: Prisma.UserCreateNestedOneWithoutUpdatedOrganizationsInput
+  departments?: Prisma.DepartmentCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationUncheckedCreateWithoutApprovalDelegationsInput = {
+  id?: string
+  organizationCode: string
+  organizationName: string
+  legalName?: string | null
+  gstNumber?: string | null
+  panNumber?: string | null
+  email?: string | null
+  phone?: string | null
+  website?: string | null
+  address?: string | null
+  cityId?: string | null
+  stateId?: string | null
+  countryId?: string | null
+  pincode?: string | null
+  status: string
+  createdById?: string | null
+  createdAt?: Date | string
+  updatedById?: string | null
+  updatedAt?: Date | string
+  departments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutOrganizationInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutOrganizationInput
+  financialYears?: Prisma.FinancialYearUncheckedCreateNestedManyWithoutOrganizationInput
+  settings?: Prisma.OrganizationSettingUncheckedCreateNestedOneWithoutOrganizationInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutOrganizationInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedCreateNestedManyWithoutOrganizationInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedCreateNestedManyWithoutOrganizationInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutOrganizationInput
+}
+
+export type OrganizationCreateOrConnectWithoutApprovalDelegationsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalDelegationsInput>
+}
+
+export type OrganizationUpsertWithoutApprovalDelegationsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalDelegationsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedCreateWithoutApprovalDelegationsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutApprovalDelegationsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutApprovalDelegationsInput, Prisma.OrganizationUncheckedUpdateWithoutApprovalDelegationsInput>
+}
+
+export type OrganizationUpdateWithoutApprovalDelegationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  city?: Prisma.CityUpdateOneWithoutOrganizationsNestedInput
+  state?: Prisma.StateUpdateOneWithoutOrganizationsNestedInput
+  country?: Prisma.CountryUpdateOneWithoutOrganizationsNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedOrganizationsNestedInput
+  updatedBy?: Prisma.UserUpdateOneWithoutUpdatedOrganizationsNestedInput
+  departments?: Prisma.DepartmentUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutApprovalDelegationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationName?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  panNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  departments?: Prisma.DepartmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutOrganizationNestedInput
+  financialYears?: Prisma.FinancialYearUncheckedUpdateManyWithoutOrganizationNestedInput
+  settings?: Prisma.OrganizationSettingUncheckedUpdateOneWithoutOrganizationNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
+  roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationCreateManyCountryInput = {
@@ -2377,6 +2974,9 @@ export type OrganizationUpdateWithoutCountryInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCountryInput = {
@@ -2405,6 +3005,9 @@ export type OrganizationUncheckedUpdateWithoutCountryInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCountryInput = {
@@ -2475,6 +3078,9 @@ export type OrganizationUpdateWithoutStateInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutStateInput = {
@@ -2503,6 +3109,9 @@ export type OrganizationUncheckedUpdateWithoutStateInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutStateInput = {
@@ -2573,6 +3182,9 @@ export type OrganizationUpdateWithoutCityInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCityInput = {
@@ -2601,6 +3213,9 @@ export type OrganizationUncheckedUpdateWithoutCityInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCityInput = {
@@ -2692,6 +3307,9 @@ export type OrganizationUpdateWithoutCreatedByInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
@@ -2720,6 +3338,9 @@ export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCreatedByInput = {
@@ -2769,6 +3390,9 @@ export type OrganizationUpdateWithoutUpdatedByInput = {
   roles?: Prisma.RoleUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
@@ -2797,6 +3421,9 @@ export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutOrganizationNestedInput
   roleAssignments?: Prisma.RoleAssignmentUncheckedUpdateManyWithoutOrganizationNestedInput
   activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalConfigurations?: Prisma.ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutOrganizationNestedInput
+  approvalDelegations?: Prisma.ApprovalDelegationUncheckedUpdateManyWithoutOrganizationNestedInput
 }
 
 export type OrganizationUncheckedUpdateManyWithoutUpdatedByInput = {
@@ -2832,6 +3459,9 @@ export type OrganizationCountOutputType = {
   roles: number
   roleAssignments: number
   activityLogs: number
+  approvalConfigurations: number
+  approvalRequests: number
+  approvalDelegations: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2841,6 +3471,9 @@ export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   roles?: boolean | OrganizationCountOutputTypeCountRolesArgs
   roleAssignments?: boolean | OrganizationCountOutputTypeCountRoleAssignmentsArgs
   activityLogs?: boolean | OrganizationCountOutputTypeCountActivityLogsArgs
+  approvalConfigurations?: boolean | OrganizationCountOutputTypeCountApprovalConfigurationsArgs
+  approvalRequests?: boolean | OrganizationCountOutputTypeCountApprovalRequestsArgs
+  approvalDelegations?: boolean | OrganizationCountOutputTypeCountApprovalDelegationsArgs
 }
 
 /**
@@ -2895,6 +3528,27 @@ export type OrganizationCountOutputTypeCountActivityLogsArgs<ExtArgs extends run
   where?: Prisma.ActivityLogWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountApprovalConfigurationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApprovalConfigurationWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountApprovalRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApprovalRequestWhereInput
+}
+
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountApprovalDelegationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ApprovalDelegationWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2928,6 +3582,9 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   roles?: boolean | Prisma.Organization$rolesArgs<ExtArgs>
   roleAssignments?: boolean | Prisma.Organization$roleAssignmentsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Organization$activityLogsArgs<ExtArgs>
+  approvalConfigurations?: boolean | Prisma.Organization$approvalConfigurationsArgs<ExtArgs>
+  approvalRequests?: boolean | Prisma.Organization$approvalRequestsArgs<ExtArgs>
+  approvalDelegations?: boolean | Prisma.Organization$approvalDelegationsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -3021,6 +3678,9 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   roles?: boolean | Prisma.Organization$rolesArgs<ExtArgs>
   roleAssignments?: boolean | Prisma.Organization$roleAssignmentsArgs<ExtArgs>
   activityLogs?: boolean | Prisma.Organization$activityLogsArgs<ExtArgs>
+  approvalConfigurations?: boolean | Prisma.Organization$approvalConfigurationsArgs<ExtArgs>
+  approvalRequests?: boolean | Prisma.Organization$approvalRequestsArgs<ExtArgs>
+  approvalDelegations?: boolean | Prisma.Organization$approvalDelegationsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3053,6 +3713,9 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     roles: Prisma.$RolePayload<ExtArgs>[]
     roleAssignments: Prisma.$RoleAssignmentPayload<ExtArgs>[]
     activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
+    approvalConfigurations: Prisma.$ApprovalConfigurationPayload<ExtArgs>[]
+    approvalRequests: Prisma.$ApprovalRequestPayload<ExtArgs>[]
+    approvalDelegations: Prisma.$ApprovalDelegationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3480,6 +4143,9 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   roles<T extends Prisma.Organization$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roleAssignments<T extends Prisma.Organization$roleAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$roleAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoleAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activityLogs<T extends Prisma.Organization$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  approvalConfigurations<T extends Prisma.Organization$approvalConfigurationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$approvalConfigurationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalConfigurationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  approvalRequests<T extends Prisma.Organization$approvalRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$approvalRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  approvalDelegations<T extends Prisma.Organization$approvalDelegationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$approvalDelegationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApprovalDelegationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4184,6 +4850,78 @@ export type Organization$activityLogsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ActivityLogScalarFieldEnum | Prisma.ActivityLogScalarFieldEnum[]
+}
+
+/**
+ * Organization.approvalConfigurations
+ */
+export type Organization$approvalConfigurationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApprovalConfiguration
+   */
+  select?: Prisma.ApprovalConfigurationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApprovalConfiguration
+   */
+  omit?: Prisma.ApprovalConfigurationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApprovalConfigurationInclude<ExtArgs> | null
+  where?: Prisma.ApprovalConfigurationWhereInput
+  orderBy?: Prisma.ApprovalConfigurationOrderByWithRelationInput | Prisma.ApprovalConfigurationOrderByWithRelationInput[]
+  cursor?: Prisma.ApprovalConfigurationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApprovalConfigurationScalarFieldEnum | Prisma.ApprovalConfigurationScalarFieldEnum[]
+}
+
+/**
+ * Organization.approvalRequests
+ */
+export type Organization$approvalRequestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApprovalRequest
+   */
+  select?: Prisma.ApprovalRequestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApprovalRequest
+   */
+  omit?: Prisma.ApprovalRequestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApprovalRequestInclude<ExtArgs> | null
+  where?: Prisma.ApprovalRequestWhereInput
+  orderBy?: Prisma.ApprovalRequestOrderByWithRelationInput | Prisma.ApprovalRequestOrderByWithRelationInput[]
+  cursor?: Prisma.ApprovalRequestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApprovalRequestScalarFieldEnum | Prisma.ApprovalRequestScalarFieldEnum[]
+}
+
+/**
+ * Organization.approvalDelegations
+ */
+export type Organization$approvalDelegationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ApprovalDelegation
+   */
+  select?: Prisma.ApprovalDelegationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ApprovalDelegation
+   */
+  omit?: Prisma.ApprovalDelegationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApprovalDelegationInclude<ExtArgs> | null
+  where?: Prisma.ApprovalDelegationWhereInput
+  orderBy?: Prisma.ApprovalDelegationOrderByWithRelationInput | Prisma.ApprovalDelegationOrderByWithRelationInput[]
+  cursor?: Prisma.ApprovalDelegationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ApprovalDelegationScalarFieldEnum | Prisma.ApprovalDelegationScalarFieldEnum[]
 }
 
 /**
