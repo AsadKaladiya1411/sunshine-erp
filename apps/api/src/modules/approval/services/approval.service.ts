@@ -1,5 +1,11 @@
-import { AuditService, auditService } from "../../../core/audit/audit.service.js";
-import { AuthorizationService, authorizationService } from "../../authorization/services/authorization.service.js";
+import {
+  AuditService,
+  auditService,
+} from "../../../core/audit/audit.service.js";
+import {
+  AuthorizationService,
+  authorizationService,
+} from "../../authorization/services/authorization.service.js";
 import {
   userRoleAssignmentRepository,
   type UserRoleAssignmentRepository,
@@ -80,14 +86,11 @@ function assertOptionalText(
   }
 }
 
-export class RbacApprovalAuthorizationBoundary
-  implements ApprovalAuthorizationBoundary
-{
+export class RbacApprovalAuthorizationBoundary implements ApprovalAuthorizationBoundary {
   constructor(
     private readonly permissionCode: string,
     private readonly authorization: AuthorizationService = authorizationService,
-    private readonly roleAssignments: UserRoleAssignmentRepository =
-      userRoleAssignmentRepository,
+    private readonly roleAssignments: UserRoleAssignmentRepository = userRoleAssignmentRepository,
   ) {
     if (permissionCode.trim().length === 0) {
       throw new ApprovalValidationError(
@@ -96,10 +99,7 @@ export class RbacApprovalAuthorizationBoundary
     }
   }
 
-  canPerformApproval(
-    userId: string,
-    organizationId: string,
-  ): Promise<boolean> {
+  canPerformApproval(userId: string, organizationId: string): Promise<boolean> {
     return this.authorization.hasPermission(
       userId,
       organizationId,
@@ -151,29 +151,40 @@ export class ApprovalService {
       throw new ApprovalValidationError("Unsupported configuration status.");
     }
 
-    const record = await this.repository.createConfiguration(input);
+    const record = await this.repository.createConfiguration(
+      input,
+      input.createdById
+        ? async (created, database) => {
+            await this.audit.recordActivity(
+              {
+                userId: input.createdById!,
+                organizationId: input.organizationId,
+                module: "Approval Workflow",
+                entityName: "ApprovalConfiguration",
+                recordId: created.id,
+                action: APPROVAL_ACTIVITY_ACTIONS.configurationCreated,
+                remarks: "Approval configuration created.",
+              },
+              database,
+            );
+          }
+        : undefined,
+    );
     if (!record) {
       throw new ApprovalNotFoundError(
         "Organization or audit actor was not found in the requested tenant.",
       );
     }
-    if (input.createdById) {
-      await this.audit.recordActivity({
-        userId: input.createdById,
-        organizationId: input.organizationId,
-        module: "Approval Workflow",
-        entityName: "ApprovalConfiguration",
-        recordId: record.id,
-        action: APPROVAL_ACTIVITY_ACTIONS.configurationCreated,
-        remarks: "Approval configuration created.",
-      });
-    }
     return record;
   }
 
-  async createLevel(input: CreateApprovalLevelInput): Promise<ApprovalLevelRecord> {
+  async createLevel(
+    input: CreateApprovalLevelInput,
+  ): Promise<ApprovalLevelRecord> {
     if (!Number.isInteger(input.levelNumber) || input.levelNumber <= 0) {
-      throw new ApprovalValidationError("Level number must be a positive integer.");
+      throw new ApprovalValidationError(
+        "Level number must be a positive integer.",
+      );
     }
     assertText(input.levelName, "Level name", 100);
     assertOptionalText(input.remarks, "Remarks");
@@ -194,22 +205,29 @@ export class ApprovalService {
       );
     }
 
-    const record = await this.repository.createLevel(input);
+    const record = await this.repository.createLevel(
+      input,
+      input.createdById
+        ? async (created, database) => {
+            await this.audit.recordActivity(
+              {
+                userId: input.createdById!,
+                organizationId: input.organizationId,
+                module: "Approval Workflow",
+                entityName: "ApprovalLevel",
+                recordId: created.id,
+                action: APPROVAL_ACTIVITY_ACTIONS.levelCreated,
+                remarks: "Approval level created.",
+              },
+              database,
+            );
+          }
+        : undefined,
+    );
     if (!record) {
       throw new ApprovalNotFoundError(
         "Configuration, approver, role, or audit actor was not found in the requested tenant.",
       );
-    }
-    if (input.createdById) {
-      await this.audit.recordActivity({
-        userId: input.createdById,
-        organizationId: input.organizationId,
-        module: "Approval Workflow",
-        entityName: "ApprovalLevel",
-        recordId: record.id,
-        action: APPROVAL_ACTIVITY_ACTIONS.levelCreated,
-        remarks: "Approval level created.",
-      });
     }
     return record;
   }
@@ -285,22 +303,27 @@ export class ApprovalService {
       input,
       firstLevel.id,
       submittedAt,
+      async (submitted, database) => {
+        await this.audit.recordActivity(
+          {
+            userId: input.createdById ?? input.requestedById,
+            organizationId: input.organizationId,
+            module: "Approval Workflow",
+            entityName: "ApprovalRequest",
+            recordId: submitted.id,
+            action: APPROVAL_ACTIVITY_ACTIONS.requestSubmitted,
+            performedAt: submittedAt,
+            remarks: "Approval request submitted.",
+          },
+          database,
+        );
+      },
     );
     if (!record) {
       throw new ApprovalNotFoundError(
         "Requester, configuration, level, or audit actor was not found in the requested tenant.",
       );
     }
-    await this.audit.recordActivity({
-      userId: input.createdById ?? input.requestedById,
-      organizationId: input.organizationId,
-      module: "Approval Workflow",
-      entityName: "ApprovalRequest",
-      recordId: record.id,
-      action: APPROVAL_ACTIVITY_ACTIONS.requestSubmitted,
-      performedAt: submittedAt,
-      remarks: "Approval request submitted.",
-    });
     return record;
   }
 
@@ -319,7 +342,9 @@ export class ApprovalService {
       );
     }
     if (input.actionType === "Return" && !input.returnReason) {
-      throw new ApprovalValidationError("Return reason is required for Return.");
+      throw new ApprovalValidationError(
+        "Return reason is required for Return.",
+      );
     }
     if (input.actionType === "Delegate" && !input.delegatedToUserId) {
       throw new ApprovalValidationError(
@@ -377,41 +402,48 @@ export class ApprovalService {
     }
 
     const transition = this.resolveTransition(context, input.actionType);
-    const result = await this.repository.persistAction({
-      organizationId: input.organizationId,
-      approvalRequestId: input.approvalRequestId,
-      expectedCurrentLevelId: context.currentLevel.id,
-      approverUserId: input.approverUserId,
-      actionType: input.actionType,
-      actionDate,
-      comments: input.comments,
-      rejectionReason: input.rejectionReason,
-      returnReason: input.returnReason,
-      delegatedToUserId: input.delegatedToUserId,
-      createdById: input.createdById,
-      fromStatus: context.request.approvalStatus,
-      toStatus: transition.toStatus,
-      nextLevelId: transition.nextLevelId,
-      completedAt: transition.completedAt ? actionDate : null,
-      eventType: transition.eventType,
-      reason: input.rejectionReason ?? input.returnReason,
-      appendCompletionEvent: transition.appendCompletionEvent,
-    });
+    const result = await this.repository.persistAction(
+      {
+        organizationId: input.organizationId,
+        approvalRequestId: input.approvalRequestId,
+        expectedCurrentLevelId: context.currentLevel.id,
+        approverUserId: input.approverUserId,
+        actionType: input.actionType,
+        actionDate,
+        comments: input.comments,
+        rejectionReason: input.rejectionReason,
+        returnReason: input.returnReason,
+        delegatedToUserId: input.delegatedToUserId,
+        createdById: input.createdById,
+        fromStatus: context.request.approvalStatus,
+        toStatus: transition.toStatus,
+        nextLevelId: transition.nextLevelId,
+        completedAt: transition.completedAt ? actionDate : null,
+        eventType: transition.eventType,
+        reason: input.rejectionReason ?? input.returnReason,
+        appendCompletionEvent: transition.appendCompletionEvent,
+      },
+      async (persisted, database) => {
+        await this.audit.recordActivity(
+          {
+            userId: input.approverUserId,
+            organizationId: input.organizationId,
+            module: "Approval Workflow",
+            entityName: "ApprovalAction",
+            recordId: persisted.action.id,
+            action: APPROVAL_ACTIVITY_ACTIONS.actionRecorded,
+            performedAt: actionDate,
+            remarks: `Approval action recorded: ${input.actionType}.`,
+          },
+          database,
+        );
+      },
+    );
     if (!result) {
       throw new ApprovalStateConflictError(
         "Approval Request changed before the action could be recorded.",
       );
     }
-    await this.audit.recordActivity({
-      userId: input.approverUserId,
-      organizationId: input.organizationId,
-      module: "Approval Workflow",
-      entityName: "ApprovalAction",
-      recordId: result.action.id,
-      action: APPROVAL_ACTIVITY_ACTIONS.actionRecorded,
-      performedAt: actionDate,
-      remarks: `Approval action recorded: ${input.actionType}.`,
-    });
     return this.freezeActionResult(result);
   }
 
@@ -445,21 +477,28 @@ export class ApprovalService {
       }
     }
 
-    const record = await this.repository.createDelegation(input);
+    const record = await this.repository.createDelegation(
+      input,
+      async (created, database) => {
+        await this.audit.recordActivity(
+          {
+            userId: input.createdById ?? input.delegatorUserId,
+            organizationId: input.organizationId,
+            module: "Approval Workflow",
+            entityName: "ApprovalDelegation",
+            recordId: created.id,
+            action: APPROVAL_ACTIVITY_ACTIONS.delegationCreated,
+            remarks: "Approval delegation created.",
+          },
+          database,
+        );
+      },
+    );
     if (!record) {
       throw new ApprovalNotFoundError(
         "Delegation user, scope, or audit actor was not found in the requested tenant.",
       );
     }
-    await this.audit.recordActivity({
-      userId: input.createdById ?? input.delegatorUserId,
-      organizationId: input.organizationId,
-      module: "Approval Workflow",
-      entityName: "ApprovalDelegation",
-      recordId: record.id,
-      action: APPROVAL_ACTIVITY_ACTIONS.delegationCreated,
-      remarks: "Approval delegation created.",
-    });
     return record;
   }
 
@@ -491,7 +530,10 @@ export class ApprovalService {
       if (level.approverUserId === input.approverUserId) {
         return;
       }
-      if (!level.approverUserId || input.delegatedFromUserId !== level.approverUserId) {
+      if (
+        !level.approverUserId ||
+        input.delegatedFromUserId !== level.approverUserId
+      ) {
         throw new ApprovalAuthorizationError(
           "User is not the configured approver or an approved delegate.",
         );

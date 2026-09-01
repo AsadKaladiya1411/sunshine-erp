@@ -35,6 +35,7 @@ model State {
 
   @@unique([countryId, code])
   @@unique([countryId, name])
+  @@unique([id, countryId])
   @@index([countryId])
   @@index([status])
   @@map("states")
@@ -53,13 +54,15 @@ model City {
 
   @@unique([stateId, code])
   @@unique([stateId, name])
+  @@unique([id, stateId])
   @@index([stateId])
   @@index([status])
   @@map("cities")
 }
 
+/// Geography parent-presence checks are enforced by the Group 1 tenant-integrity migration.
 model Organization {
-  id               String   @id @default(uuid()) @db.Uuid
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   organizationCode String   @unique @map("organization_code") @db.VarChar(50)
   organizationName String   @unique @map("organization_name") @db.VarChar(150)
   legalName        String?  @map("legal_name") @db.VarChar(200)
@@ -79,11 +82,11 @@ model Organization {
   updatedById      String?  @map("updated_by") @db.Uuid
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  city                   City?                   @relation(fields: [cityId], references: [id], onDelete: Restrict)
-  state                  State?                  @relation(fields: [stateId], references: [id], onDelete: Restrict)
+  city                   City?                   @relation(fields: [cityId, stateId], references: [id, stateId], onDelete: Restrict)
+  state                  State?                  @relation(fields: [stateId, countryId], references: [id, countryId], onDelete: Restrict)
   country                Country?                @relation(fields: [countryId], references: [id], onDelete: Restrict)
-  createdBy              User?                   @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy              User?                   @relation("OrganizationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdBy              User?                   @relation("OrganizationCreatedBy", fields: [createdById, id], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  updatedBy              User?                   @relation("OrganizationUpdatedBy", fields: [updatedById, id], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
   departments            Department[]
   users                  User[]                  @relation("OrganizationUsers")
   financialYears         FinancialYear[]
@@ -117,12 +120,13 @@ model Department {
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  createdBy    User?        @relation("DepartmentCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy    User?        @relation("DepartmentUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdBy    User?        @relation("DepartmentCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  updatedBy    User?        @relation("DepartmentUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
   users        User[]       @relation("DepartmentUsers")
 
   @@unique([organizationId, departmentCode])
   @@unique([organizationId, departmentName])
+  @@unique([id, organizationId])
   @@index([organizationId])
   @@index([createdById])
   @@index([updatedById])
@@ -151,9 +155,9 @@ model User {
   updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization                  Organization            @relation("OrganizationUsers", fields: [organizationId], references: [id], onDelete: Restrict)
-  department                    Department              @relation("DepartmentUsers", fields: [departmentId], references: [id], onDelete: Restrict)
-  createdBy                     User?                   @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy                     User?                   @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  department                    Department              @relation("DepartmentUsers", fields: [departmentId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  createdBy                     User?                   @relation("UserCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  updatedBy                     User?                   @relation("UserUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
   createdUsers                  User[]                  @relation("UserCreatedBy")
   updatedUsers                  User[]                  @relation("UserUpdatedBy")
   createdOrganizations          Organization[]          @relation("OrganizationCreatedBy")
@@ -208,6 +212,7 @@ model User {
   @@map("users")
 }
 
+/// Non-overlapping inclusive periods per organization are enforced by a PostgreSQL exclusion constraint.
 model FinancialYear {
   id                String   @id @default(uuid()) @db.Uuid
   organizationId    String   @map("organization_id") @db.Uuid
@@ -222,11 +227,12 @@ model FinancialYear {
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  createdBy            User?                 @relation("FinancialYearCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy            User?                 @relation("FinancialYearUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdBy            User?                 @relation("FinancialYearCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  updatedBy            User?                 @relation("FinancialYearUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
   organizationSettings OrganizationSetting[]
 
   @@unique([organizationId, financialYearCode])
+  @@unique([id, organizationId])
   @@index([organizationId])
   @@index([createdById])
   @@index([updatedById])
@@ -252,9 +258,9 @@ model OrganizationSetting {
   updatedAt             DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  financialYear FinancialYear? @relation(fields: [financialYearId], references: [id], onDelete: Restrict)
-  createdBy     User?          @relation("OrganizationSettingCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy     User?          @relation("OrganizationSettingUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  financialYear FinancialYear? @relation(fields: [financialYearId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  createdBy     User?          @relation("OrganizationSettingCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
+  updatedBy     User?          @relation("OrganizationSettingUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: Restrict)
 
   @@index([financialYearId])
   @@index([createdById])

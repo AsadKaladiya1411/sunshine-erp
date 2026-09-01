@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model Organization
- * 
+ * Geography parent-presence checks are enforced by the Group 1 tenant-integrity migration.
  */
 export type OrganizationModel = runtime.Types.Result.DefaultSelection<Prisma.$OrganizationPayload>
 
@@ -439,7 +439,6 @@ export type OrganizationScalarWhereWithAggregatesInput = {
 }
 
 export type OrganizationCreateInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -503,7 +502,6 @@ export type OrganizationUncheckedCreateInput = {
 }
 
 export type OrganizationUpdateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -589,7 +587,6 @@ export type OrganizationCreateManyInput = {
 }
 
 export type OrganizationUpdateManyMutationInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1063,7 +1060,6 @@ export type OrganizationUpdateOneRequiredWithoutApprovalDelegationsNestedInput =
 }
 
 export type OrganizationCreateWithoutCountryInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1176,7 +1172,6 @@ export type OrganizationScalarWhereInput = {
 }
 
 export type OrganizationCreateWithoutStateInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1218,7 +1213,6 @@ export type OrganizationUncheckedCreateWithoutStateInput = {
   website?: string | null
   address?: string | null
   cityId?: string | null
-  countryId?: string | null
   pincode?: string | null
   status: string
   createdById?: string | null
@@ -1264,7 +1258,6 @@ export type OrganizationUpdateManyWithWhereWithoutStateInput = {
 }
 
 export type OrganizationCreateWithoutCityInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1305,7 +1298,6 @@ export type OrganizationUncheckedCreateWithoutCityInput = {
   phone?: string | null
   website?: string | null
   address?: string | null
-  stateId?: string | null
   countryId?: string | null
   pincode?: string | null
   status: string
@@ -1352,7 +1344,6 @@ export type OrganizationUpdateManyWithWhereWithoutCityInput = {
 }
 
 export type OrganizationCreateWithoutDepartmentsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1430,7 +1421,6 @@ export type OrganizationUpdateToOneWithWhereWithoutDepartmentsInput = {
 }
 
 export type OrganizationUpdateWithoutDepartmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1492,7 +1482,6 @@ export type OrganizationUncheckedUpdateWithoutDepartmentsInput = {
 }
 
 export type OrganizationCreateWithoutUsersInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1559,7 +1548,6 @@ export type OrganizationCreateOrConnectWithoutUsersInput = {
 }
 
 export type OrganizationCreateWithoutCreatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1590,7 +1578,6 @@ export type OrganizationCreateWithoutCreatedByInput = {
 }
 
 export type OrganizationUncheckedCreateWithoutCreatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1631,7 +1618,6 @@ export type OrganizationCreateManyCreatedByInputEnvelope = {
 }
 
 export type OrganizationCreateWithoutUpdatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1662,7 +1648,6 @@ export type OrganizationCreateWithoutUpdatedByInput = {
 }
 
 export type OrganizationUncheckedCreateWithoutUpdatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1714,7 +1699,6 @@ export type OrganizationUpdateToOneWithWhereWithoutUsersInput = {
 }
 
 export type OrganizationUpdateWithoutUsersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1808,7 +1792,6 @@ export type OrganizationUpdateManyWithWhereWithoutUpdatedByInput = {
 }
 
 export type OrganizationCreateWithoutFinancialYearsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -1886,7 +1869,6 @@ export type OrganizationUpdateToOneWithWhereWithoutFinancialYearsInput = {
 }
 
 export type OrganizationUpdateWithoutFinancialYearsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1948,7 +1930,6 @@ export type OrganizationUncheckedUpdateWithoutFinancialYearsInput = {
 }
 
 export type OrganizationCreateWithoutSettingsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2026,7 +2007,6 @@ export type OrganizationUpdateToOneWithWhereWithoutSettingsInput = {
 }
 
 export type OrganizationUpdateWithoutSettingsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2088,7 +2068,6 @@ export type OrganizationUncheckedUpdateWithoutSettingsInput = {
 }
 
 export type OrganizationCreateWithoutRolesInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2166,7 +2145,6 @@ export type OrganizationUpdateToOneWithWhereWithoutRolesInput = {
 }
 
 export type OrganizationUpdateWithoutRolesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2228,7 +2206,6 @@ export type OrganizationUncheckedUpdateWithoutRolesInput = {
 }
 
 export type OrganizationCreateWithoutRoleAssignmentsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2306,7 +2283,6 @@ export type OrganizationUpdateToOneWithWhereWithoutRoleAssignmentsInput = {
 }
 
 export type OrganizationUpdateWithoutRoleAssignmentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2368,7 +2344,6 @@ export type OrganizationUncheckedUpdateWithoutRoleAssignmentsInput = {
 }
 
 export type OrganizationCreateWithoutActivityLogsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2446,7 +2421,6 @@ export type OrganizationUpdateToOneWithWhereWithoutActivityLogsInput = {
 }
 
 export type OrganizationUpdateWithoutActivityLogsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2508,7 +2482,6 @@ export type OrganizationUncheckedUpdateWithoutActivityLogsInput = {
 }
 
 export type OrganizationCreateWithoutApprovalConfigurationsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2586,7 +2559,6 @@ export type OrganizationUpdateToOneWithWhereWithoutApprovalConfigurationsInput =
 }
 
 export type OrganizationUpdateWithoutApprovalConfigurationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2648,7 +2620,6 @@ export type OrganizationUncheckedUpdateWithoutApprovalConfigurationsInput = {
 }
 
 export type OrganizationCreateWithoutApprovalRequestsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2726,7 +2697,6 @@ export type OrganizationUpdateToOneWithWhereWithoutApprovalRequestsInput = {
 }
 
 export type OrganizationUpdateWithoutApprovalRequestsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2788,7 +2758,6 @@ export type OrganizationUncheckedUpdateWithoutApprovalRequestsInput = {
 }
 
 export type OrganizationCreateWithoutApprovalDelegationsInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -2866,7 +2835,6 @@ export type OrganizationUpdateToOneWithWhereWithoutApprovalDelegationsInput = {
 }
 
 export type OrganizationUpdateWithoutApprovalDelegationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2949,7 +2917,6 @@ export type OrganizationCreateManyCountryInput = {
 }
 
 export type OrganizationUpdateWithoutCountryInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3043,7 +3010,6 @@ export type OrganizationCreateManyStateInput = {
   website?: string | null
   address?: string | null
   cityId?: string | null
-  countryId?: string | null
   pincode?: string | null
   status: string
   createdById?: string | null
@@ -3053,7 +3019,6 @@ export type OrganizationCreateManyStateInput = {
 }
 
 export type OrganizationUpdateWithoutStateInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3095,7 +3060,6 @@ export type OrganizationUncheckedUpdateWithoutStateInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3126,7 +3090,6 @@ export type OrganizationUncheckedUpdateManyWithoutStateInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3146,7 +3109,6 @@ export type OrganizationCreateManyCityInput = {
   phone?: string | null
   website?: string | null
   address?: string | null
-  stateId?: string | null
   countryId?: string | null
   pincode?: string | null
   status: string
@@ -3157,7 +3119,6 @@ export type OrganizationCreateManyCityInput = {
 }
 
 export type OrganizationUpdateWithoutCityInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3198,7 +3159,6 @@ export type OrganizationUncheckedUpdateWithoutCityInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3229,7 +3189,6 @@ export type OrganizationUncheckedUpdateManyWithoutCityInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  stateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   countryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3240,7 +3199,6 @@ export type OrganizationUncheckedUpdateManyWithoutCityInput = {
 }
 
 export type OrganizationCreateManyCreatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -3261,7 +3219,6 @@ export type OrganizationCreateManyCreatedByInput = {
 }
 
 export type OrganizationCreateManyUpdatedByInput = {
-  id?: string
   organizationCode: string
   organizationName: string
   legalName?: string | null
@@ -3282,7 +3239,6 @@ export type OrganizationCreateManyUpdatedByInput = {
 }
 
 export type OrganizationUpdateWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3313,7 +3269,6 @@ export type OrganizationUpdateWithoutCreatedByInput = {
 }
 
 export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3344,7 +3299,6 @@ export type OrganizationUncheckedUpdateWithoutCreatedByInput = {
 }
 
 export type OrganizationUncheckedUpdateManyWithoutCreatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3365,7 +3319,6 @@ export type OrganizationUncheckedUpdateManyWithoutCreatedByInput = {
 }
 
 export type OrganizationUpdateWithoutUpdatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3396,7 +3349,6 @@ export type OrganizationUpdateWithoutUpdatedByInput = {
 }
 
 export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3427,7 +3379,6 @@ export type OrganizationUncheckedUpdateWithoutUpdatedByInput = {
 }
 
 export type OrganizationUncheckedUpdateManyWithoutUpdatedByInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
   organizationCode?: Prisma.StringFieldUpdateOperationsInput | string
   organizationName?: Prisma.StringFieldUpdateOperationsInput | string
   legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null

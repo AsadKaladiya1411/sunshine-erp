@@ -6,6 +6,8 @@ import type {
   RecordActivityInput,
 } from "./activity-log.types.js";
 
+export type ActivityLogDatabase = Pick<PrismaClient, "activityLog">;
+
 const activityLogSelection = {
   id: true,
   userId: true,
@@ -60,10 +62,13 @@ function mapActivityLog(record: ActivityLogDatabaseRecord): ActivityLogRecord {
 }
 
 export class ActivityLogRepository {
-  constructor(private readonly database: PrismaClient = prisma) {}
+  constructor(private readonly database: ActivityLogDatabase = prisma) {}
 
-  async append(input: RecordActivityInput): Promise<ActivityLogRecord> {
-    const record = await this.database.activityLog.create({
+  async append(
+    input: RecordActivityInput,
+    database: ActivityLogDatabase = this.database,
+  ): Promise<ActivityLogRecord> {
+    const record = await database.activityLog.create({
       data: {
         userId: input.userId,
         organizationId: input.organizationId,

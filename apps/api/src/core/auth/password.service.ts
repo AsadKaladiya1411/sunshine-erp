@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 import { env } from "@sunshine-erp/config";
 import { PasswordPolicyError } from "../http/errors.js";
+import {
+  BCRYPT_PASSWORD_MAX_BYTES_MESSAGE,
+  isWithinBcryptPasswordBoundary,
+} from "./password-boundary.js";
 
 export interface PasswordServiceOptions {
   readonly minimumLength: number;
@@ -23,6 +27,10 @@ export class PasswordService {
         `Password must contain at least ${this.options.minimumLength} characters.`,
       );
     }
+
+    if (!isWithinBcryptPasswordBoundary(password)) {
+      throw new PasswordPolicyError(BCRYPT_PASSWORD_MAX_BYTES_MESSAGE);
+    }
   }
 
   async hash(password: string): Promise<string> {
@@ -31,6 +39,10 @@ export class PasswordService {
   }
 
   verify(password: string, passwordHash: string): Promise<boolean> {
+    if (!isWithinBcryptPasswordBoundary(password)) {
+      return Promise.resolve(false);
+    }
+
     return bcrypt.compare(password, passwordHash);
   }
 

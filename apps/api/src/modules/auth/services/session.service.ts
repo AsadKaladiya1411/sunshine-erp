@@ -1,9 +1,15 @@
 import { env } from "@sunshine-erp/config";
-import { AuthenticationError, SessionLimitError } from "../../../core/http/errors.js";
+import {
+  AuthenticationError,
+  SessionLimitError,
+} from "../../../core/http/errors.js";
 import type { RefreshTokenCredential } from "../../../core/auth/refresh-token.service.js";
 import {
   authRepository,
   type AuthRepository,
+  type AuthMutationAudit,
+  type CreateLoginSessionResult,
+  type RotateSessionResult,
 } from "../repositories/auth.repository.js";
 import type { AuthenticatedUserIdentity } from "../types/auth.types.js";
 
@@ -24,18 +30,24 @@ export interface ReusedRefreshSession {
 export class SessionService {
   constructor(private readonly repository: AuthRepository = authRepository) {}
 
-  async create(input: CreateSessionInput): Promise<string> {
-    const result = await this.repository.createLoginSession({
-      userId: input.userId,
-      organizationId: input.organizationId,
-      tokenHash: input.refreshCredential.tokenHash,
-      issuedAt: input.refreshCredential.issuedAt,
-      expiresAt: input.refreshCredential.expiresAt,
-      now: input.now,
-      ipAddress: input.ipAddress,
-      userAgent: input.userAgent,
-      defaultMaxConcurrentSessions: env.DEFAULT_MAX_CONCURRENT_SESSIONS,
-    });
+  async create(
+    input: CreateSessionInput,
+    audit?: AuthMutationAudit<CreateLoginSessionResult>,
+  ): Promise<string> {
+    const result = await this.repository.createLoginSession(
+      {
+        userId: input.userId,
+        organizationId: input.organizationId,
+        tokenHash: input.refreshCredential.tokenHash,
+        issuedAt: input.refreshCredential.issuedAt,
+        expiresAt: input.refreshCredential.expiresAt,
+        now: input.now,
+        ipAddress: input.ipAddress,
+        userAgent: input.userAgent,
+        defaultMaxConcurrentSessions: env.DEFAULT_MAX_CONCURRENT_SESSIONS,
+      },
+      audit,
+    );
 
     if (result.kind === "limit") {
       throw new SessionLimitError();
@@ -54,7 +66,8 @@ export class SessionService {
     organizationId: string,
     now = new Date(),
   ): Promise<AuthenticatedUserIdentity> {
-    const session = await this.repository.getSessionForAuthentication(sessionId);
+    const session =
+      await this.repository.getSessionForAuthentication(sessionId);
 
     if (
       !session ||
@@ -94,14 +107,18 @@ export class SessionService {
     presentedTokenHash: string,
     replacementCredential: RefreshTokenCredential,
     now = new Date(),
+    audit?: AuthMutationAudit<RotateSessionResult>,
   ): Promise<AuthenticatedUserIdentity | ReusedRefreshSession | null> {
-    const result = await this.repository.rotateRefreshSession({
-      presentedTokenHash,
-      replacementTokenHash: replacementCredential.tokenHash,
-      replacementIssuedAt: replacementCredential.issuedAt,
-      replacementExpiresAt: replacementCredential.expiresAt,
-      now,
-    });
+    const result = await this.repository.rotateRefreshSession(
+      {
+        presentedTokenHash,
+        replacementTokenHash: replacementCredential.tokenHash,
+        replacementIssuedAt: replacementCredential.issuedAt,
+        replacementExpiresAt: replacementCredential.expiresAt,
+        now,
+      },
+      audit,
+    );
 
     if (result.kind === "rotated") {
       return result.identity;
@@ -112,8 +129,12 @@ export class SessionService {
       : null;
   }
 
-  logout(sessionId: string, now = new Date()): Promise<void> {
-    return this.repository.logoutSession(sessionId, now);
+  logout(
+    sessionId: string,
+    now = new Date(),
+    audit?: AuthMutationAudit<void>,
+  ): Promise<void> {
+    return this.repository.logoutSession(sessionId, now, audit);
   }
 }
 

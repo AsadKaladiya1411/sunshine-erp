@@ -3,7 +3,15 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { PrismaPg } from "@prisma/adapter-pg";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from "@jest/globals";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from "@jest/globals";
 import { Client } from "pg";
 
 import { ActivityLogRepository } from "../../core/audit/activity-log.repository.js";
@@ -74,7 +82,10 @@ async function expectDatabaseError(
     await operation();
     throw new Error("Expected database operation to fail.");
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Expected database operation to fail.") {
+    if (
+      error instanceof Error &&
+      error.message === "Expected database operation to fail."
+    ) {
       throw error;
     }
     if (code) {
@@ -91,6 +102,7 @@ describe("Approval Engine foundation", () => {
   let database: PrismaClient;
   let repository: ApprovalRepository;
   let authorization: TestApprovalAuthorization;
+  let audit: AuditService;
   let service: ApprovalService;
 
   let organizationAId: string;
@@ -179,14 +191,12 @@ describe("Approval Engine foundation", () => {
     });
     repository = new ApprovalRepository(database);
     authorization = new TestApprovalAuthorization();
-    service = new ApprovalService(
-      authorization,
-      repository,
-      new AuditService(new ActivityLogRepository(database)),
-    );
+    audit = new AuditService(new ActivityLogRepository(database));
+    service = new ApprovalService(authorization, repository, audit);
 
     const organizationA = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: uniqueCode("ORG-A"),
         organizationName: uniqueCode("Organization A"),
         status: "Active",
@@ -194,6 +204,7 @@ describe("Approval Engine foundation", () => {
     });
     const organizationB = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: uniqueCode("ORG-B"),
         organizationName: uniqueCode("Organization B"),
         status: "Active",
@@ -304,7 +315,9 @@ describe("Approval Engine foundation", () => {
     await database?.$disconnect();
     await sqlClient?.end();
     if (adminClient) {
-      await adminClient.query(`DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`);
+      await adminClient.query(
+        `DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`,
+      );
       await adminClient.end();
     }
   });
@@ -331,7 +344,9 @@ describe("Approval Engine foundation", () => {
        ORDER BY ordinal_position`,
       [schemaName],
     );
-    const columnNames = requestColumns.rows.map(({ column_name }) => column_name);
+    const columnNames = requestColumns.rows.map(
+      ({ column_name }) => column_name,
+    );
     expect(columnNames).toContain("approval_status");
     expect(columnNames).not.toEqual(
       expect.arrayContaining(["decision", "decision_remarks", "decided_at"]),
@@ -384,8 +399,12 @@ describe("Approval Engine foundation", () => {
       submissionStatus: "Configured",
       status: "Active",
     });
-    await expect(service.isApprovalRequired(configuration.id, organizationAId)).resolves.toBe(true);
-    await expect(service.isApprovalRequired(configuration.id, organizationBId)).rejects.toThrow();
+    await expect(
+      service.isApprovalRequired(configuration.id, organizationAId),
+    ).resolves.toBe(true);
+    await expect(
+      service.isApprovalRequired(configuration.id, organizationBId),
+    ).rejects.toThrow();
 
     await expect(
       service.createConfiguration({
@@ -415,7 +434,9 @@ describe("Approval Engine foundation", () => {
     const noApproval = await createConfiguration("Single", {
       approvalRequired: false,
     });
-    await expect(service.isApprovalRequired(noApproval.id, organizationAId)).resolves.toBe(false);
+    await expect(
+      service.isApprovalRequired(noApproval.id, organizationAId),
+    ).resolves.toBe(false);
     await expect(submit(noApproval.id)).rejects.toBeInstanceOf(
       ApprovalStateConflictError,
     );
@@ -503,7 +524,9 @@ describe("Approval Engine foundation", () => {
       currentLevelId: null,
     });
     expect(result.request.completedAt).toBeInstanceOf(Date);
-    await expect(service.listHistory(request.id, organizationAId)).resolves.toEqual(
+    await expect(
+      service.listHistory(request.id, organizationAId),
+    ).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ eventType: "Submitted" }),
         expect.objectContaining({ eventType: "Approved" }),
@@ -555,7 +578,9 @@ describe("Approval Engine foundation", () => {
       approvalStatus: "Approved",
       currentLevelId: null,
     });
-    await expect(service.listActions(request.id, organizationAId)).resolves.toHaveLength(2);
+    await expect(
+      service.listActions(request.id, organizationAId),
+    ).resolves.toHaveLength(2);
   });
 
   it("records Reject, Return, and Delegate with required reasons and immutable history", async () => {
@@ -578,7 +603,9 @@ describe("Approval Engine foundation", () => {
       actionType: "Reject",
       rejectionReason: "Insufficient evidence.",
     });
-    await expect(service.listHistory(rejected.id, organizationAId)).resolves.toEqual(
+    await expect(
+      service.listHistory(rejected.id, organizationAId),
+    ).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           eventType: "Rejected",
@@ -652,6 +679,14 @@ describe("Approval Engine foundation", () => {
       status: "Active",
       createdById: approverAId,
     });
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "ApprovalDelegationCreated",
+          recordId: delegation.id,
+        },
+      }),
+    ).resolves.toBe(1);
     expect(delegation).toMatchObject({
       delegatorUserId: approverAId,
       delegateUserId: delegateAId,
@@ -765,13 +800,23 @@ describe("Approval Engine foundation", () => {
         appendCompletionEvent: false,
       }),
     );
-    await expect(database.approvalRequest.findUniqueOrThrow({ where: { id: request.id } })).resolves.toMatchObject({
+    await expect(
+      database.approvalRequest.findUniqueOrThrow({ where: { id: request.id } }),
+    ).resolves.toMatchObject({
       approvalStatus: "Pending",
       currentLevelId: level.id,
       completedAt: null,
     });
-    await expect(database.approvalAction.count({ where: { approvalRequestId: request.id } })).resolves.toBe(0);
-    await expect(database.approvalHistory.count({ where: { approvalRequestId: request.id } })).resolves.toBe(historyBefore);
+    await expect(
+      database.approvalAction.count({
+        where: { approvalRequestId: request.id },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.approvalHistory.count({
+        where: { approvalRequestId: request.id },
+      }),
+    ).resolves.toBe(historyBefore);
   });
 
   it("enforces tenant isolation, historical deletion protection, and centralized audit", async () => {
@@ -785,9 +830,15 @@ describe("Approval Engine foundation", () => {
       actionType: "Approve",
     });
 
-    await expect(repository.findRequest(request.id, organizationBId)).resolves.toBeNull();
-    await expect(repository.listActions(request.id, organizationBId)).resolves.toEqual([]);
-    await expect(repository.listHistory(request.id, organizationBId)).resolves.toEqual([]);
+    await expect(
+      repository.findRequest(request.id, organizationBId),
+    ).resolves.toBeNull();
+    await expect(
+      repository.listActions(request.id, organizationBId),
+    ).resolves.toEqual([]);
+    await expect(
+      repository.listHistory(request.id, organizationBId),
+    ).resolves.toEqual([]);
     await expect(
       service.createLevel({
         organizationId: organizationAId,
@@ -801,7 +852,10 @@ describe("Approval Engine foundation", () => {
     ).rejects.toThrow();
 
     await expectDatabaseError(
-      () => database.approvalConfiguration.delete({ where: { id: configuration.id } }),
+      () =>
+        database.approvalConfiguration.delete({
+          where: { id: configuration.id },
+        }),
       "P2003",
     );
     await expectDatabaseError(
@@ -827,5 +881,67 @@ describe("Approval Engine foundation", () => {
         "ApprovalActionRecorded",
       ]),
     );
+    for (const [action, recordId] of [
+      ["ApprovalConfigurationCreated", configuration.id],
+      ["ApprovalLevelCreated", level.id],
+      ["ApprovalRequestSubmitted", request.id],
+      ["ApprovalActionRecorded", result.action.id],
+    ] as const) {
+      await expect(
+        database.activityLog.count({
+          where: { organizationId: organizationAId, action, recordId },
+        }),
+      ).resolves.toBe(1);
+    }
+  });
+
+  it("rolls back an Approval mutation and its partial audit write when auditing fails", async () => {
+    const configurationCode = uniqueCode("ATOMIC");
+    const auditCountBefore = await database.activityLog.count({
+      where: {
+        organizationId: organizationAId,
+        action: "ApprovalConfigurationCreated",
+      },
+    });
+    const realAudit = new AuditService(new ActivityLogRepository(database));
+    const recordActivity = jest
+      .spyOn(audit, "recordActivity")
+      .mockImplementationOnce(async (input, transaction) => {
+        await realAudit.recordActivity(input, transaction);
+        throw new Error("Forced audit failure.");
+      });
+
+    try {
+      await expect(
+        service.createConfiguration({
+          organizationId: organizationAId,
+          configurationCode,
+          configurationName: "Atomic approval",
+          moduleName: "Foundation",
+          entityName: "FoundationRecord",
+          approvalRequired: true,
+          approvalMode: "Single",
+          submissionStatus: "Configured",
+          status: "Active",
+          createdById: creatorAId,
+        }),
+      ).rejects.toThrow("Forced audit failure.");
+    } finally {
+      recordActivity.mockRestore();
+    }
+
+    await expect(
+      database.approvalConfiguration.count({
+        where: { organizationId: organizationAId, configurationCode },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: {
+          organizationId: organizationAId,
+          action: "ApprovalConfigurationCreated",
+        },
+      }),
+    ).resolves.toBe(auditCountBefore);
   });
 });

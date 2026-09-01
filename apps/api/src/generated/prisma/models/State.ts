@@ -220,6 +220,7 @@ export type StateWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   countryId_code?: Prisma.StateCountryIdCodeCompoundUniqueInput
   countryId_name?: Prisma.StateCountryIdNameCompoundUniqueInput
+  id_countryId?: Prisma.StateIdCountryIdCompoundUniqueInput
   AND?: Prisma.StateWhereInput | Prisma.StateWhereInput[]
   OR?: Prisma.StateWhereInput[]
   NOT?: Prisma.StateWhereInput | Prisma.StateWhereInput[]
@@ -232,7 +233,7 @@ export type StateWhereUniqueInput = Prisma.AtLeast<{
   country?: Prisma.XOR<Prisma.CountryScalarRelationFilter, Prisma.CountryWhereInput>
   cities?: Prisma.CityListRelationFilter
   organizations?: Prisma.OrganizationListRelationFilter
-}, "id" | "countryId_code" | "countryId_name">
+}, "id" | "countryId_code" | "countryId_name" | "id_countryId">
 
 export type StateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -355,6 +356,11 @@ export type StateCountryIdCodeCompoundUniqueInput = {
 export type StateCountryIdNameCompoundUniqueInput = {
   countryId: string
   name: string
+}
+
+export type StateIdCountryIdCompoundUniqueInput = {
+  id: string
+  countryId: string
 }
 
 export type StateCountOrderByAggregateInput = {

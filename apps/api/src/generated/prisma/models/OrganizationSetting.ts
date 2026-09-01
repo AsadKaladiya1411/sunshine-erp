@@ -799,7 +799,6 @@ export type OrganizationSettingCreateWithoutCreatedByInput = {
 
 export type OrganizationSettingUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -839,7 +838,6 @@ export type OrganizationSettingCreateWithoutUpdatedByInput = {
 
 export type OrganizationSettingUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -930,7 +928,6 @@ export type OrganizationSettingCreateWithoutFinancialYearInput = {
 
 export type OrganizationSettingUncheckedCreateWithoutFinancialYearInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -971,7 +968,6 @@ export type OrganizationSettingUpdateManyWithWhereWithoutFinancialYearInput = {
 
 export type OrganizationSettingCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -986,7 +982,6 @@ export type OrganizationSettingCreateManyCreatedByInput = {
 
 export type OrganizationSettingCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -1016,7 +1011,6 @@ export type OrganizationSettingUpdateWithoutCreatedByInput = {
 
 export type OrganizationSettingUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1031,7 +1025,6 @@ export type OrganizationSettingUncheckedUpdateWithoutCreatedByInput = {
 
 export type OrganizationSettingUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1061,7 +1054,6 @@ export type OrganizationSettingUpdateWithoutUpdatedByInput = {
 
 export type OrganizationSettingUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1076,7 +1068,6 @@ export type OrganizationSettingUncheckedUpdateWithoutUpdatedByInput = {
 
 export type OrganizationSettingUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1091,7 +1082,6 @@ export type OrganizationSettingUncheckedUpdateManyWithoutUpdatedByInput = {
 
 export type OrganizationSettingCreateManyFinancialYearInput = {
   id?: string
-  organizationId: string
   defaultCurrency: string
   defaultLanguage: string
   defaultTimeZone: string
@@ -1121,7 +1111,6 @@ export type OrganizationSettingUpdateWithoutFinancialYearInput = {
 
 export type OrganizationSettingUncheckedUpdateWithoutFinancialYearInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1136,7 +1125,6 @@ export type OrganizationSettingUncheckedUpdateWithoutFinancialYearInput = {
 
 export type OrganizationSettingUncheckedUpdateManyWithoutFinancialYearInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   defaultCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   defaultLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   defaultTimeZone?: Prisma.StringFieldUpdateOperationsInput | string

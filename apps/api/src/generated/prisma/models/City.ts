@@ -218,6 +218,7 @@ export type CityWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   stateId_code?: Prisma.CityStateIdCodeCompoundUniqueInput
   stateId_name?: Prisma.CityStateIdNameCompoundUniqueInput
+  id_stateId?: Prisma.CityIdStateIdCompoundUniqueInput
   AND?: Prisma.CityWhereInput | Prisma.CityWhereInput[]
   OR?: Prisma.CityWhereInput[]
   NOT?: Prisma.CityWhereInput | Prisma.CityWhereInput[]
@@ -229,7 +230,7 @@ export type CityWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"City"> | Date | string
   state?: Prisma.XOR<Prisma.StateScalarRelationFilter, Prisma.StateWhereInput>
   organizations?: Prisma.OrganizationListRelationFilter
-}, "id" | "stateId_code" | "stateId_name">
+}, "id" | "stateId_code" | "stateId_name" | "id_stateId">
 
 export type CityOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -348,6 +349,11 @@ export type CityStateIdCodeCompoundUniqueInput = {
 export type CityStateIdNameCompoundUniqueInput = {
   stateId: string
   name: string
+}
+
+export type CityIdStateIdCompoundUniqueInput = {
+  id: string
+  stateId: string
 }
 
 export type CityCountOrderByAggregateInput = {

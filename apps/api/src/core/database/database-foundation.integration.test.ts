@@ -20,6 +20,18 @@ const authenticationMigrationPath = fileURLToPath(
     import.meta.url,
   ),
 );
+const tenantIntegrityMigrationPath = fileURLToPath(
+  new URL(
+    "../../../../../prisma/migrations/20260901120000_group_1_tenant_integrity/migration.sql",
+    import.meta.url,
+  ),
+);
+const organizationIdDefaultMigrationPath = fileURLToPath(
+  new URL(
+    "../../../../../prisma/migrations/20260901123000_organization_id_database_default/migration.sql",
+    import.meta.url,
+  ),
+);
 
 const expectedTables = [
   "cities",
@@ -79,9 +91,19 @@ describe("common and administration database foundation", () => {
       authenticationMigrationPath,
       "utf8",
     );
+    const tenantIntegrityMigrationSql = await readFile(
+      tenantIntegrityMigrationPath,
+      "utf8",
+    );
+    const organizationIdDefaultMigrationSql = await readFile(
+      organizationIdDefaultMigrationPath,
+      "utf8",
+    );
     await adminClient.query(`SET search_path TO ${quotedSchemaName}`);
     await adminClient.query(migrationSql);
     await adminClient.query(authenticationMigrationSql);
+    await adminClient.query(tenantIntegrityMigrationSql);
+    await adminClient.query(organizationIdDefaultMigrationSql);
     await adminClient.query("RESET search_path");
 
     sqlClient = new Client({
@@ -243,6 +265,194 @@ describe("common and administration database foundation", () => {
     expect(department.users.map(({ id }) => id)).toContain(userId);
   });
 
+  it("enforces User to Department tenant consistency in the database", async () => {
+    const otherOrganization = await prisma.organization.create({
+      data: {
+        organizationCode: "H3-OTHER",
+        organizationName: "H3 Other Organization",
+        status: "Active",
+      },
+    });
+    const otherDepartment = await prisma.department.create({
+      data: {
+        organizationId: otherOrganization.id,
+        departmentCode: "H3-DEPT",
+        departmentName: "H3 Department",
+        status: "Active",
+      },
+    });
+
+    await expect(
+      prisma.user.create({
+        data: {
+          organizationId: otherOrganization.id,
+          departmentId: otherDepartment.id,
+          firstName: "Same Tenant",
+          email: "h3-same-tenant@sunshine.test",
+          username: "h3-same-tenant",
+          passwordHash: "$2b$12$test-only-not-a-real-credential-hash",
+          status: "Active",
+        },
+      }),
+    ).resolves.toBeDefined();
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `INSERT INTO users
+             (id, organization_id, department_id, first_name, email,
+              username, password_hash, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            randomUUID(),
+            organizationId,
+            otherDepartment.id,
+            "Cross Tenant",
+            "h3-cross-tenant@sunshine.test",
+            "h3-cross-tenant",
+            "$2b$12$test-only-not-a-real-credential-hash",
+            "Active",
+          ],
+        ),
+      "23503",
+    );
+  });
+
+  it("enforces Organization Settings to Financial Year tenant consistency", async () => {
+    const otherOrganization = await prisma.organization.create({
+      data: {
+        organizationCode: "H4-OTHER",
+        organizationName: "H4 Other Organization",
+        status: "Active",
+      },
+    });
+    const ownFinancialYear = await prisma.financialYear.create({
+      data: {
+        organizationId: otherOrganization.id,
+        financialYearCode: "H4-OWN",
+        financialYearName: "H4 Own Financial Year",
+        startDate: new Date("2030-04-01T00:00:00.000Z"),
+        endDate: new Date("2031-03-31T00:00:00.000Z"),
+        status: "Draft",
+      },
+    });
+
+    await expect(
+      prisma.organizationSetting.create({
+        data: {
+          organizationId: otherOrganization.id,
+          financialYearId: ownFinancialYear.id,
+          defaultCurrency: "INR",
+          defaultLanguage: "en",
+          defaultTimeZone: "Asia/Calcutta",
+          dateFormat: "DD-MM-YYYY",
+          status: "Active",
+        },
+      }),
+    ).resolves.toBeDefined();
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `UPDATE organization_settings
+           SET organization_id = $1
+           WHERE organization_id = $2`,
+          [organizationId, otherOrganization.id],
+        ),
+      "23503",
+    );
+  });
+
+  it("enforces the complete Organization geography hierarchy", async () => {
+    const otherCountry = await prisma.country.create({
+      data: { code: "H5", name: "H5 Country", status: "Active" },
+    });
+    const otherState = await prisma.state.create({
+      data: {
+        countryId: otherCountry.id,
+        code: "H5",
+        name: "H5 State",
+        status: "Active",
+      },
+    });
+    const otherCity = await prisma.city.create({
+      data: {
+        stateId: otherState.id,
+        code: "H5",
+        name: "H5 City",
+        status: "Active",
+      },
+    });
+
+    await expect(
+      prisma.organization.create({
+        data: {
+          organizationCode: "H5-VALID",
+          organizationName: "H5 Valid Organization",
+          countryId: otherCountry.id,
+          stateId: otherState.id,
+          cityId: otherCity.id,
+          status: "Active",
+        },
+      }),
+    ).resolves.toBeDefined();
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `INSERT INTO organizations
+             (id, organization_code, organization_name, country_id, state_id, city_id, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            randomUUID(),
+            "H5-BAD-CITY",
+            "H5 Invalid City Organization",
+            countryId,
+            stateId,
+            otherCity.id,
+            "Active",
+          ],
+        ),
+      "23503",
+    );
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `INSERT INTO organizations
+             (id, organization_code, organization_name, country_id, state_id, status)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            randomUUID(),
+            "H5-BAD-STATE",
+            "H5 Invalid State Organization",
+            countryId,
+            otherState.id,
+            "Active",
+          ],
+        ),
+      "23503",
+    );
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `INSERT INTO organizations
+             (id, organization_code, organization_name, country_id, city_id, status)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            randomUUID(),
+            "H5-MISSING-STATE",
+            "H5 Missing State Organization",
+            otherCountry.id,
+            otherCity.id,
+            "Active",
+          ],
+        ),
+      "23514",
+    );
+  });
+
   it("supports nullable bootstrap audit relationships", async () => {
     const organization = await prisma.organization.findUniqueOrThrow({
       where: { id: organizationId },
@@ -258,6 +468,109 @@ describe("common and administration database foundation", () => {
     expect(department.updatedById).toBeNull();
     expect(user.createdById).toBeNull();
     expect(user.updatedById).toBeNull();
+  });
+
+  it("enforces same-tenant common-foundation audit actors", async () => {
+    const otherOrganization = await prisma.organization.create({
+      data: {
+        organizationCode: "H6-OTHER",
+        organizationName: "H6 Other Organization",
+        status: "Active",
+      },
+    });
+    const otherDepartment = await prisma.department.create({
+      data: {
+        organizationId: otherOrganization.id,
+        departmentCode: "H6-DEPT",
+        departmentName: "H6 Department",
+        status: "Active",
+      },
+    });
+    const otherUser = await prisma.user.create({
+      data: {
+        organizationId: otherOrganization.id,
+        departmentId: otherDepartment.id,
+        firstName: "H6 Actor",
+        email: "h6-actor@sunshine.test",
+        username: "h6-actor",
+        passwordHash: "$2b$12$test-only-not-a-real-credential-hash",
+        status: "Active",
+      },
+    });
+    const financialYear = await prisma.financialYear.create({
+      data: {
+        organizationId: otherOrganization.id,
+        financialYearCode: "H6-FY",
+        financialYearName: "H6 Financial Year",
+        startDate: new Date("2032-04-01T00:00:00.000Z"),
+        endDate: new Date("2033-03-31T00:00:00.000Z"),
+        status: "Draft",
+      },
+    });
+    const setting = await prisma.organizationSetting.create({
+      data: {
+        organizationId: otherOrganization.id,
+        financialYearId: financialYear.id,
+        defaultCurrency: "INR",
+        defaultLanguage: "en",
+        defaultTimeZone: "Asia/Calcutta",
+        dateFormat: "DD-MM-YYYY",
+        status: "Active",
+      },
+    });
+
+    await prisma.organization.update({
+      where: { id: otherOrganization.id },
+      data: { createdById: otherUser.id, updatedById: otherUser.id },
+    });
+    await prisma.department.update({
+      where: { id: otherDepartment.id },
+      data: { createdById: otherUser.id, updatedById: otherUser.id },
+    });
+    await prisma.user.update({
+      where: { id: otherUser.id },
+      data: { createdById: otherUser.id, updatedById: otherUser.id },
+    });
+    await prisma.financialYear.update({
+      where: { id: financialYear.id },
+      data: { createdById: otherUser.id, updatedById: otherUser.id },
+    });
+    await prisma.organizationSetting.update({
+      where: { id: setting.id },
+      data: { createdById: otherUser.id, updatedById: otherUser.id },
+    });
+
+    const crossTenantUpdates = [
+      `UPDATE organizations SET created_by = $1 WHERE id = $2`,
+      `UPDATE organizations SET updated_by = $1 WHERE id = $2`,
+      `UPDATE departments SET created_by = $1 WHERE id = $2`,
+      `UPDATE departments SET updated_by = $1 WHERE id = $2`,
+      `UPDATE users SET created_by = $1 WHERE id = $2`,
+      `UPDATE users SET updated_by = $1 WHERE id = $2`,
+      `UPDATE financial_years SET created_by = $1 WHERE id = $2`,
+      `UPDATE financial_years SET updated_by = $1 WHERE id = $2`,
+      `UPDATE organization_settings SET created_by = $1 WHERE id = $2`,
+      `UPDATE organization_settings SET updated_by = $1 WHERE id = $2`,
+    ] as const;
+    const recordIds = [
+      otherOrganization.id,
+      otherOrganization.id,
+      otherDepartment.id,
+      otherDepartment.id,
+      otherUser.id,
+      otherUser.id,
+      financialYear.id,
+      financialYear.id,
+      setting.id,
+      setting.id,
+    ] as const;
+
+    for (const [index, query] of crossTenantUpdates.entries()) {
+      await expectErrorCode(
+        () => sqlClient.query(query, [userId, recordIds[index]]),
+        "23503",
+      );
+    }
   });
 
   it("enforces organization-scoped username and email uniqueness", async () => {
@@ -398,6 +711,73 @@ describe("common and administration database foundation", () => {
         }),
       "P2002",
     );
+  });
+
+  it("prevents overlapping Financial Years within one Organization", async () => {
+    const otherOrganization = await prisma.organization.create({
+      data: {
+        organizationCode: "H7-OTHER",
+        organizationName: "H7 Other Organization",
+        status: "Active",
+      },
+    });
+
+    await prisma.financialYear.create({
+      data: {
+        organizationId,
+        financialYearCode: "H7-BASE",
+        financialYearName: "H7 Base Financial Year",
+        startDate: new Date("2040-04-01T00:00:00.000Z"),
+        endDate: new Date("2041-03-31T00:00:00.000Z"),
+        status: "Draft",
+      },
+    });
+
+    await expect(
+      prisma.financialYear.create({
+        data: {
+          organizationId,
+          financialYearCode: "H7-ADJACENT",
+          financialYearName: "H7 Adjacent Financial Year",
+          startDate: new Date("2041-04-01T00:00:00.000Z"),
+          endDate: new Date("2042-03-31T00:00:00.000Z"),
+          status: "Draft",
+        },
+      }),
+    ).resolves.toBeDefined();
+
+    await expectErrorCode(
+      () =>
+        sqlClient.query(
+          `INSERT INTO financial_years
+             (id, organization_id, financial_year_code, financial_year_name,
+              start_date, end_date, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            randomUUID(),
+            organizationId,
+            "H7-OVERLAP",
+            "H7 Overlapping Financial Year",
+            "2041-01-01",
+            "2041-12-31",
+            "Draft",
+          ],
+        ),
+      "23P01",
+    );
+
+    await expect(
+      prisma.financialYear.create({
+        data: {
+          organizationId: otherOrganization.id,
+          financialYearCode: "H7-SAME-DATES",
+          financialYearName: "H7 Same Dates Other Tenant",
+          startDate: new Date("2040-04-01T00:00:00.000Z"),
+          endDate: new Date("2041-03-31T00:00:00.000Z"),
+          status: "Draft",
+        },
+      }),
+    ).resolves.toBeDefined();
   });
 
   it("enforces one Organization Settings record per Organization", async () => {

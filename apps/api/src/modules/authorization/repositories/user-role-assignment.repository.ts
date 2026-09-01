@@ -1,7 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
-import {
-  AuditService,
-} from "../../../core/audit/audit.service.js";
+import { AuditService } from "../../../core/audit/audit.service.js";
 import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
 import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
@@ -50,6 +48,7 @@ export class UserRoleAssignmentRepository {
   async assign(
     input: AssignRoleToUserInput,
   ): Promise<RoleAssignmentRecord | null> {
+    const evaluatedAt = new Date();
     const result = await this.database.$transaction(async (transaction) => {
       const user = await transaction.user.findFirst({
         where: {
@@ -74,22 +73,40 @@ export class UserRoleAssignmentRepository {
           select: { id: true },
         }),
       );
+      if (!user || !role || !actorIsValid) {
+        return null;
+      }
+
+      await transaction.roleAssignment.updateMany({
+        where: {
+          organizationId: input.organizationId,
+          userId: input.userId,
+          roleId: input.roleId,
+          status: ACTIVE_AUTHORIZATION_STATUS,
+          expiresAt: { lte: evaluatedAt },
+        },
+        data: {
+          status: "Expired",
+          updatedById: input.createdById,
+        },
+      });
+
       const activeAssignment = await transaction.roleAssignment.findFirst({
         where: {
           organizationId: input.organizationId,
           userId: input.userId,
           roleId: input.roleId,
           status: ACTIVE_AUTHORIZATION_STATUS,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: evaluatedAt } }],
         },
         select: roleAssignmentSelection,
       });
 
-      if (!user || !role || !actorIsValid) {
-        return null;
-      }
-
       if (activeAssignment) {
-        return { assignment: mapRoleAssignment(activeAssignment), created: false };
+        return {
+          assignment: mapRoleAssignment(activeAssignment),
+          created: false,
+        };
       }
 
       const assignment = await transaction.roleAssignment.create({
@@ -104,22 +121,24 @@ export class UserRoleAssignmentRepository {
         },
         select: roleAssignmentSelection,
       });
-      return { assignment: mapRoleAssignment(assignment), created: true };
+      const mappedAssignment = mapRoleAssignment(assignment);
+      await this.audit.recordActivity(
+        {
+          userId: input.createdById,
+          organizationId: input.organizationId,
+          module: "Authorization",
+          entityName: "RoleAssignment",
+          recordId: mappedAssignment.id,
+          action: SECURITY_ACTIVITY_ACTIONS.roleAssigned,
+          performedAt: mappedAssignment.assignedAt,
+          remarks: "Role assigned to user.",
+        },
+        transaction,
+      );
+      return { assignment: mappedAssignment, created: true };
     });
     if (!result) {
       return null;
-    }
-    if (result.created) {
-      await this.audit.recordActivity({
-        userId: input.createdById,
-        organizationId: input.organizationId,
-        module: "Authorization",
-        entityName: "RoleAssignment",
-        recordId: result.assignment.id,
-        action: SECURITY_ACTIVITY_ACTIONS.roleAssigned,
-        performedAt: result.assignment.assignedAt,
-        remarks: "Role assigned to user.",
-      });
     }
     return result.assignment;
   }
@@ -137,7 +156,7 @@ export class UserRoleAssignmentRepository {
       if (!actor) {
         return { count: 0 };
       }
-      return transaction.roleAssignment.updateMany({
+      const updated = await transaction.roleAssignment.updateMany({
         where: {
           id: assignmentId,
           organizationId,
@@ -145,19 +164,25 @@ export class UserRoleAssignmentRepository {
         },
         data: { status: "Revoked", updatedById },
       });
+      if (updated.count === 1) {
+        await this.audit.recordActivity(
+          {
+            userId: updatedById,
+            organizationId,
+            module: "Authorization",
+            entityName: "RoleAssignment",
+            recordId: assignmentId,
+            action: SECURITY_ACTIVITY_ACTIONS.roleRevoked,
+            remarks: "Role assignment revoked.",
+          },
+          transaction,
+        );
+      }
+      return updated;
     });
     if (result.count !== 1) {
       return false;
     }
-    await this.audit.recordActivity({
-      userId: updatedById,
-      organizationId,
-      module: "Authorization",
-      entityName: "RoleAssignment",
-      recordId: assignmentId,
-      action: SECURITY_ACTIVITY_ACTIONS.roleRevoked,
-      remarks: "Role assignment revoked.",
-    });
     return true;
   }
 
@@ -240,5 +265,4 @@ export class UserRoleAssignmentRepository {
   }
 }
 
-export const userRoleAssignmentRepository =
-  new UserRoleAssignmentRepository();
+export const userRoleAssignmentRepository = new UserRoleAssignmentRepository();

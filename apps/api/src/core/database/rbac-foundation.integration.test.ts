@@ -7,6 +7,8 @@ import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals";
 import { Client } from "pg";
 
 import { PrismaClient } from "../../generated/prisma/client.js";
+import { ActivityLogRepository } from "../audit/activity-log.repository.js";
+import { AuditService } from "../audit/audit.service.js";
 import { PermissionRepository } from "../../modules/authorization/repositories/permission.repository.js";
 import { RolePermissionRepository } from "../../modules/authorization/repositories/role-permission.repository.js";
 import { RoleRepository } from "../../modules/authorization/repositories/role.repository.js";
@@ -101,6 +103,7 @@ describe("RBAC database and authorization foundation", () => {
 
     const organizationA = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: "RBAC-A",
         organizationName: "RBAC Organization A",
         status: "Active",
@@ -108,6 +111,7 @@ describe("RBAC database and authorization foundation", () => {
     });
     const organizationB = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: "RBAC-B",
         organizationName: "RBAC Organization B",
         status: "Active",
@@ -151,12 +155,10 @@ describe("RBAC database and authorization foundation", () => {
     actorAId = (
       await createUser(organizationAId, departmentA.id, "rbac-actor-a")
     ).id;
-    userAId = (
-      await createUser(organizationAId, departmentA.id, "rbac-user-a")
-    ).id;
-    userBId = (
-      await createUser(organizationBId, departmentB.id, "rbac-user-b")
-    ).id;
+    userAId = (await createUser(organizationAId, departmentA.id, "rbac-user-a"))
+      .id;
+    userBId = (await createUser(organizationBId, departmentB.id, "rbac-user-b"))
+      .id;
     historyUserId = (
       await createUser(organizationAId, departmentA.id, "rbac-history")
     ).id;
@@ -259,7 +261,9 @@ describe("RBAC database and authorization foundation", () => {
     await database?.$disconnect();
     await sqlClient?.end();
     if (adminClient) {
-      await adminClient.query(`DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`);
+      await adminClient.query(
+        `DROP SCHEMA IF EXISTS ${quotedSchemaName} CASCADE`,
+      );
       await adminClient.end();
     }
   });
@@ -361,15 +365,19 @@ describe("RBAC database and authorization foundation", () => {
         }),
       "P2002",
     );
-    await expect(roles.findById(roleBId, organizationBId)).resolves.toMatchObject({
+    await expect(
+      roles.findById(roleBId, organizationBId),
+    ).resolves.toMatchObject({
       roleCode: "OPERATIONS",
     });
   });
 
   it("stores and reads the optional Permission resource", async () => {
-    await expect(permissions.findById(readPermissionId)).resolves.toMatchObject({
-      resource: "health",
-    });
+    await expect(permissions.findById(readPermissionId)).resolves.toMatchObject(
+      {
+        resource: "health",
+      },
+    );
     await expect(permissions.list("health")).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -431,14 +439,22 @@ describe("RBAC database and authorization foundation", () => {
         }),
       "P2002",
     );
+    const assignment = await rolePermissions.assign({
+      organizationId: organizationAId,
+      roleId: secondRoleAId,
+      permissionId: readPermissionId,
+      assignedById: actorAId,
+    });
+    expect(assignment).toMatchObject({ status: "Active" });
+    if (!assignment) throw new Error("Expected Role-Permission assignment.");
     await expect(
-      rolePermissions.assign({
-        organizationId: organizationAId,
-        roleId: secondRoleAId,
-        permissionId: readPermissionId,
-        assignedById: actorAId,
+      database.activityLog.count({
+        where: {
+          action: "RolePermissionAssigned",
+          recordId: assignment.id,
+        },
       }),
-    ).resolves.toMatchObject({ status: "Active" });
+    ).resolves.toBe(1);
   });
 
   it("combines permissions from multiple active Roles and ignores inactive Permission", async () => {
@@ -450,9 +466,7 @@ describe("RBAC database and authorization foundation", () => {
     });
     await expect(
       authorization.getEffectivePermissions(userAId, organizationAId),
-    ).resolves.toEqual(
-      new Set(["system.health.manage", "system.health.read"]),
-    );
+    ).resolves.toEqual(new Set(["system.health.manage", "system.health.read"]));
     await expect(
       authorization.hasPermission(
         userAId,
@@ -493,6 +507,14 @@ describe("RBAC database and authorization foundation", () => {
   });
 
   it("preserves Role-Permission history when access is deactivated", async () => {
+    const assignment = await database.rolePermission.findUniqueOrThrow({
+      where: {
+        roleId_permissionId: {
+          roleId: secondRoleAId,
+          permissionId: writePermissionId,
+        },
+      },
+    });
     await expect(
       rolePermissions.deactivate(
         secondRoleAId,
@@ -518,6 +540,14 @@ describe("RBAC database and authorization foundation", () => {
         },
       }),
     ).resolves.toMatchObject({ status: "Inactive" });
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "RolePermissionDeactivated",
+          recordId: assignment.id,
+        },
+      }),
+    ).resolves.toBe(1);
   });
 
   it("denies Expired, Inactive, and Revoked Role Assignments", async () => {
@@ -547,6 +577,11 @@ describe("RBAC database and authorization foundation", () => {
     });
     if (!revoked) throw new Error("Expected active role assignment.");
     await assignments.revoke(revoked.id, organizationAId, actorAId);
+    await expect(
+      database.activityLog.count({
+        where: { action: "RoleRevoked", recordId: revoked.id },
+      }),
+    ).resolves.toBe(1);
 
     for (const userId of [expiredUserId, inactiveUserId, historyUserId]) {
       await expect(
@@ -559,7 +594,7 @@ describe("RBAC database and authorization foundation", () => {
     }
   });
 
-  it("grants an active assignment and denies an Active assignment past expires_at", async () => {
+  it("keeps a non-expired assignment effective and excludes an elapsed assignment", async () => {
     const assignedAt = new Date(Date.now() - 120_000);
     const expiresAt = new Date(Date.now() - 60_000);
     const expiredAssignment = await assignments.assign({
@@ -595,6 +630,63 @@ describe("RBAC database and authorization foundation", () => {
     ).resolves.toEqual([]);
   });
 
+  it("creates a new effective assignment when the previous assignment has expired", async () => {
+    const elapsedAssignment = await database.roleAssignment.findFirstOrThrow({
+      where: {
+        organizationId: organizationAId,
+        userId: timedExpiredUserId,
+        roleId: roleAId,
+        status: "Active",
+      },
+    });
+
+    const reassigned = await assignments.assign({
+      organizationId: organizationAId,
+      userId: timedExpiredUserId,
+      roleId: roleAId,
+      createdById: actorAId,
+    });
+    if (!reassigned) throw new Error("Expected role reassignment after expiry.");
+
+    expect(reassigned.id).not.toBe(elapsedAssignment.id);
+    expect(reassigned).toMatchObject({ status: "Active", expiresAt: null });
+    await expect(
+      database.roleAssignment.findUniqueOrThrow({
+        where: { id: elapsedAssignment.id },
+      }),
+    ).resolves.toMatchObject({
+      status: "Expired",
+      updatedById: actorAId,
+    });
+    await expect(
+      assignments.findActiveAssignments(timedExpiredUserId, organizationAId),
+    ).resolves.toEqual([expect.objectContaining({ id: reassigned.id })]);
+    await expect(
+      authorization.hasPermission(
+        timedExpiredUserId,
+        organizationAId,
+        "system.health.read",
+      ),
+    ).resolves.toBe(true);
+
+    const duplicate = await assignments.assign({
+      organizationId: organizationAId,
+      userId: timedExpiredUserId,
+      roleId: roleAId,
+      createdById: actorAId,
+    });
+    expect(duplicate?.id).toBe(reassigned.id);
+    const history = await assignments.listUserRoles(
+      timedExpiredUserId,
+      organizationAId,
+    );
+    expect(history).toHaveLength(2);
+    expect(history.map(({ status }) => status).sort()).toEqual([
+      "Active",
+      "Expired",
+    ]);
+  });
+
   it("preserves assignment history and permits only one active duplicate", async () => {
     const reassigned = await assignments.assign({
       organizationId: organizationAId,
@@ -619,6 +711,11 @@ describe("RBAC database and authorization foundation", () => {
       "Active",
       "Revoked",
     ]);
+    await expect(
+      database.activityLog.count({
+        where: { action: "RoleAssigned", recordId: reassigned.id },
+      }),
+    ).resolves.toBe(1);
   });
 
   it("records the approved RBAC security mutations", async () => {
@@ -646,6 +743,92 @@ describe("RBAC database and authorization foundation", () => {
         "PermissionStatusChanged",
       ]),
     );
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "PermissionStatusChanged",
+          recordId: writePermissionId,
+        },
+      }),
+    ).resolves.toBe(1);
+  });
+
+  it("rolls back an RBAC mutation and its partial audit write when auditing fails", async () => {
+    const department = await database.user.findUniqueOrThrow({
+      where: { id: actorAId },
+      select: { departmentId: true },
+    });
+    const targetUser = await database.user.create({
+      data: {
+        organizationId: organizationAId,
+        departmentId: department.departmentId,
+        firstName: "atomic-rbac",
+        email: `${randomUUID()}@rbac.test`,
+        username: `atomic-${randomUUID()}`,
+        passwordHash: "$2b$12$test-only-not-a-real-credential-hash",
+        status: "Active",
+      },
+    });
+    const auditCountBefore = await database.activityLog.count({
+      where: {
+        userId: actorAId,
+        organizationId: organizationAId,
+        action: "RoleAssigned",
+      },
+    });
+    const realAudit = new AuditService(new ActivityLogRepository(database));
+    const failingAudit = new AuditService(new ActivityLogRepository(database));
+    jest
+      .spyOn(failingAudit, "recordActivity")
+      .mockImplementationOnce(async (input, transaction) => {
+        await realAudit.recordActivity(input, transaction);
+        throw new Error("Forced audit failure.");
+      });
+    const atomicAssignments = new UserRoleAssignmentRepository(
+      database,
+      failingAudit,
+    );
+
+    await expect(
+      atomicAssignments.assign({
+        organizationId: organizationAId,
+        userId: targetUser.id,
+        roleId: roleAId,
+        createdById: actorAId,
+      }),
+    ).rejects.toThrow("Forced audit failure.");
+    await expect(
+      database.roleAssignment.count({
+        where: {
+          organizationId: organizationAId,
+          userId: targetUser.id,
+          roleId: roleAId,
+        },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: {
+          userId: actorAId,
+          organizationId: organizationAId,
+          action: "RoleAssigned",
+        },
+      }),
+    ).resolves.toBe(auditCountBefore);
+
+    const committed = await atomicAssignments.assign({
+      organizationId: organizationAId,
+      userId: targetUser.id,
+      roleId: roleAId,
+      createdById: actorAId,
+    });
+    expect(committed).not.toBeNull();
+    if (!committed) throw new Error("Expected committed role assignment.");
+    await expect(
+      database.activityLog.count({
+        where: { action: "RoleAssigned", recordId: committed.id },
+      }),
+    ).resolves.toBe(1);
   });
 
   it("protects assigned Roles from physical deletion", async () => {

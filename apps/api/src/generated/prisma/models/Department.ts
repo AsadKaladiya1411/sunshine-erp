@@ -249,6 +249,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   organizationId_departmentCode?: Prisma.DepartmentOrganizationIdDepartmentCodeCompoundUniqueInput
   organizationId_departmentName?: Prisma.DepartmentOrganizationIdDepartmentNameCompoundUniqueInput
+  id_organizationId?: Prisma.DepartmentIdOrganizationIdCompoundUniqueInput
   AND?: Prisma.DepartmentWhereInput | Prisma.DepartmentWhereInput[]
   OR?: Prisma.DepartmentWhereInput[]
   NOT?: Prisma.DepartmentWhereInput | Prisma.DepartmentWhereInput[]
@@ -265,7 +266,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   users?: Prisma.UserListRelationFilter
-}, "id" | "organizationId_departmentCode" | "organizationId_departmentName">
+}, "id" | "organizationId_departmentCode" | "organizationId_departmentName" | "id_organizationId">
 
 export type DepartmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -409,6 +410,11 @@ export type DepartmentOrganizationIdDepartmentCodeCompoundUniqueInput = {
 export type DepartmentOrganizationIdDepartmentNameCompoundUniqueInput = {
   organizationId: string
   departmentName: string
+}
+
+export type DepartmentIdOrganizationIdCompoundUniqueInput = {
+  id: string
+  organizationId: string
 }
 
 export type DepartmentCountOrderByAggregateInput = {
@@ -709,7 +715,6 @@ export type DepartmentCreateWithoutCreatedByInput = {
 
 export type DepartmentUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   departmentCode: string
   departmentName: string
   description?: string | null
@@ -745,7 +750,6 @@ export type DepartmentCreateWithoutUpdatedByInput = {
 
 export type DepartmentUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   departmentCode: string
   departmentName: string
   description?: string | null
@@ -887,7 +891,6 @@ export type DepartmentUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type DepartmentCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   departmentCode: string
   departmentName: string
   description?: string | null
@@ -899,7 +902,6 @@ export type DepartmentCreateManyCreatedByInput = {
 
 export type DepartmentCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   departmentCode: string
   departmentName: string
   description?: string | null
@@ -924,7 +926,6 @@ export type DepartmentUpdateWithoutCreatedByInput = {
 
 export type DepartmentUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentCode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -937,7 +938,6 @@ export type DepartmentUncheckedUpdateWithoutCreatedByInput = {
 
 export type DepartmentUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentCode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -962,7 +962,6 @@ export type DepartmentUpdateWithoutUpdatedByInput = {
 
 export type DepartmentUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentCode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -975,7 +974,6 @@ export type DepartmentUncheckedUpdateWithoutUpdatedByInput = {
 
 export type DepartmentUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentCode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentName?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null

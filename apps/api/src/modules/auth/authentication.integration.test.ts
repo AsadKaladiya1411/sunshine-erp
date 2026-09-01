@@ -6,6 +6,11 @@ import { env } from "@sunshine-erp/config";
 import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals";
 
 import app from "../../app.js";
+import {
+  ActivityLogRepository,
+  activityLogRepository,
+} from "../../core/audit/activity-log.repository.js";
+import { AuditService } from "../../core/audit/audit.service.js";
 import { PasswordService } from "../../core/auth/password.service.js";
 import { prisma } from "../../core/database/prisma.js";
 import { authenticationService } from "./services/authentication.service.js";
@@ -13,6 +18,10 @@ import { authenticationService } from "./services/authentication.service.js";
 const initialPassword = "Initial-Password-2026";
 const changedPassword = "Changed-Password-2026";
 const resetPassword = "Reset-Password-2026";
+const boundaryPassword = "a".repeat(72);
+const oversizedBoundaryPassword = `${boundaryPassword}b`;
+const changedBoundaryPassword = "c".repeat(72);
+const resetBoundaryPassword = "d".repeat(72);
 const trustedOrigin = "http://localhost:3000";
 const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const organizationCode = `AUTH-${suffix}`.slice(0, 50);
@@ -23,12 +32,16 @@ type TestUserName =
   | "disabled"
   | "locked"
   | "failures"
+  | "atomicFailure"
   | "successfulReset"
   | "expired"
   | "revoked"
   | "logout"
   | "change"
   | "passwordReset"
+  | "boundaryLogin"
+  | "boundaryChange"
+  | "boundaryReset"
   | "sessionLimit";
 
 interface TestUser {
@@ -69,7 +82,9 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     return setCookie?.split(";", 1)[0];
   }
 
-  async function extractAccessToken(response: Response): Promise<string | undefined> {
+  async function extractAccessToken(
+    response: Response,
+  ): Promise<string | undefined> {
     const body: unknown = await response.json();
     if (
       typeof body === "object" &&
@@ -116,6 +131,9 @@ describe("authentication HTTP and PostgreSQL integration", () => {
 
   beforeAll(async () => {
     const passwordHash = await new PasswordService().hash(initialPassword);
+    const boundaryPasswordHash = await new PasswordService().hash(
+      boundaryPassword,
+    );
     const organization = await prisma.organization.create({
       data: {
         organizationCode,
@@ -144,21 +162,31 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       },
     });
 
-    const definitions: readonly [TestUserName, string, Date | null][] = [
-      ["main", "Active", null],
-      ["inactive", "Inactive", null],
-      ["disabled", "Disabled", null],
-      ["locked", "Active", new Date(Date.now() + 15 * 60_000)],
-      ["failures", "Active", null],
-      ["successfulReset", "Active", null],
-      ["expired", "Active", null],
-      ["revoked", "Active", null],
-      ["logout", "Active", null],
-      ["change", "Active", null],
-      ["passwordReset", "Active", null],
-      ["sessionLimit", "Active", null],
-    ];
-    for (const [name, status, lockedUntil] of definitions) {
+    const definitions: readonly [TestUserName, string, Date | null, string?][] =
+      [
+        ["main", "Active", null],
+        ["inactive", "Inactive", null],
+        ["disabled", "Disabled", null],
+        ["locked", "Active", new Date(Date.now() + 15 * 60_000)],
+        ["failures", "Active", null],
+        ["atomicFailure", "Active", null],
+        ["successfulReset", "Active", null],
+        ["expired", "Active", null],
+        ["revoked", "Active", null],
+        ["logout", "Active", null],
+        ["change", "Active", null],
+        ["passwordReset", "Active", null],
+        ["boundaryLogin", "Active", null, boundaryPasswordHash],
+        ["boundaryChange", "Active", null, boundaryPasswordHash],
+        ["boundaryReset", "Active", null, boundaryPasswordHash],
+        ["sessionLimit", "Active", null],
+      ];
+    for (const [
+      name,
+      status,
+      lockedUntil,
+      accountPasswordHash,
+    ] of definitions) {
       const username = `${name}-${suffix}`.slice(0, 100);
       const email = `${name}-${suffix}@test.invalid`.slice(0, 150);
       const user = await prisma.user.create({
@@ -168,7 +196,7 @@ describe("authentication HTTP and PostgreSQL integration", () => {
           firstName: name,
           email,
           username,
-          passwordHash,
+          passwordHash: accountPasswordHash ?? passwordHash,
           status,
           lockedUntil,
           failedLoginAttempts: name === "successfulReset" ? 3 : 0,
@@ -191,10 +219,16 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     if (organizationId) {
       await prisma.activityLog.deleteMany({ where: { organizationId } });
       await prisma.passwordResetToken.deleteMany({ where: { organizationId } });
-      await prisma.userSessionTokenHistory.deleteMany({ where: { organizationId } });
-      await prisma.userPasswordHistory.deleteMany({ where: { organizationId } });
+      await prisma.userSessionTokenHistory.deleteMany({
+        where: { organizationId },
+      });
+      await prisma.userPasswordHistory.deleteMany({
+        where: { organizationId },
+      });
       await prisma.userSession.deleteMany({ where: { organizationId } });
-      await prisma.organizationSetting.deleteMany({ where: { organizationId } });
+      await prisma.organizationSetting.deleteMany({
+        where: { organizationId },
+      });
       await prisma.user.deleteMany({ where: { organizationId } });
       await prisma.department.deleteMany({ where: { organizationId } });
       await prisma.organization.delete({ where: { id: organizationId } });
@@ -212,34 +246,47 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect(setCookie).toContain("SameSite=Strict");
     expect(setCookie).toContain(`Path=${env.REFRESH_COOKIE_PATH}`);
     expect(setCookie).not.toContain("Secure");
-    await expect(
-      prisma.activityLog.findFirstOrThrow({
-        where: {
-          userId: users.get("main")?.id,
-          action: "LoginSucceeded",
-        },
-        orderBy: { performedAt: "desc" },
-      }),
-    ).resolves.toMatchObject({
+    const loginAudit = await prisma.activityLog.findFirstOrThrow({
+      where: {
+        userId: users.get("main")?.id,
+        action: "LoginSucceeded",
+      },
+      orderBy: { performedAt: "desc" },
+    });
+    expect(loginAudit).toMatchObject({
       organizationId,
       module: "Authentication",
       ipAddress: "127.0.0.1",
       userAgent: "Authentication-Integration-Agent/1.0",
       deviceInfo: { platform: "Windows", mobile: false },
     });
+    await expect(
+      prisma.activityLog.count({
+        where: {
+          action: "LoginSucceeded",
+          recordId: loginAudit.recordId,
+        },
+      }),
+    ).resolves.toBe(1);
 
     const byEmail = await login("main", initialPassword, "email");
     expect(byEmail.response.status).toBe(200);
     await expect(
       prisma.userSession.count({
-        where: { organizationId, userId: users.get("main")?.id, status: "Active" },
+        where: {
+          organizationId,
+          userId: users.get("main")?.id,
+          status: "Active",
+        },
       }),
     ).resolves.toBe(2);
 
     const resetAccount = await login("successfulReset");
     expect(resetAccount.response.status).toBe(200);
     await expect(
-      prisma.user.findUniqueOrThrow({ where: { id: users.get("successfulReset")?.id } }),
+      prisma.user.findUniqueOrThrow({
+        where: { id: users.get("successfulReset")?.id },
+      }),
     ).resolves.toMatchObject({ failedLoginAttempts: 0, lockedUntil: null });
   });
 
@@ -275,22 +322,81 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect(failureUser.lockedUntil?.getTime()).toBeGreaterThan(Date.now());
     expect((await login("failures")).response.status).toBe(401);
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: { userId: failureUser.id, action: "LoginFailed" },
       }),
-    ).resolves.toMatchObject({ organizationId });
+    ).resolves.toBe(6);
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: { userId: failureUser.id, action: "AccountLocked" },
       }),
-    ).resolves.toMatchObject({ organizationId });
+    ).resolves.toBe(1);
+  });
+
+  it("rolls back a failed-login mutation and its partial audit write when auditing fails", async () => {
+    const user = users.get("atomicFailure");
+    if (!user) throw new Error("Missing atomic failure test user.");
+    const auditCountBefore = await prisma.activityLog.count({
+      where: { userId: user.id, action: "LoginFailed" },
+    });
+    const realAudit = new AuditService(new ActivityLogRepository(prisma));
+    const append = jest
+      .spyOn(activityLogRepository, "append")
+      .mockImplementationOnce(async (input, database) => {
+        await realAudit.recordActivity(input, database);
+        throw new Error("Forced audit failure.");
+      });
+
+    try {
+      const result = await login("atomicFailure", "Wrong-Password-2026");
+      expect(result.response.status).toBe(500);
+    } finally {
+      append.mockRestore();
+    }
+
+    await expect(
+      prisma.user.findUniqueOrThrow({ where: { id: user.id } }),
+    ).resolves.toMatchObject({ failedLoginAttempts: 0, lockedUntil: null });
+    await expect(
+      prisma.activityLog.count({
+        where: { userId: user.id, action: "LoginFailed" },
+      }),
+    ).resolves.toBe(auditCountBefore);
+  });
+
+  it("accepts a supported boundary password and rejects its oversized extension during login", async () => {
+    const supported = await login("boundaryLogin", boundaryPassword);
+    expect(supported.response.status).toBe(200);
+
+    const oversized = await login("boundaryLogin", oversizedBoundaryPassword);
+    expect(oversized.response.status).toBe(400);
+    await expect(oversized.response.json()).resolves.toMatchObject({
+      error: {
+        code: "VALIDATION_ERROR",
+        details: [
+          {
+            source: "body",
+            path: ["password"],
+          },
+        ],
+      },
+    });
+    await expect(
+      prisma.user.findUniqueOrThrow({
+        where: { id: users.get("boundaryLogin")?.id },
+      }),
+    ).resolves.toMatchObject({ failedLoginAttempts: 0, lockedUntil: null });
   });
 
   it("rotates refresh tokens and compromises the family when a retired token is reused", async () => {
     const loggedIn = await login("main");
     expect(loggedIn.cookie).toBeDefined();
     const originalSession = await prisma.userSession.findFirstOrThrow({
-      where: { organizationId, sessionTokenHash: { not: "" }, userId: users.get("main")?.id },
+      where: {
+        organizationId,
+        sessionTokenHash: { not: "" },
+        userId: users.get("main")?.id,
+      },
       orderBy: { loginAt: "desc" },
     });
     const refreshResponse = await request("/api/v1/auth/refresh", {
@@ -302,7 +408,9 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     expect(replacementCookie).toBeDefined();
     expect(replacementCookie).not.toBe(loggedIn.cookie);
     await expect(
-      prisma.userSessionTokenHistory.count({ where: { userSessionId: originalSession.id } }),
+      prisma.userSessionTokenHistory.count({
+        where: { userSessionId: originalSession.id },
+      }),
     ).resolves.toBe(1);
 
     const reuseResponse = await request("/api/v1/auth/refresh", {
@@ -311,29 +419,33 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     });
     expect(reuseResponse.status).toBe(401);
     await expect(
-      prisma.userSession.findUniqueOrThrow({ where: { id: originalSession.id } }),
+      prisma.userSession.findUniqueOrThrow({
+        where: { id: originalSession.id },
+      }),
     ).resolves.toMatchObject({
       status: "Compromised",
       revocationReason: "RefreshTokenReuse",
     });
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: {
           userId: users.get("main")?.id,
           action: "RefreshTokenCompromised",
           recordId: originalSession.id,
         },
       }),
-    ).resolves.toMatchObject({ organizationId });
+    ).resolves.toBe(1);
   });
 
   it("rejects missing Origin, expired sessions, and revoked sessions during refresh", async () => {
     const noOrigin = await login("expired");
     expect(
-      (await request("/api/v1/auth/refresh", {
-        method: "POST",
-        headers: { Cookie: noOrigin.cookie ?? "" },
-      })).status,
+      (
+        await request("/api/v1/auth/refresh", {
+          method: "POST",
+          headers: { Cookie: noOrigin.cookie ?? "" },
+        })
+      ).status,
     ).toBe(403);
     const expiredSession = await prisma.userSession.findFirstOrThrow({
       where: { userId: users.get("expired")?.id },
@@ -344,13 +456,17 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       data: { expiresAt: new Date(Date.now() - 1_000) },
     });
     expect(
-      (await request("/api/v1/auth/refresh", {
-        method: "POST",
-        headers: { Cookie: noOrigin.cookie ?? "", Origin: trustedOrigin },
-      })).status,
+      (
+        await request("/api/v1/auth/refresh", {
+          method: "POST",
+          headers: { Cookie: noOrigin.cookie ?? "", Origin: trustedOrigin },
+        })
+      ).status,
     ).toBe(401);
     await expect(
-      prisma.userSession.findUniqueOrThrow({ where: { id: expiredSession.id } }),
+      prisma.userSession.findUniqueOrThrow({
+        where: { id: expiredSession.id },
+      }),
     ).resolves.toMatchObject({ status: "Expired" });
 
     const revoked = await login("revoked");
@@ -360,13 +476,19 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     });
     await prisma.userSession.update({
       where: { id: revokedSession.id },
-      data: { status: "Revoked", revokedAt: new Date(), revocationReason: "Test" },
+      data: {
+        status: "Revoked",
+        revokedAt: new Date(),
+        revocationReason: "Test",
+      },
     });
     expect(
-      (await request("/api/v1/auth/refresh", {
-        method: "POST",
-        headers: { Cookie: revoked.cookie ?? "", Origin: trustedOrigin },
-      })).status,
+      (
+        await request("/api/v1/auth/refresh", {
+          method: "POST",
+          headers: { Cookie: revoked.cookie ?? "", Origin: trustedOrigin },
+        })
+      ).status,
     ).toBe(401);
   });
 
@@ -406,13 +528,15 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       prisma.userSession.findUniqueOrThrow({ where: { id: session.id } }),
     ).resolves.toMatchObject({ status: "LoggedOut" });
     await expect(
-      prisma.userSessionTokenHistory.count({ where: { userSessionId: session.id } }),
+      prisma.userSessionTokenHistory.count({
+        where: { userSessionId: session.id },
+      }),
     ).resolves.toBe(1);
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: { action: "Logout", recordId: session.id },
       }),
-    ).resolves.toMatchObject({ userId: users.get("logout")?.id, organizationId });
+    ).resolves.toBe(1);
   });
 
   it("changes passwords with history enforcement and revokes other sessions", async () => {
@@ -425,30 +549,73 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     const response = await request("/api/v1/auth/change-password", {
       method: "POST",
       headers: { Authorization: `Bearer ${first.accessToken}` },
-      body: JSON.stringify({ currentPassword: initialPassword, newPassword: changedPassword }),
+      body: JSON.stringify({
+        currentPassword: initialPassword,
+        newPassword: changedPassword,
+      }),
     });
     expect(response.status).toBe(200);
     await expect(
-      prisma.userPasswordHistory.count({ where: { userId: users.get("change")?.id } }),
+      prisma.userPasswordHistory.count({
+        where: { userId: users.get("change")?.id },
+      }),
     ).resolves.toBe(1);
     await expect(
       prisma.userSession.findUniqueOrThrow({ where: { id: sessions[1]?.id } }),
-    ).resolves.toMatchObject({ status: "Revoked", revocationReason: "PasswordChanged" });
+    ).resolves.toMatchObject({
+      status: "Revoked",
+      revocationReason: "PasswordChanged",
+    });
 
     const reuse = await request("/api/v1/auth/change-password", {
       method: "POST",
       headers: { Authorization: `Bearer ${first.accessToken}` },
-      body: JSON.stringify({ currentPassword: changedPassword, newPassword: initialPassword }),
+      body: JSON.stringify({
+        currentPassword: changedPassword,
+        newPassword: initialPassword,
+      }),
     });
     expect(reuse.status).toBe(400);
     expect((await login("change", initialPassword)).response.status).toBe(401);
     expect((await login("change", changedPassword)).response.status).toBe(200);
     expect(second.accessToken).toBeDefined();
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: { userId: users.get("change")?.id, action: "PasswordChanged" },
       }),
-    ).resolves.toMatchObject({ organizationId });
+    ).resolves.toBe(1);
+  });
+
+  it("applies the password byte boundary safely during password change", async () => {
+    const loggedIn = await login("boundaryChange", boundaryPassword);
+    const oversized = await request("/api/v1/auth/change-password", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${loggedIn.accessToken}` },
+      body: JSON.stringify({
+        currentPassword: boundaryPassword,
+        newPassword: oversizedBoundaryPassword,
+      }),
+    });
+    expect(oversized.status).toBe(400);
+    expect(
+      (await login("boundaryChange", boundaryPassword)).response.status,
+    ).toBe(200);
+
+    const changed = await request("/api/v1/auth/change-password", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${loggedIn.accessToken}` },
+      body: JSON.stringify({
+        currentPassword: boundaryPassword,
+        newPassword: changedBoundaryPassword,
+      }),
+    });
+    expect(changed.status).toBe(200);
+    expect(
+      (await login("boundaryChange", boundaryPassword)).response.status,
+    ).toBe(401);
+    expect(
+      (await login("boundaryChange", changedBoundaryPassword)).response.status,
+    ).toBe(200);
   });
 
   it("persists one-time password reset state and revokes active sessions", async () => {
@@ -461,20 +628,53 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     );
     await authenticationService.resetPassword(token, resetPassword);
     await expect(
-      prisma.passwordResetToken.findFirstOrThrow({ where: { userId: user.id } }),
+      prisma.passwordResetToken.findFirstOrThrow({
+        where: { userId: user.id },
+      }),
     ).resolves.toMatchObject({ usedAt: expect.any(Date) });
     await expect(
       prisma.userSession.findFirstOrThrow({ where: { userId: user.id } }),
-    ).resolves.toMatchObject({ status: "Revoked", revocationReason: "PasswordReset" });
+    ).resolves.toMatchObject({
+      status: "Revoked",
+      revocationReason: "PasswordReset",
+    });
     await expect(
       authenticationService.resetPassword(token, "Another-Password-2026"),
     ).rejects.toMatchObject({ code: "INVALID_PASSWORD_RESET_TOKEN" });
-    expect((await login("passwordReset", resetPassword)).response.status).toBe(200);
+    expect((await login("passwordReset", resetPassword)).response.status).toBe(
+      200,
+    );
     await expect(
-      prisma.activityLog.findFirstOrThrow({
+      prisma.activityLog.count({
         where: { userId: user.id, action: "PasswordResetCompleted" },
       }),
-    ).resolves.toMatchObject({ organizationId });
+    ).resolves.toBe(1);
+  });
+
+  it("applies the password byte boundary safely during password reset", async () => {
+    const user = users.get("boundaryReset");
+    if (!user) throw new Error("Missing boundary reset test user.");
+    const token = await authenticationService.createPasswordResetCredential(
+      user.id,
+      organizationId,
+    );
+
+    await expect(
+      authenticationService.resetPassword(token, oversizedBoundaryPassword),
+    ).rejects.toMatchObject({ code: "PASSWORD_POLICY_VIOLATION" });
+    await expect(
+      prisma.passwordResetToken.findFirstOrThrow({
+        where: { userId: user.id },
+      }),
+    ).resolves.toMatchObject({ usedAt: null, revokedAt: null });
+
+    await authenticationService.resetPassword(token, resetBoundaryPassword);
+    expect(
+      (await login("boundaryReset", boundaryPassword)).response.status,
+    ).toBe(401);
+    expect(
+      (await login("boundaryReset", resetBoundaryPassword)).response.status,
+    ).toBe(200);
   });
 
   it("rejects a sixth active login without revoking existing sessions", async () => {
@@ -488,6 +688,14 @@ describe("authentication HTTP and PostgreSQL integration", () => {
         where: { userId: users.get("sessionLimit")?.id, status: "Active" },
       }),
     ).resolves.toBe(5);
+    await expect(
+      prisma.activityLog.count({
+        where: {
+          userId: users.get("sessionLimit")?.id,
+          action: "LoginSucceeded",
+        },
+      }),
+    ).resolves.toBe(5);
   });
 
   it("never persists authentication credentials in Activity Logs", async () => {
@@ -498,6 +706,10 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       initialPassword,
       changedPassword,
       resetPassword,
+      boundaryPassword,
+      oversizedBoundaryPassword,
+      changedBoundaryPassword,
+      resetBoundaryPassword,
       "Wrong-Password-2026",
       "passwordHash",
       "sessionTokenHash",

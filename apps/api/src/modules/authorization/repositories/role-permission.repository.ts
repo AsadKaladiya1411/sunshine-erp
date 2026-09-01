@@ -1,7 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
-import {
-  AuditService,
-} from "../../../core/audit/audit.service.js";
+import { AuditService } from "../../../core/audit/audit.service.js";
 import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
 import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
@@ -90,21 +88,25 @@ export class RolePermissionRepository {
         select: rolePermissionSelection,
       });
 
-      return mapRolePermission(assignment);
+      const mappedAssignment = mapRolePermission(assignment);
+      await this.audit.recordActivity(
+        {
+          userId: input.assignedById,
+          organizationId: input.organizationId,
+          module: "Authorization",
+          entityName: "RolePermission",
+          recordId: mappedAssignment.id,
+          action: SECURITY_ACTIVITY_ACTIONS.rolePermissionAssigned,
+          performedAt: mappedAssignment.assignedAt,
+          remarks: "Permission assigned to role.",
+        },
+        transaction,
+      );
+      return mappedAssignment;
     });
     if (!assignment) {
       return null;
     }
-    await this.audit.recordActivity({
-      userId: input.assignedById,
-      organizationId: input.organizationId,
-      module: "Authorization",
-      entityName: "RolePermission",
-      recordId: assignment.id,
-      action: SECURITY_ACTIVITY_ACTIONS.rolePermissionAssigned,
-      performedAt: assignment.assignedAt,
-      remarks: "Permission assigned to role.",
-    });
     return assignment;
   }
 
@@ -138,20 +140,25 @@ export class RolePermissionRepository {
         where: { id: assignment.id, status: ACTIVE_AUTHORIZATION_STATUS },
         data: { status: "Inactive" },
       });
+      if (updated.count === 1) {
+        await this.audit.recordActivity(
+          {
+            userId: deactivatedById,
+            organizationId,
+            module: "Authorization",
+            entityName: "RolePermission",
+            recordId: assignment.id,
+            action: SECURITY_ACTIVITY_ACTIONS.rolePermissionDeactivated,
+            remarks: "Role permission deactivated.",
+          },
+          transaction,
+        );
+      }
       return { count: updated.count, assignmentId: assignment.id };
     });
     if (result.count !== 1 || !result.assignmentId) {
       return false;
     }
-    await this.audit.recordActivity({
-      userId: deactivatedById,
-      organizationId,
-      module: "Authorization",
-      entityName: "RolePermission",
-      recordId: result.assignmentId,
-      action: SECURITY_ACTIVITY_ACTIONS.rolePermissionDeactivated,
-      remarks: "Role permission deactivated.",
-    });
     return true;
   }
 

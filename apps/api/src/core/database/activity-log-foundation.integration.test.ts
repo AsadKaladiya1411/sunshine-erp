@@ -68,6 +68,7 @@ describe("Activity Log persistence and service", () => {
 
     const organization = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: "AUDIT-A",
         organizationName: "Audit Organization A",
         status: "Active",
@@ -75,6 +76,7 @@ describe("Activity Log persistence and service", () => {
     });
     const secondOrganization = await database.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: "AUDIT-B",
         organizationName: "Audit Organization B",
         status: "Active",

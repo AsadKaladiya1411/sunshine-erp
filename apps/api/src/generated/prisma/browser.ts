@@ -34,7 +34,7 @@ export type State = Prisma.StateModel
 export type City = Prisma.CityModel
 /**
  * Model Organization
- *
+ * Geography parent-presence checks are enforced by the Group 1 tenant-integrity migration.
  */
 export type Organization = Prisma.OrganizationModel
 /**
@@ -49,7 +49,7 @@ export type Department = Prisma.DepartmentModel
 export type User = Prisma.UserModel
 /**
  * Model FinancialYear
- *
+ * Non-overlapping inclusive periods per organization are enforced by a PostgreSQL exclusion constraint.
  */
 export type FinancialYear = Prisma.FinancialYearModel
 /**

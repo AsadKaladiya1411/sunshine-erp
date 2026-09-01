@@ -2,6 +2,10 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "@jest/globals";
 import { AccessTokenService } from "./access-token.service.js";
 import { PasswordResetTokenService } from "./password-reset-token.service.js";
+import {
+  BCRYPT_PASSWORD_MAX_BYTES,
+  getPasswordUtf8ByteLength,
+} from "./password-boundary.js";
 import { PasswordService } from "./password.service.js";
 import { RefreshTokenService } from "./refresh-token.service.js";
 
@@ -23,6 +27,40 @@ describe("authentication security primitives", () => {
     });
     await expect(
       passwords.assertNotReused("correct-horse-battery", hash, []),
+    ).rejects.toMatchObject({ code: "PASSWORD_POLICY_VIOLATION" });
+  });
+
+  it("enforces bcrypt's UTF-8 byte boundary without accepting truncated matches", async () => {
+    const passwords = new PasswordService({
+      minimumLength: 12,
+      bcryptCost: 4,
+      historyDepth: 5,
+    });
+    const supportedPassword = "a".repeat(BCRYPT_PASSWORD_MAX_BYTES);
+    const oversizedPassword = `${supportedPassword}b`;
+    const supportedUnicodePassword = "€".repeat(
+      BCRYPT_PASSWORD_MAX_BYTES / 3,
+    );
+    const oversizedUnicodePassword = `${supportedUnicodePassword}€`;
+
+    expect(getPasswordUtf8ByteLength(supportedPassword)).toBe(72);
+    expect(getPasswordUtf8ByteLength(supportedUnicodePassword)).toBe(72);
+
+    const hash = await passwords.hash(supportedPassword);
+    const unicodeHash = await passwords.hash(supportedUnicodePassword);
+
+    await expect(passwords.verify(supportedPassword, hash)).resolves.toBe(true);
+    await expect(
+      passwords.verify(supportedUnicodePassword, unicodeHash),
+    ).resolves.toBe(true);
+    await expect(passwords.verify(oversizedPassword, hash)).resolves.toBe(
+      false,
+    );
+    await expect(
+      passwords.hash(oversizedPassword),
+    ).rejects.toMatchObject({ code: "PASSWORD_POLICY_VIOLATION" });
+    await expect(
+      passwords.hash(oversizedUnicodePassword),
     ).rejects.toMatchObject({ code: "PASSWORD_POLICY_VIOLATION" });
   });
 

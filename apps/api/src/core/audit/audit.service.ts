@@ -2,6 +2,7 @@ import { AuthenticationError } from "../http/errors.js";
 import { isAuthenticatedRequestContext } from "../http/request-context.js";
 import {
   activityLogRepository,
+  type ActivityLogDatabase,
   type ActivityLogRepository,
 } from "./activity-log.repository.js";
 import type {
@@ -36,7 +37,9 @@ function assertSafeText(label: string, value: string | undefined): void {
       bearerPattern.test(value) ||
       jwtPattern.test(value))
   ) {
-    throw new Error("Sensitive credential data is not allowed in " + label + ".");
+    throw new Error(
+      "Sensitive credential data is not allowed in " + label + ".",
+    );
   }
 }
 
@@ -61,9 +64,12 @@ export class AuditService {
     private readonly repository: ActivityLogRepository = activityLogRepository,
   ) {}
 
-  async recordActivity(input: RecordActivityInput): Promise<ActivityLogRecord> {
+  async recordActivity(
+    input: RecordActivityInput,
+    database?: ActivityLogDatabase,
+  ): Promise<ActivityLogRecord> {
     assertSafeInput(input);
-    return this.repository.append(Object.freeze({ ...input }));
+    return this.repository.append(Object.freeze({ ...input }), database);
   }
 
   recordAuthenticatedActivity(

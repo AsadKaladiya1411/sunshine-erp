@@ -1,4 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
+import type { ActivityLogDatabase } from "../../../core/audit/activity-log.repository.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import type {
   ApprovalActionRecord,
@@ -161,11 +162,17 @@ export interface PersistApprovalActionResult {
   readonly histories: readonly ApprovalHistoryRecord[];
 }
 
+export type ApprovalMutationAudit<TResult> = (
+  result: TResult,
+  database: ActivityLogDatabase,
+) => Promise<void>;
+
 export class ApprovalRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
   async createConfiguration(
     input: CreateApprovalConfigurationInput,
+    audit?: ApprovalMutationAudit<ApprovalConfigurationRecord>,
   ): Promise<ApprovalConfigurationRecord | null> {
     return this.database.$transaction(async (transaction) => {
       const organizationExists =
@@ -200,7 +207,9 @@ export class ApprovalRepository {
         },
         select: configurationSelection,
       });
-      return immutable(record);
+      const result = immutable(record);
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
@@ -217,6 +226,7 @@ export class ApprovalRepository {
 
   async createLevel(
     input: CreateApprovalLevelInput,
+    audit?: ApprovalMutationAudit<ApprovalLevelRecord>,
   ): Promise<ApprovalLevelRecord | null> {
     return this.database.$transaction(async (transaction) => {
       const configuration = await transaction.approvalConfiguration.findFirst({
@@ -268,7 +278,9 @@ export class ApprovalRepository {
         },
         select: levelSelection,
       });
-      return immutable(record);
+      const result = immutable(record);
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
@@ -291,6 +303,7 @@ export class ApprovalRepository {
     input: SubmitApprovalRequestInput,
     currentLevelId: string,
     submittedAt: Date,
+    audit?: ApprovalMutationAudit<ApprovalRequestRecord>,
   ): Promise<ApprovalRequestRecord | null> {
     return this.database.$transaction(async (transaction) => {
       const configuration = await transaction.approvalConfiguration.findFirst({
@@ -357,7 +370,9 @@ export class ApprovalRepository {
           createdById: input.createdById,
         },
       });
-      return immutable(request);
+      const result = immutable(request);
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
@@ -399,25 +414,21 @@ export class ApprovalRepository {
       orderBy: [{ levelNumber: "asc" }, { id: "asc" }],
       select: levelSelection,
     });
-    const {
-      approvalConfiguration,
-      currentLevel,
-      actions,
-      ...request
-    } = record;
+    const { approvalConfiguration, currentLevel, actions, ...request } = record;
     return Object.freeze({
       request: immutable(request),
       configuration: immutable(approvalConfiguration),
       currentLevel: currentLevel ? immutable(currentLevel) : null,
       activeLevels: Object.freeze(activeLevels.map(immutable)),
-      approvedLevelIds: Object.freeze(
-        [...new Set(actions.map(({ approvalLevelId }) => approvalLevelId))],
-      ),
+      approvedLevelIds: Object.freeze([
+        ...new Set(actions.map(({ approvalLevelId }) => approvalLevelId)),
+      ]),
     });
   }
 
   async persistAction(
     input: PersistApprovalActionInput,
+    audit?: ApprovalMutationAudit<PersistApprovalActionResult>,
   ): Promise<PersistApprovalActionResult | null> {
     return this.database.$transaction(async (transaction) => {
       const locked = await transaction.approvalRequest.updateMany({
@@ -517,16 +528,19 @@ export class ApprovalRepository {
         where: { id: input.approvalRequestId },
         select: requestSelection,
       });
-      return Object.freeze({
+      const result = Object.freeze({
         action: immutable(action),
         request: immutable(request),
         histories: Object.freeze(histories),
       });
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
   async createDelegation(
     input: CreateApprovalDelegationInput,
+    audit?: ApprovalMutationAudit<ApprovalDelegationRecord>,
   ): Promise<ApprovalDelegationRecord | null> {
     return this.database.$transaction(async (transaction) => {
       const users = await transaction.user.count({
@@ -588,7 +602,9 @@ export class ApprovalRepository {
         },
         select: delegationSelection,
       });
-      return immutable(record);
+      const result = immutable(record);
+      await audit?.(result, transaction);
+      return result;
     });
   }
 

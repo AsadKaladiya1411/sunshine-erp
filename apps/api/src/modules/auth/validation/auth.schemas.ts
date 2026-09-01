@@ -1,9 +1,15 @@
 import { z } from "zod";
+import {
+  BCRYPT_PASSWORD_MAX_BYTES_MESSAGE,
+  isWithinBcryptPasswordBoundary,
+} from "../../../core/auth/password-boundary.js";
 import type { RequestValidationSchemas } from "../../../core/middleware/validate-request.middleware.js";
 
 const organizationCode = z.string().trim().min(1).max(50);
 const loginIdentifier = z.string().trim().min(1).max(150);
-const password = z.string().min(1);
+const password = z.string().min(1).refine(isWithinBcryptPasswordBoundary, {
+  message: BCRYPT_PASSWORD_MAX_BYTES_MESSAGE,
+});
 
 export const loginBodySchema = z
   .object({
@@ -25,7 +31,13 @@ export const loginRequestSchemas = {
 export const changePasswordBodySchema = z
   .object({
     currentPassword: password,
-    newPassword: z.string().min(12).max(1_024),
+    newPassword: z
+      .string()
+      .min(12)
+      .max(1_024)
+      .refine(isWithinBcryptPasswordBoundary, {
+        message: BCRYPT_PASSWORD_MAX_BYTES_MESSAGE,
+      }),
   })
   .strict();
 

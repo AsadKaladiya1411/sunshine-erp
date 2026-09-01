@@ -2761,7 +2761,6 @@ export type UserCreateWithoutDepartmentInput = {
 
 export type UserUncheckedCreateWithoutDepartmentInput = {
   id?: string
-  organizationId: string
   employeeCode?: string | null
   firstName: string
   lastName?: string | null
@@ -3419,7 +3418,6 @@ export type UserCreateWithoutCreatedByInput = {
 
 export type UserUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   departmentId: string
   employeeCode?: string | null
   firstName: string
@@ -3549,7 +3547,6 @@ export type UserCreateWithoutUpdatedByInput = {
 
 export type UserUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   departmentId: string
   employeeCode?: string | null
   firstName: string
@@ -12777,7 +12774,6 @@ export type UserUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type UserCreateManyDepartmentInput = {
   id?: string
-  organizationId: string
   employeeCode?: string | null
   firstName: string
   lastName?: string | null
@@ -12857,7 +12853,6 @@ export type UserUpdateWithoutDepartmentInput = {
 
 export type UserUncheckedUpdateWithoutDepartmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12917,7 +12912,6 @@ export type UserUncheckedUpdateWithoutDepartmentInput = {
 
 export type UserUncheckedUpdateManyWithoutDepartmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -12937,7 +12931,6 @@ export type UserUncheckedUpdateManyWithoutDepartmentInput = {
 
 export type UserCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   departmentId: string
   employeeCode?: string | null
   firstName: string
@@ -12957,7 +12950,6 @@ export type UserCreateManyCreatedByInput = {
 
 export type UserCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   departmentId: string
   employeeCode?: string | null
   firstName: string
@@ -13037,7 +13029,6 @@ export type UserUpdateWithoutCreatedByInput = {
 
 export type UserUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -13097,7 +13088,6 @@ export type UserUncheckedUpdateWithoutCreatedByInput = {
 
 export type UserUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -13177,7 +13167,6 @@ export type UserUpdateWithoutUpdatedByInput = {
 
 export type UserUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -13237,7 +13226,6 @@ export type UserUncheckedUpdateWithoutUpdatedByInput = {
 
 export type UserUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.StringFieldUpdateOperationsInput | string
   employeeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstName?: Prisma.StringFieldUpdateOperationsInput | string

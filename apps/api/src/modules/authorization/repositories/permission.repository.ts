@@ -1,7 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
-import {
-  AuditService,
-} from "../../../core/audit/audit.service.js";
+import { AuditService } from "../../../core/audit/audit.service.js";
 import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
 import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
@@ -93,30 +91,35 @@ export class PermissionRepository {
     organizationId: string,
     updatedById: string,
   ): Promise<boolean> {
-    const actor = await this.database.user.findFirst({
-      where: { id: updatedById, organizationId },
-      select: { id: true },
+    return this.database.$transaction(async (transaction) => {
+      const actor = await transaction.user.findFirst({
+        where: { id: updatedById, organizationId },
+        select: { id: true },
+      });
+      if (!actor) {
+        return false;
+      }
+      const result = await transaction.permission.updateMany({
+        where: { id },
+        data: { status, updatedById },
+      });
+      if (result.count !== 1) {
+        return false;
+      }
+      await this.audit.recordActivity(
+        {
+          userId: updatedById,
+          organizationId,
+          module: "Authorization",
+          entityName: "Permission",
+          recordId: id,
+          action: SECURITY_ACTIVITY_ACTIONS.permissionStatusChanged,
+          remarks: "Permission status changed to " + status + ".",
+        },
+        transaction,
+      );
+      return true;
     });
-    if (!actor) {
-      return false;
-    }
-    const result = await this.database.permission.updateMany({
-      where: { id },
-      data: { status, updatedById },
-    });
-    if (result.count !== 1) {
-      return false;
-    }
-    await this.audit.recordActivity({
-      userId: updatedById,
-      organizationId,
-      module: "Authorization",
-      entityName: "Permission",
-      recordId: id,
-      action: SECURITY_ACTIVITY_ACTIONS.permissionStatusChanged,
-      remarks: "Permission status changed to " + status + ".",
-    });
-    return true;
   }
 }
 

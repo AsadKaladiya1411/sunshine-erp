@@ -74,6 +74,7 @@ describe("authentication persistence migration", () => {
 
     const organization = await prisma.organization.create({
       data: {
+        id: randomUUID(),
         organizationCode: "AUTH-TEST",
         organizationName: "Authentication Test Organization",
         status: "Active",

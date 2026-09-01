@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model FinancialYear
- * 
+ * Non-overlapping inclusive periods per organization are enforced by a PostgreSQL exclusion constraint.
  */
 export type FinancialYearModel = runtime.Types.Result.DefaultSelection<Prisma.$FinancialYearPayload>
 
@@ -257,6 +257,7 @@ export type FinancialYearOrderByWithRelationInput = {
 export type FinancialYearWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   organizationId_financialYearCode?: Prisma.FinancialYearOrganizationIdFinancialYearCodeCompoundUniqueInput
+  id_organizationId?: Prisma.FinancialYearIdOrganizationIdCompoundUniqueInput
   AND?: Prisma.FinancialYearWhereInput | Prisma.FinancialYearWhereInput[]
   OR?: Prisma.FinancialYearWhereInput[]
   NOT?: Prisma.FinancialYearWhereInput | Prisma.FinancialYearWhereInput[]
@@ -274,7 +275,7 @@ export type FinancialYearWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   updatedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   organizationSettings?: Prisma.OrganizationSettingListRelationFilter
-}, "id" | "organizationId_financialYearCode">
+}, "id" | "organizationId_financialYearCode" | "id_organizationId">
 
 export type FinancialYearOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -422,6 +423,11 @@ export type FinancialYearOrderByRelationAggregateInput = {
 export type FinancialYearOrganizationIdFinancialYearCodeCompoundUniqueInput = {
   organizationId: string
   financialYearCode: string
+}
+
+export type FinancialYearIdOrganizationIdCompoundUniqueInput = {
+  id: string
+  organizationId: string
 }
 
 export type FinancialYearCountOrderByAggregateInput = {
@@ -700,7 +706,6 @@ export type FinancialYearCreateWithoutCreatedByInput = {
 
 export type FinancialYearUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   financialYearCode: string
   financialYearName: string
   startDate: Date | string
@@ -738,7 +743,6 @@ export type FinancialYearCreateWithoutUpdatedByInput = {
 
 export type FinancialYearUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   financialYearCode: string
   financialYearName: string
   startDate: Date | string
@@ -920,7 +924,6 @@ export type FinancialYearUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type FinancialYearCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   financialYearCode: string
   financialYearName: string
   startDate: Date | string
@@ -933,7 +936,6 @@ export type FinancialYearCreateManyCreatedByInput = {
 
 export type FinancialYearCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   financialYearCode: string
   financialYearName: string
   startDate: Date | string
@@ -960,7 +962,6 @@ export type FinancialYearUpdateWithoutCreatedByInput = {
 
 export type FinancialYearUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearCode?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -974,7 +975,6 @@ export type FinancialYearUncheckedUpdateWithoutCreatedByInput = {
 
 export type FinancialYearUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearCode?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1001,7 +1001,6 @@ export type FinancialYearUpdateWithoutUpdatedByInput = {
 
 export type FinancialYearUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearCode?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1015,7 +1014,6 @@ export type FinancialYearUncheckedUpdateWithoutUpdatedByInput = {
 
 export type FinancialYearUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearCode?: Prisma.StringFieldUpdateOperationsInput | string
   financialYearName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string

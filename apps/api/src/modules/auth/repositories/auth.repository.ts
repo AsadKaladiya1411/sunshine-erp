@@ -1,5 +1,6 @@
 import { Prisma } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../core/database/prisma.js";
+import type { ActivityLogDatabase } from "../../../core/audit/activity-log.repository.js";
 import type {
   AuthenticatedUserIdentity,
   LoginAccount,
@@ -9,6 +10,11 @@ import type {
 } from "../types/auth.types.js";
 
 type TransactionClient = Prisma.TransactionClient;
+
+export type AuthMutationAudit<TResult> = (
+  result: TResult,
+  database: ActivityLogDatabase,
+) => Promise<void>;
 
 interface LoginIdentityInput {
   readonly organizationCode: string;
@@ -178,9 +184,10 @@ async function retireCurrentToken(
   reason: TokenRetirementReason,
   retiredAt: Date,
 ): Promise<void> {
-  const existingHistory = await transaction.userSessionTokenHistory.findUnique(
-    { where: { tokenHash: session.sessionTokenHash }, select: { id: true } },
-  );
+  const existingHistory = await transaction.userSessionTokenHistory.findUnique({
+    where: { tokenHash: session.sessionTokenHash },
+    select: { id: true },
+  });
 
   if (existingHistory) {
     return;
@@ -253,6 +260,7 @@ export class AuthRepository {
     now: Date,
     failureThreshold: number,
     lockDurationMs: number,
+    audit?: AuthMutationAudit<FailedLoginResult>,
   ): Promise<FailedLoginResult> {
     return prisma.$transaction(async (transaction) => {
       await lockUser(transaction, userId);
@@ -262,10 +270,12 @@ export class AuthRepository {
       });
 
       if (user.lockedUntil && user.lockedUntil > now) {
-        return Object.freeze({
+        const result = Object.freeze({
           failedLoginAttempts: user.failedLoginAttempts,
           lockedUntil: user.lockedUntil,
         });
+        await audit?.(result, transaction);
+        return result;
       }
 
       const failedLoginAttempts = user.failedLoginAttempts + 1;
@@ -278,12 +288,15 @@ export class AuthRepository {
         where: { id: userId },
         data: { failedLoginAttempts, lockedUntil },
       });
-      return Object.freeze({ failedLoginAttempts, lockedUntil });
+      const result = Object.freeze({ failedLoginAttempts, lockedUntil });
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
   async createLoginSession(
     input: CreateLoginSessionInput,
+    audit?: AuthMutationAudit<CreateLoginSessionResult>,
   ): Promise<CreateLoginSessionResult> {
     return prisma.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
@@ -359,7 +372,9 @@ export class AuthRepository {
         },
       });
 
-      return { kind: "created", sessionId: session.id } as const;
+      const result = { kind: "created", sessionId: session.id } as const;
+      await audit?.(result, transaction);
+      return result;
     });
   }
 
@@ -416,6 +431,7 @@ export class AuthRepository {
 
   async rotateRefreshSession(
     input: RotateSessionInput,
+    audit?: AuthMutationAudit<RotateSessionResult>,
   ): Promise<RotateSessionResult> {
     return prisma.$transaction(async (transaction) => {
       const sessionReference = await transaction.userSession.findFirst({
@@ -458,7 +474,12 @@ export class AuthRepository {
         session.sessionTokenHash !== input.presentedTokenHash &&
         retiredToken?.userSessionId === session.id
       ) {
-        await retireCurrentToken(transaction, session, "Compromised", input.now);
+        await retireCurrentToken(
+          transaction,
+          session,
+          "Compromised",
+          input.now,
+        );
         await transaction.userSession.update({
           where: { id: session.id },
           data: {
@@ -467,10 +488,12 @@ export class AuthRepository {
             revocationReason: "RefreshTokenReuse",
           },
         });
-        return {
+        const result = {
           kind: "reused",
           identity: mapIdentity(session),
         } as const;
+        await audit?.(result, transaction);
+        return result;
       }
 
       if (
@@ -509,7 +532,11 @@ export class AuthRepository {
     });
   }
 
-  async logoutSession(sessionId: string, now: Date): Promise<void> {
+  async logoutSession(
+    sessionId: string,
+    now: Date,
+    audit?: AuthMutationAudit<void>,
+  ): Promise<void> {
     await prisma.$transaction(async (transaction) => {
       await lockSession(transaction, sessionId);
       const session = await transaction.userSession.findUnique({
@@ -517,6 +544,7 @@ export class AuthRepository {
       });
 
       if (!session || session.status !== "Active") {
+        await audit?.(undefined, transaction);
         return;
       }
 
@@ -525,6 +553,7 @@ export class AuthRepository {
         where: { id: sessionId },
         data: { status: "LoggedOut", logoutAt: now },
       });
+      await audit?.(undefined, transaction);
     });
   }
 
@@ -561,7 +590,10 @@ export class AuthRepository {
     });
   }
 
-  async changePassword(input: ChangePasswordInput): Promise<boolean> {
+  async changePassword(
+    input: ChangePasswordInput,
+    audit?: AuthMutationAudit<boolean>,
+  ): Promise<boolean> {
     return prisma.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
       const user = await transaction.user.findUniqueOrThrow({
@@ -600,6 +632,7 @@ export class AuthRepository {
         input.currentSessionId,
       );
 
+      await audit?.(true, transaction);
       return true;
     });
   }
@@ -678,6 +711,7 @@ export class AuthRepository {
 
   async completePasswordReset(
     input: CompletePasswordResetInput,
+    audit?: AuthMutationAudit<boolean>,
   ): Promise<boolean> {
     return prisma.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
@@ -739,6 +773,7 @@ export class AuthRepository {
         "PasswordReset",
       );
 
+      await audit?.(true, transaction);
       return true;
     });
   }
