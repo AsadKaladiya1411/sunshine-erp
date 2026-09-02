@@ -7,10 +7,6 @@ import {
   authorizationService,
 } from "../../authorization/services/authorization.service.js";
 import {
-  userRoleAssignmentRepository,
-  type UserRoleAssignmentRepository,
-} from "../../authorization/repositories/user-role-assignment.repository.js";
-import {
   ApprovalAuthorizationError,
   ApprovalDelegationAmbiguousError,
   ApprovalNotFoundError,
@@ -90,7 +86,6 @@ export class RbacApprovalAuthorizationBoundary implements ApprovalAuthorizationB
   constructor(
     private readonly permissionCode: string,
     private readonly authorization: AuthorizationService = authorizationService,
-    private readonly roleAssignments: UserRoleAssignmentRepository = userRoleAssignmentRepository,
   ) {
     if (permissionCode.trim().length === 0) {
       throw new ApprovalValidationError(
@@ -112,11 +107,11 @@ export class RbacApprovalAuthorizationBoundary implements ApprovalAuthorizationB
     organizationId: string,
     roleId: string,
   ): Promise<boolean> {
-    const assignments = await this.roleAssignments.findActiveAssignments(
+    return this.authorization.hasActiveRole(
       userId,
       organizationId,
+      roleId,
     );
-    return assignments.some((assignment) => assignment.roleId === roleId);
   }
 }
 
@@ -407,6 +402,7 @@ export class ApprovalService {
         organizationId: input.organizationId,
         approvalRequestId: input.approvalRequestId,
         expectedCurrentLevelId: context.currentLevel.id,
+        expectedDecisionVersion: context.request.decisionVersion,
         approverUserId: input.approverUserId,
         actionType: input.actionType,
         actionDate,

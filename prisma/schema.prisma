@@ -493,13 +493,14 @@ model ApprovalConfiguration {
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  createdBy    User?                @relation("ApprovalConfigurationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy    User?                @relation("ApprovalConfigurationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  createdBy    User?                @relation("ApprovalConfigurationCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy    User?                @relation("ApprovalConfigurationUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
   levels       ApprovalLevel[]
   requests     ApprovalRequest[]
   delegations  ApprovalDelegation[]
 
   @@unique([organizationId, configurationCode])
+  @@unique([id, organizationId])
   @@index([organizationId])
   @@index([configurationCode])
   @@index([moduleName])
@@ -512,6 +513,7 @@ model ApprovalConfiguration {
 
 model ApprovalLevel {
   id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId          String   @map("organization_id") @db.Uuid
   approvalConfigurationId String   @map("approval_configuration_id") @db.Uuid
   levelNumber             Int      @map("level_number")
   levelName               String   @map("level_name") @db.VarChar(100)
@@ -527,17 +529,19 @@ model ApprovalLevel {
   updatedById             String?  @map("updated_by") @db.Uuid
   updatedAt               DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
-  approverUser          User?                 @relation("ApprovalLevelApproverUser", fields: [approverUserId], references: [id], onDelete: Restrict)
-  approverRole          Role?                 @relation(fields: [approverRoleId], references: [id], onDelete: Restrict)
-  createdBy             User?                 @relation("ApprovalLevelCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy             User?                 @relation("ApprovalLevelUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approverUser          User?                 @relation("ApprovalLevelApproverUser", fields: [approverUserId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approverRole          Role?                 @relation(fields: [approverRoleId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy             User?                 @relation("ApprovalLevelCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy             User?                 @relation("ApprovalLevelUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
   currentRequests       ApprovalRequest[]     @relation("ApprovalRequestCurrentLevel")
   actions               ApprovalAction[]
   histories             ApprovalHistory[]
   delegations           ApprovalDelegation[]
 
   @@unique([approvalConfigurationId, levelNumber])
+  @@unique([id, organizationId])
+  @@index([organizationId])
   @@index([approvalConfigurationId])
   @@index([levelNumber])
   @@index([approverType])
@@ -559,6 +563,7 @@ model ApprovalRequest {
   requestedAt             DateTime  @default(now()) @map("requested_at") @db.Timestamptz(6)
   currentLevelId          String?   @map("current_level_id") @db.Uuid
   approvalStatus          String    @map("approval_status") @db.VarChar(30)
+  decisionVersion         Int       @default(0) @map("decision_version")
   submittedAt             DateTime? @map("submitted_at") @db.Timestamptz(6)
   completedAt             DateTime? @map("completed_at") @db.Timestamptz(6)
   remarks                 String?   @db.Text
@@ -568,15 +573,16 @@ model ApprovalRequest {
   updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization          Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
-  requestedBy           User                  @relation("ApprovalRequestRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
-  currentLevel          ApprovalLevel?        @relation("ApprovalRequestCurrentLevel", fields: [currentLevelId], references: [id], onDelete: Restrict)
-  createdBy             User?                 @relation("ApprovalRequestCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy             User?                 @relation("ApprovalRequestUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  approvalConfiguration ApprovalConfiguration @relation(fields: [approvalConfigurationId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  requestedBy           User                  @relation("ApprovalRequestRequestedBy", fields: [requestedById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  currentLevel          ApprovalLevel?        @relation("ApprovalRequestCurrentLevel", fields: [currentLevelId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy             User?                 @relation("ApprovalRequestCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy             User?                 @relation("ApprovalRequestUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
   actions               ApprovalAction[]
   histories             ApprovalHistory[]
 
   @@unique([organizationId, approvalNumber])
+  @@unique([id, organizationId])
   @@index([organizationId])
   @@index([approvalConfigurationId])
   @@index([approvalNumber])
@@ -593,6 +599,7 @@ model ApprovalRequest {
 
 model ApprovalAction {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
   approvalRequestId String   @map("approval_request_id") @db.Uuid
   approvalLevelId   String   @map("approval_level_id") @db.Uuid
   approverUserId    String   @map("approver_user_id") @db.Uuid
@@ -608,14 +615,16 @@ model ApprovalAction {
   updatedById       String?  @map("updated_by") @db.Uuid
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  approvalRequest ApprovalRequest   @relation(fields: [approvalRequestId], references: [id], onDelete: Restrict)
-  approvalLevel   ApprovalLevel     @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
-  approverUser    User              @relation("ApprovalActionApproverUser", fields: [approverUserId], references: [id], onDelete: Restrict)
-  delegatedToUser User?             @relation("ApprovalActionDelegatedToUser", fields: [delegatedToUserId], references: [id], onDelete: Restrict)
-  createdBy       User?             @relation("ApprovalActionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy       User?             @relation("ApprovalActionUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  approvalRequest ApprovalRequest   @relation(fields: [approvalRequestId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approvalLevel   ApprovalLevel     @relation(fields: [approvalLevelId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approverUser    User              @relation("ApprovalActionApproverUser", fields: [approverUserId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  delegatedToUser User?             @relation("ApprovalActionDelegatedToUser", fields: [delegatedToUserId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy       User?             @relation("ApprovalActionCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy       User?             @relation("ApprovalActionUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
   histories       ApprovalHistory[]
 
+  @@unique([id, organizationId])
+  @@index([organizationId])
   @@index([approvalRequestId])
   @@index([approvalLevelId])
   @@index([approverUserId])
@@ -628,6 +637,7 @@ model ApprovalAction {
 
 model ApprovalHistory {
   id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String   @map("organization_id") @db.Uuid
   approvalRequestId String   @map("approval_request_id") @db.Uuid
   approvalLevelId   String?  @map("approval_level_id") @db.Uuid
   approvalActionId  String?  @map("approval_action_id") @db.Uuid
@@ -641,12 +651,13 @@ model ApprovalHistory {
   createdById       String?  @map("created_by") @db.Uuid
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Restrict)
-  approvalLevel   ApprovalLevel?  @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
-  approvalAction  ApprovalAction? @relation(fields: [approvalActionId], references: [id], onDelete: Restrict)
-  performedBy     User?           @relation("ApprovalHistoryPerformedBy", fields: [performedById], references: [id], onDelete: Restrict)
-  createdBy       User?           @relation("ApprovalHistoryCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approvalLevel   ApprovalLevel?  @relation(fields: [approvalLevelId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approvalAction  ApprovalAction? @relation(fields: [approvalActionId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  performedBy     User?           @relation("ApprovalHistoryPerformedBy", fields: [performedById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy       User?           @relation("ApprovalHistoryCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
 
+  @@index([organizationId])
   @@index([approvalRequestId])
   @@index([approvalLevelId])
   @@index([approvalActionId])
@@ -675,12 +686,12 @@ model ApprovalDelegation {
   updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   organization          Organization           @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  delegatorUser         User                   @relation("ApprovalDelegationDelegator", fields: [delegatorUserId], references: [id], onDelete: Restrict)
-  delegateUser          User                   @relation("ApprovalDelegationDelegate", fields: [delegateUserId], references: [id], onDelete: Restrict)
-  approvalConfiguration ApprovalConfiguration? @relation(fields: [approvalConfigurationId], references: [id], onDelete: Restrict)
-  approvalLevel         ApprovalLevel?         @relation(fields: [approvalLevelId], references: [id], onDelete: Restrict)
-  createdBy             User?                  @relation("ApprovalDelegationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
-  updatedBy             User?                  @relation("ApprovalDelegationUpdatedBy", fields: [updatedById], references: [id], onDelete: Restrict)
+  delegatorUser         User                   @relation("ApprovalDelegationDelegator", fields: [delegatorUserId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  delegateUser          User                   @relation("ApprovalDelegationDelegate", fields: [delegateUserId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approvalConfiguration ApprovalConfiguration? @relation(fields: [approvalConfigurationId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  approvalLevel         ApprovalLevel?         @relation(fields: [approvalLevelId, organizationId], references: [id, organizationId], onDelete: Restrict)
+  createdBy             User?                  @relation("ApprovalDelegationCreatedBy", fields: [createdById, organizationId], references: [id, organizationId], onDelete: Restrict)
+  updatedBy             User?                  @relation("ApprovalDelegationUpdatedBy", fields: [updatedById, organizationId], references: [id, organizationId], onDelete: Restrict)
 
   @@index([organizationId])
   @@index([delegatorUserId])

@@ -917,7 +917,6 @@ export type ApprovalDelegationCreateWithoutDelegatorUserInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutDelegatorUserInput = {
   id?: string
-  organizationId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
   approvalLevelId?: string | null
@@ -959,7 +958,6 @@ export type ApprovalDelegationCreateWithoutDelegateUserInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutDelegateUserInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   approvalConfigurationId?: string | null
   approvalLevelId?: string | null
@@ -1001,7 +999,6 @@ export type ApprovalDelegationCreateWithoutCreatedByInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1043,7 +1040,6 @@ export type ApprovalDelegationCreateWithoutUpdatedByInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1149,7 +1145,6 @@ export type ApprovalDelegationCreateWithoutApprovalConfigurationInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutApprovalConfigurationInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalLevelId?: string | null
@@ -1207,7 +1202,6 @@ export type ApprovalDelegationCreateWithoutApprovalLevelInput = {
 
 export type ApprovalDelegationUncheckedCreateWithoutApprovalLevelInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1313,7 +1307,6 @@ export type ApprovalDelegationUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type ApprovalDelegationCreateManyDelegatorUserInput = {
   id?: string
-  organizationId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
   approvalLevelId?: string | null
@@ -1329,7 +1322,6 @@ export type ApprovalDelegationCreateManyDelegatorUserInput = {
 
 export type ApprovalDelegationCreateManyDelegateUserInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   approvalConfigurationId?: string | null
   approvalLevelId?: string | null
@@ -1345,7 +1337,6 @@ export type ApprovalDelegationCreateManyDelegateUserInput = {
 
 export type ApprovalDelegationCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1361,7 +1352,6 @@ export type ApprovalDelegationCreateManyCreatedByInput = {
 
 export type ApprovalDelegationCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1393,7 +1383,6 @@ export type ApprovalDelegationUpdateWithoutDelegatorUserInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutDelegatorUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1409,7 +1398,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutDelegatorUserInput = {
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutDelegatorUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1441,7 +1429,6 @@ export type ApprovalDelegationUpdateWithoutDelegateUserInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutDelegateUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1457,7 +1444,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutDelegateUserInput = {
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutDelegateUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1489,7 +1475,6 @@ export type ApprovalDelegationUpdateWithoutCreatedByInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1505,7 +1490,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutCreatedByInput = {
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1537,7 +1521,6 @@ export type ApprovalDelegationUpdateWithoutUpdatedByInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1553,7 +1536,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutUpdatedByInput = {
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1569,7 +1551,6 @@ export type ApprovalDelegationUncheckedUpdateManyWithoutUpdatedByInput = {
 
 export type ApprovalDelegationCreateManyApprovalConfigurationInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalLevelId?: string | null
@@ -1601,7 +1582,6 @@ export type ApprovalDelegationUpdateWithoutApprovalConfigurationInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutApprovalConfigurationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1617,7 +1597,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutApprovalConfigurationInput =
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutApprovalConfigurationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1633,7 +1612,6 @@ export type ApprovalDelegationUncheckedUpdateManyWithoutApprovalConfigurationInp
 
 export type ApprovalDelegationCreateManyApprovalLevelInput = {
   id?: string
-  organizationId: string
   delegatorUserId: string
   delegateUserId: string
   approvalConfigurationId?: string | null
@@ -1665,7 +1643,6 @@ export type ApprovalDelegationUpdateWithoutApprovalLevelInput = {
 
 export type ApprovalDelegationUncheckedUpdateWithoutApprovalLevelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1681,7 +1658,6 @@ export type ApprovalDelegationUncheckedUpdateWithoutApprovalLevelInput = {
 
 export type ApprovalDelegationUncheckedUpdateManyWithoutApprovalLevelInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   delegatorUserId?: Prisma.StringFieldUpdateOperationsInput | string
   delegateUserId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null

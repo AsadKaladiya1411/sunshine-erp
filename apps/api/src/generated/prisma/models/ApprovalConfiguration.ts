@@ -297,6 +297,7 @@ export type ApprovalConfigurationOrderByWithRelationInput = {
 export type ApprovalConfigurationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   organizationId_configurationCode?: Prisma.ApprovalConfigurationOrganizationIdConfigurationCodeCompoundUniqueInput
+  id_organizationId?: Prisma.ApprovalConfigurationIdOrganizationIdCompoundUniqueInput
   AND?: Prisma.ApprovalConfigurationWhereInput | Prisma.ApprovalConfigurationWhereInput[]
   OR?: Prisma.ApprovalConfigurationWhereInput[]
   NOT?: Prisma.ApprovalConfigurationWhereInput | Prisma.ApprovalConfigurationWhereInput[]
@@ -320,7 +321,7 @@ export type ApprovalConfigurationWhereUniqueInput = Prisma.AtLeast<{
   levels?: Prisma.ApprovalLevelListRelationFilter
   requests?: Prisma.ApprovalRequestListRelationFilter
   delegations?: Prisma.ApprovalDelegationListRelationFilter
-}, "id" | "organizationId_configurationCode">
+}, "id" | "organizationId_configurationCode" | "id_organizationId">
 
 export type ApprovalConfigurationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -512,6 +513,11 @@ export type ApprovalConfigurationOrderByRelationAggregateInput = {
 export type ApprovalConfigurationOrganizationIdConfigurationCodeCompoundUniqueInput = {
   organizationId: string
   configurationCode: string
+}
+
+export type ApprovalConfigurationIdOrganizationIdCompoundUniqueInput = {
+  id: string
+  organizationId: string
 }
 
 export type ApprovalConfigurationCountOrderByAggregateInput = {
@@ -861,7 +867,6 @@ export type ApprovalConfigurationCreateWithoutCreatedByInput = {
 
 export type ApprovalConfigurationUncheckedCreateWithoutCreatedByInput = {
   id?: string
-  organizationId: string
   configurationCode: string
   configurationName: string
   moduleName: string
@@ -911,7 +916,6 @@ export type ApprovalConfigurationCreateWithoutUpdatedByInput = {
 
 export type ApprovalConfigurationUncheckedCreateWithoutUpdatedByInput = {
   id?: string
-  organizationId: string
   configurationCode: string
   configurationName: string
   moduleName: string
@@ -1335,7 +1339,6 @@ export type ApprovalConfigurationUncheckedUpdateManyWithoutOrganizationInput = {
 
 export type ApprovalConfigurationCreateManyCreatedByInput = {
   id?: string
-  organizationId: string
   configurationCode: string
   configurationName: string
   moduleName: string
@@ -1352,7 +1355,6 @@ export type ApprovalConfigurationCreateManyCreatedByInput = {
 
 export type ApprovalConfigurationCreateManyUpdatedByInput = {
   id?: string
-  organizationId: string
   configurationCode: string
   configurationName: string
   moduleName: string
@@ -1389,7 +1391,6 @@ export type ApprovalConfigurationUpdateWithoutCreatedByInput = {
 
 export type ApprovalConfigurationUncheckedUpdateWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   configurationCode?: Prisma.StringFieldUpdateOperationsInput | string
   configurationName?: Prisma.StringFieldUpdateOperationsInput | string
   moduleName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1409,7 +1410,6 @@ export type ApprovalConfigurationUncheckedUpdateWithoutCreatedByInput = {
 
 export type ApprovalConfigurationUncheckedUpdateManyWithoutCreatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   configurationCode?: Prisma.StringFieldUpdateOperationsInput | string
   configurationName?: Prisma.StringFieldUpdateOperationsInput | string
   moduleName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1446,7 +1446,6 @@ export type ApprovalConfigurationUpdateWithoutUpdatedByInput = {
 
 export type ApprovalConfigurationUncheckedUpdateWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   configurationCode?: Prisma.StringFieldUpdateOperationsInput | string
   configurationName?: Prisma.StringFieldUpdateOperationsInput | string
   moduleName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1466,7 +1465,6 @@ export type ApprovalConfigurationUncheckedUpdateWithoutUpdatedByInput = {
 
 export type ApprovalConfigurationUncheckedUpdateManyWithoutUpdatedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   configurationCode?: Prisma.StringFieldUpdateOperationsInput | string
   configurationName?: Prisma.StringFieldUpdateOperationsInput | string
   moduleName?: Prisma.StringFieldUpdateOperationsInput | string

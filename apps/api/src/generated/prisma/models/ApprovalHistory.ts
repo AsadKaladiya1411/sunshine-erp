@@ -26,6 +26,7 @@ export type AggregateApprovalHistory = {
 
 export type ApprovalHistoryMinAggregateOutputType = {
   id: string | null
+  organizationId: string | null
   approvalRequestId: string | null
   approvalLevelId: string | null
   approvalActionId: string | null
@@ -42,6 +43,7 @@ export type ApprovalHistoryMinAggregateOutputType = {
 
 export type ApprovalHistoryMaxAggregateOutputType = {
   id: string | null
+  organizationId: string | null
   approvalRequestId: string | null
   approvalLevelId: string | null
   approvalActionId: string | null
@@ -58,6 +60,7 @@ export type ApprovalHistoryMaxAggregateOutputType = {
 
 export type ApprovalHistoryCountAggregateOutputType = {
   id: number
+  organizationId: number
   approvalRequestId: number
   approvalLevelId: number
   approvalActionId: number
@@ -76,6 +79,7 @@ export type ApprovalHistoryCountAggregateOutputType = {
 
 export type ApprovalHistoryMinAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalRequestId?: true
   approvalLevelId?: true
   approvalActionId?: true
@@ -92,6 +96,7 @@ export type ApprovalHistoryMinAggregateInputType = {
 
 export type ApprovalHistoryMaxAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalRequestId?: true
   approvalLevelId?: true
   approvalActionId?: true
@@ -108,6 +113,7 @@ export type ApprovalHistoryMaxAggregateInputType = {
 
 export type ApprovalHistoryCountAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalRequestId?: true
   approvalLevelId?: true
   approvalActionId?: true
@@ -197,6 +203,7 @@ export type ApprovalHistoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 
 export type ApprovalHistoryGroupByOutputType = {
   id: string
+  organizationId: string
   approvalRequestId: string
   approvalLevelId: string | null
   approvalActionId: string | null
@@ -234,6 +241,7 @@ export type ApprovalHistoryWhereInput = {
   OR?: Prisma.ApprovalHistoryWhereInput[]
   NOT?: Prisma.ApprovalHistoryWhereInput | Prisma.ApprovalHistoryWhereInput[]
   id?: Prisma.UuidFilter<"ApprovalHistory"> | string
+  organizationId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalRequestId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalLevelId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
   approvalActionId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
@@ -255,6 +263,7 @@ export type ApprovalHistoryWhereInput = {
 
 export type ApprovalHistoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalRequestId?: Prisma.SortOrder
   approvalLevelId?: Prisma.SortOrderInput | Prisma.SortOrder
   approvalActionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -279,6 +288,7 @@ export type ApprovalHistoryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ApprovalHistoryWhereInput | Prisma.ApprovalHistoryWhereInput[]
   OR?: Prisma.ApprovalHistoryWhereInput[]
   NOT?: Prisma.ApprovalHistoryWhereInput | Prisma.ApprovalHistoryWhereInput[]
+  organizationId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalRequestId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalLevelId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
   approvalActionId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
@@ -300,6 +310,7 @@ export type ApprovalHistoryWhereUniqueInput = Prisma.AtLeast<{
 
 export type ApprovalHistoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalRequestId?: Prisma.SortOrder
   approvalLevelId?: Prisma.SortOrderInput | Prisma.SortOrder
   approvalActionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -322,6 +333,7 @@ export type ApprovalHistoryScalarWhereWithAggregatesInput = {
   OR?: Prisma.ApprovalHistoryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ApprovalHistoryScalarWhereWithAggregatesInput | Prisma.ApprovalHistoryScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ApprovalHistory"> | string
+  organizationId?: Prisma.UuidWithAggregatesFilter<"ApprovalHistory"> | string
   approvalRequestId?: Prisma.UuidWithAggregatesFilter<"ApprovalHistory"> | string
   approvalLevelId?: Prisma.UuidNullableWithAggregatesFilter<"ApprovalHistory"> | string | null
   approvalActionId?: Prisma.UuidNullableWithAggregatesFilter<"ApprovalHistory"> | string | null
@@ -354,6 +366,7 @@ export type ApprovalHistoryCreateInput = {
 
 export type ApprovalHistoryUncheckedCreateInput = {
   id?: string
+  organizationId: string
   approvalRequestId: string
   approvalLevelId?: string | null
   approvalActionId?: string | null
@@ -386,6 +399,7 @@ export type ApprovalHistoryUpdateInput = {
 
 export type ApprovalHistoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalRequestId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalActionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -402,6 +416,7 @@ export type ApprovalHistoryUncheckedUpdateInput = {
 
 export type ApprovalHistoryCreateManyInput = {
   id?: string
+  organizationId: string
   approvalRequestId: string
   approvalLevelId?: string | null
   approvalActionId?: string | null
@@ -429,6 +444,7 @@ export type ApprovalHistoryUpdateManyMutationInput = {
 
 export type ApprovalHistoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalRequestId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalLevelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   approvalActionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -455,6 +471,7 @@ export type ApprovalHistoryOrderByRelationAggregateInput = {
 
 export type ApprovalHistoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalRequestId?: Prisma.SortOrder
   approvalLevelId?: Prisma.SortOrder
   approvalActionId?: Prisma.SortOrder
@@ -471,6 +488,7 @@ export type ApprovalHistoryCountOrderByAggregateInput = {
 
 export type ApprovalHistoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalRequestId?: Prisma.SortOrder
   approvalLevelId?: Prisma.SortOrder
   approvalActionId?: Prisma.SortOrder
@@ -487,6 +505,7 @@ export type ApprovalHistoryMaxOrderByAggregateInput = {
 
 export type ApprovalHistoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalRequestId?: Prisma.SortOrder
   approvalLevelId?: Prisma.SortOrder
   approvalActionId?: Prisma.SortOrder
@@ -812,6 +831,7 @@ export type ApprovalHistoryScalarWhereInput = {
   OR?: Prisma.ApprovalHistoryScalarWhereInput[]
   NOT?: Prisma.ApprovalHistoryScalarWhereInput | Prisma.ApprovalHistoryScalarWhereInput[]
   id?: Prisma.UuidFilter<"ApprovalHistory"> | string
+  organizationId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalRequestId?: Prisma.UuidFilter<"ApprovalHistory"> | string
   approvalLevelId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
   approvalActionId?: Prisma.UuidNullableFilter<"ApprovalHistory"> | string | null
@@ -1314,6 +1334,7 @@ export type ApprovalHistoryUncheckedUpdateManyWithoutApprovalActionInput = {
 
 export type ApprovalHistorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalRequestId?: boolean
   approvalLevelId?: boolean
   approvalActionId?: boolean
@@ -1335,6 +1356,7 @@ export type ApprovalHistorySelect<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type ApprovalHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalRequestId?: boolean
   approvalLevelId?: boolean
   approvalActionId?: boolean
@@ -1356,6 +1378,7 @@ export type ApprovalHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Typ
 
 export type ApprovalHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalRequestId?: boolean
   approvalLevelId?: boolean
   approvalActionId?: boolean
@@ -1377,6 +1400,7 @@ export type ApprovalHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
 
 export type ApprovalHistorySelectScalar = {
   id?: boolean
+  organizationId?: boolean
   approvalRequestId?: boolean
   approvalLevelId?: boolean
   approvalActionId?: boolean
@@ -1391,7 +1415,7 @@ export type ApprovalHistorySelectScalar = {
   createdAt?: boolean
 }
 
-export type ApprovalHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "approvalRequestId" | "approvalLevelId" | "approvalActionId" | "eventType" | "fromStatus" | "toStatus" | "performedById" | "eventAt" | "reason" | "remarks" | "createdById" | "createdAt", ExtArgs["result"]["approvalHistory"]>
+export type ApprovalHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "approvalRequestId" | "approvalLevelId" | "approvalActionId" | "eventType" | "fromStatus" | "toStatus" | "performedById" | "eventAt" | "reason" | "remarks" | "createdById" | "createdAt", ExtArgs["result"]["approvalHistory"]>
 export type ApprovalHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   approvalRequest?: boolean | Prisma.ApprovalRequestDefaultArgs<ExtArgs>
   approvalLevel?: boolean | Prisma.ApprovalHistory$approvalLevelArgs<ExtArgs>
@@ -1425,6 +1449,7 @@ export type $ApprovalHistoryPayload<ExtArgs extends runtime.Types.Extensions.Int
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    organizationId: string
     approvalRequestId: string
     approvalLevelId: string | null
     approvalActionId: string | null
@@ -1866,6 +1891,7 @@ export interface Prisma__ApprovalHistoryClient<T, Null = never, ExtArgs extends 
  */
 export interface ApprovalHistoryFieldRefs {
   readonly id: Prisma.FieldRef<"ApprovalHistory", 'String'>
+  readonly organizationId: Prisma.FieldRef<"ApprovalHistory", 'String'>
   readonly approvalRequestId: Prisma.FieldRef<"ApprovalHistory", 'String'>
   readonly approvalLevelId: Prisma.FieldRef<"ApprovalHistory", 'String'>
   readonly approvalActionId: Prisma.FieldRef<"ApprovalHistory", 'String'>

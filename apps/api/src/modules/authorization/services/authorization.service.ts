@@ -9,11 +9,32 @@ export interface EffectivePermissionReader {
   ): Promise<readonly string[]>;
 }
 
+export interface ActiveRoleReader {
+  findActiveAssignments(
+    userId: string,
+    organizationId: string,
+  ): Promise<readonly { readonly roleId: string }[]>;
+}
+
 export class AuthorizationService {
   constructor(
     private readonly permissionReader: EffectivePermissionReader =
       userRoleAssignmentRepository,
+    private readonly activeRoleReader: ActiveRoleReader =
+      userRoleAssignmentRepository,
   ) {}
+
+  async hasActiveRole(
+    userId: string,
+    organizationId: string,
+    roleId: string,
+  ): Promise<boolean> {
+    const assignments = await this.activeRoleReader.findActiveAssignments(
+      userId,
+      organizationId,
+    );
+    return assignments.some((assignment) => assignment.roleId === roleId);
+  }
 
   async getEffectivePermissions(
     userId: string,

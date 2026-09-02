@@ -35,6 +35,7 @@ const configurationSelection = {
 
 const levelSelection = {
   id: true,
+  organizationId: true,
   approvalConfigurationId: true,
   levelNumber: true,
   levelName: true,
@@ -63,6 +64,7 @@ const requestSelection = {
   requestedAt: true,
   currentLevelId: true,
   approvalStatus: true,
+  decisionVersion: true,
   submittedAt: true,
   completedAt: true,
   remarks: true,
@@ -74,6 +76,7 @@ const requestSelection = {
 
 const actionSelection = {
   id: true,
+  organizationId: true,
   approvalRequestId: true,
   approvalLevelId: true,
   approverUserId: true,
@@ -92,6 +95,7 @@ const actionSelection = {
 
 const historySelection = {
   id: true,
+  organizationId: true,
   approvalRequestId: true,
   approvalLevelId: true,
   approvalActionId: true,
@@ -139,6 +143,7 @@ export interface PersistApprovalActionInput {
   readonly organizationId: string;
   readonly approvalRequestId: string;
   readonly expectedCurrentLevelId: string;
+  readonly expectedDecisionVersion: number;
   readonly approverUserId: string;
   readonly actionType: string;
   readonly actionDate: Date;
@@ -264,6 +269,7 @@ export class ApprovalRepository {
 
       const record = await transaction.approvalLevel.create({
         data: {
+          organizationId: input.organizationId,
           approvalConfigurationId: input.approvalConfigurationId,
           levelNumber: input.levelNumber,
           levelName: input.levelName,
@@ -359,6 +365,7 @@ export class ApprovalRepository {
       });
       await transaction.approvalHistory.create({
         data: {
+          organizationId: input.organizationId,
           approvalRequestId: request.id,
           approvalLevelId: currentLevelId,
           eventType: "Submitted",
@@ -437,10 +444,12 @@ export class ApprovalRepository {
           organizationId: input.organizationId,
           approvalStatus: input.fromStatus,
           currentLevelId: input.expectedCurrentLevelId,
+          decisionVersion: input.expectedDecisionVersion,
         },
         data: {
           approvalStatus: input.toStatus,
           currentLevelId: input.nextLevelId,
+          decisionVersion: { increment: 1 },
           completedAt: input.completedAt,
           updatedById: input.createdById ?? input.approverUserId,
         },
@@ -451,6 +460,7 @@ export class ApprovalRepository {
 
       const action = await transaction.approvalAction.create({
         data: {
+          organizationId: input.organizationId,
           approvalRequestId: input.approvalRequestId,
           approvalLevelId: input.expectedCurrentLevelId,
           approverUserId: input.approverUserId,
@@ -469,6 +479,7 @@ export class ApprovalRepository {
       const histories: ApprovalHistoryRecord[] = [];
       const actionHistory = await transaction.approvalHistory.create({
         data: {
+          organizationId: input.organizationId,
           approvalRequestId: input.approvalRequestId,
           approvalLevelId: input.expectedCurrentLevelId,
           approvalActionId: action.id,
@@ -491,6 +502,7 @@ export class ApprovalRepository {
       ) {
         const levelStarted = await transaction.approvalHistory.create({
           data: {
+            organizationId: input.organizationId,
             approvalRequestId: input.approvalRequestId,
             approvalLevelId: input.nextLevelId,
             approvalActionId: action.id,
@@ -509,6 +521,7 @@ export class ApprovalRepository {
       if (input.appendCompletionEvent) {
         const completion = await transaction.approvalHistory.create({
           data: {
+            organizationId: input.organizationId,
             approvalRequestId: input.approvalRequestId,
             approvalLevelId: input.expectedCurrentLevelId,
             approvalActionId: action.id,

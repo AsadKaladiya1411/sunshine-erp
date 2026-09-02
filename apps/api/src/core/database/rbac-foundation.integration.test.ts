@@ -14,6 +14,7 @@ import { RolePermissionRepository } from "../../modules/authorization/repositori
 import { RoleRepository } from "../../modules/authorization/repositories/role.repository.js";
 import { UserRoleAssignmentRepository } from "../../modules/authorization/repositories/user-role-assignment.repository.js";
 import { AuthorizationService } from "../../modules/authorization/services/authorization.service.js";
+import { AuthorizationAdministrationService } from "../../modules/authorization/services/authorization-administration.service.js";
 
 const migrationPaths = [
   "../../../../../prisma/migrations/20260825150000_common_administration_foundation/migration.sql",
@@ -57,6 +58,7 @@ describe("RBAC database and authorization foundation", () => {
   let rolePermissions: RolePermissionRepository;
   let assignments: UserRoleAssignmentRepository;
   let authorization: AuthorizationService;
+  let authorizationAdministration: AuthorizationAdministrationService;
 
   let organizationAId: string;
   let organizationBId: string;
@@ -99,7 +101,14 @@ describe("RBAC database and authorization foundation", () => {
     permissions = new PermissionRepository(database);
     rolePermissions = new RolePermissionRepository(database);
     assignments = new UserRoleAssignmentRepository(database);
-    authorization = new AuthorizationService(assignments);
+    const audit = new AuditService(new ActivityLogRepository(database));
+    authorization = new AuthorizationService(assignments, assignments);
+    authorizationAdministration = new AuthorizationAdministrationService(
+      permissions,
+      rolePermissions,
+      assignments,
+      audit,
+    );
 
     const organizationA = await database.organization.create({
       data: {
@@ -231,25 +240,25 @@ describe("RBAC database and authorization foundation", () => {
       })
     ).id;
 
-    await rolePermissions.assign({
+    await authorizationAdministration.assignPermissionToRole({
       organizationId: organizationAId,
       roleId: roleAId,
       permissionId: readPermissionId,
       assignedById: actorAId,
     });
-    await rolePermissions.assign({
+    await authorizationAdministration.assignPermissionToRole({
       organizationId: organizationAId,
       roleId: roleAId,
       permissionId: inactivePermissionId,
       assignedById: actorAId,
     });
-    await rolePermissions.assign({
+    await authorizationAdministration.assignPermissionToRole({
       organizationId: organizationAId,
       roleId: secondRoleAId,
       permissionId: writePermissionId,
       assignedById: actorAId,
     });
-    await assignments.assign({
+    await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: userAId,
       roleId: roleAId,
@@ -390,7 +399,7 @@ describe("RBAC database and authorization foundation", () => {
 
   it("prevents cross-organization assignments at repository and FK boundaries", async () => {
     await expect(
-      assignments.assign({
+      authorizationAdministration.assignRoleToUser({
         organizationId: organizationAId,
         userId: userAId,
         roleId: roleBId,
@@ -398,7 +407,7 @@ describe("RBAC database and authorization foundation", () => {
       }),
     ).resolves.toBeNull();
     await expect(
-      rolePermissions.assign({
+      authorizationAdministration.assignPermissionToRole({
         organizationId: organizationBId,
         roleId: roleBId,
         permissionId: readPermissionId,
@@ -439,7 +448,7 @@ describe("RBAC database and authorization foundation", () => {
         }),
       "P2002",
     );
-    const assignment = await rolePermissions.assign({
+    const assignment = await authorizationAdministration.assignPermissionToRole({
       organizationId: organizationAId,
       roleId: secondRoleAId,
       permissionId: readPermissionId,
@@ -458,7 +467,7 @@ describe("RBAC database and authorization foundation", () => {
   });
 
   it("combines permissions from multiple active Roles and ignores inactive Permission", async () => {
-    await assignments.assign({
+    await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: userAId,
       roleId: secondRoleAId,
@@ -484,13 +493,13 @@ describe("RBAC database and authorization foundation", () => {
       status: "Inactive",
       createdById: actorAId,
     });
-    await rolePermissions.assign({
+    await authorizationAdministration.assignPermissionToRole({
       organizationId: organizationAId,
       roleId: inactiveRole.id,
       permissionId: readPermissionId,
       assignedById: actorAId,
     });
-    await assignments.assign({
+    await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: expiredUserId,
       roleId: inactiveRole.id,
@@ -516,7 +525,7 @@ describe("RBAC database and authorization foundation", () => {
       },
     });
     await expect(
-      rolePermissions.deactivate(
+      authorizationAdministration.deactivateRolePermission(
         secondRoleAId,
         writePermissionId,
         organizationAId,
@@ -569,14 +578,18 @@ describe("RBAC database and authorization foundation", () => {
         },
       ],
     });
-    const revoked = await assignments.assign({
+    const revoked = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: historyUserId,
       roleId: roleAId,
       createdById: actorAId,
     });
     if (!revoked) throw new Error("Expected active role assignment.");
-    await assignments.revoke(revoked.id, organizationAId, actorAId);
+    await authorizationAdministration.revokeRoleAssignment(
+      revoked.id,
+      organizationAId,
+      actorAId,
+    );
     await expect(
       database.activityLog.count({
         where: { action: "RoleRevoked", recordId: revoked.id },
@@ -597,7 +610,7 @@ describe("RBAC database and authorization foundation", () => {
   it("keeps a non-expired assignment effective and excludes an elapsed assignment", async () => {
     const assignedAt = new Date(Date.now() - 120_000);
     const expiresAt = new Date(Date.now() - 60_000);
-    const expiredAssignment = await assignments.assign({
+    const expiredAssignment = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: timedExpiredUserId,
       roleId: roleAId,
@@ -640,7 +653,7 @@ describe("RBAC database and authorization foundation", () => {
       },
     });
 
-    const reassigned = await assignments.assign({
+    const reassigned = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: timedExpiredUserId,
       roleId: roleAId,
@@ -669,7 +682,7 @@ describe("RBAC database and authorization foundation", () => {
       ),
     ).resolves.toBe(true);
 
-    const duplicate = await assignments.assign({
+    const duplicate = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: timedExpiredUserId,
       roleId: roleAId,
@@ -688,14 +701,14 @@ describe("RBAC database and authorization foundation", () => {
   });
 
   it("preserves assignment history and permits only one active duplicate", async () => {
-    const reassigned = await assignments.assign({
+    const reassigned = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: historyUserId,
       roleId: roleAId,
       createdById: actorAId,
     });
     if (!reassigned) throw new Error("Expected reassigned role.");
-    const duplicate = await assignments.assign({
+    const duplicate = await authorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: historyUserId,
       roleId: roleAId,
@@ -720,7 +733,7 @@ describe("RBAC database and authorization foundation", () => {
 
   it("records the approved RBAC security mutations", async () => {
     await expect(
-      permissions.updateStatus(
+      authorizationAdministration.updatePermissionStatus(
         writePermissionId,
         "Inactive",
         organizationAId,
@@ -784,13 +797,17 @@ describe("RBAC database and authorization foundation", () => {
         await realAudit.recordActivity(input, transaction);
         throw new Error("Forced audit failure.");
       });
-    const atomicAssignments = new UserRoleAssignmentRepository(
-      database,
-      failingAudit,
-    );
+    const atomicAssignments = new UserRoleAssignmentRepository(database);
+    const atomicAuthorizationAdministration =
+      new AuthorizationAdministrationService(
+        permissions,
+        rolePermissions,
+        atomicAssignments,
+        failingAudit,
+      );
 
     await expect(
-      atomicAssignments.assign({
+      atomicAuthorizationAdministration.assignRoleToUser({
         organizationId: organizationAId,
         userId: targetUser.id,
         roleId: roleAId,
@@ -816,7 +833,7 @@ describe("RBAC database and authorization foundation", () => {
       }),
     ).resolves.toBe(auditCountBefore);
 
-    const committed = await atomicAssignments.assign({
+    const committed = await atomicAuthorizationAdministration.assignRoleToUser({
       organizationId: organizationAId,
       userId: targetUser.id,
       roleId: roleAId,
@@ -829,6 +846,150 @@ describe("RBAC database and authorization foundation", () => {
         where: { action: "RoleAssigned", recordId: committed.id },
       }),
     ).resolves.toBe(1);
+  });
+
+  it("keeps every moved Authorization audit hook atomic with its mutation", async () => {
+    const realAudit = new AuditService(new ActivityLogRepository(database));
+    const createFailingAdministration = () => {
+      const failingAudit = new AuditService(
+        new ActivityLogRepository(database),
+      );
+      jest
+        .spyOn(failingAudit, "recordActivity")
+        .mockImplementationOnce(async (input, transaction) => {
+          await realAudit.recordActivity(input, transaction);
+          throw new Error("Forced audit failure.");
+        });
+      return new AuthorizationAdministrationService(
+        permissions,
+        rolePermissions,
+        assignments,
+        failingAudit,
+      );
+    };
+
+    const permission = await permissions.create({
+      permissionCode: `atomic.permission.${randomUUID()}`,
+      permissionName: "Atomic permission",
+      module: "authorization",
+      action: "verify",
+      status: "Active",
+      createdById: actorAId,
+    });
+    const role = await roles.create({
+      organizationId: organizationAId,
+      roleCode: `ATOMIC-${randomUUID()}`,
+      roleName: `Atomic Role ${randomUUID()}`,
+      status: "Active",
+      createdById: actorAId,
+    });
+
+    await expect(
+      createFailingAdministration().updatePermissionStatus(
+        permission.id,
+        "Inactive",
+        organizationAId,
+        actorAId,
+      ),
+    ).rejects.toThrow("Forced audit failure.");
+    await expect(
+      permissions.findById(permission.id),
+    ).resolves.toMatchObject({ status: "Active" });
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "PermissionStatusChanged",
+          recordId: permission.id,
+        },
+      }),
+    ).resolves.toBe(0);
+
+    const rolePermissionAuditCountBefore = await database.activityLog.count({
+      where: {
+        organizationId: organizationAId,
+        action: "RolePermissionAssigned",
+      },
+    });
+    await expect(
+      createFailingAdministration().assignPermissionToRole({
+        organizationId: organizationAId,
+        roleId: role.id,
+        permissionId: permission.id,
+        assignedById: actorAId,
+      }),
+    ).rejects.toThrow("Forced audit failure.");
+    await expect(
+      database.rolePermission.count({
+        where: { roleId: role.id, permissionId: permission.id },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: {
+          organizationId: organizationAId,
+          action: "RolePermissionAssigned",
+        },
+      }),
+    ).resolves.toBe(rolePermissionAuditCountBefore);
+
+    const rolePermission =
+      await authorizationAdministration.assignPermissionToRole({
+        organizationId: organizationAId,
+        roleId: role.id,
+        permissionId: permission.id,
+        assignedById: actorAId,
+      });
+    if (!rolePermission) {
+      throw new Error("Expected Role-Permission assignment.");
+    }
+    await expect(
+      createFailingAdministration().deactivateRolePermission(
+        role.id,
+        permission.id,
+        organizationAId,
+        actorAId,
+      ),
+    ).rejects.toThrow("Forced audit failure.");
+    await expect(
+      database.rolePermission.findUniqueOrThrow({
+        where: { id: rolePermission.id },
+      }),
+    ).resolves.toMatchObject({ status: "Active" });
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "RolePermissionDeactivated",
+          recordId: rolePermission.id,
+        },
+      }),
+    ).resolves.toBe(0);
+
+    const roleAssignment = await authorizationAdministration.assignRoleToUser({
+      organizationId: organizationAId,
+      userId: inactiveUserId,
+      roleId: role.id,
+      createdById: actorAId,
+    });
+    if (!roleAssignment) {
+      throw new Error("Expected Role assignment.");
+    }
+    await expect(
+      createFailingAdministration().revokeRoleAssignment(
+        roleAssignment.id,
+        organizationAId,
+        actorAId,
+      ),
+    ).rejects.toThrow("Forced audit failure.");
+    await expect(
+      database.roleAssignment.findUniqueOrThrow({
+        where: { id: roleAssignment.id },
+      }),
+    ).resolves.toMatchObject({ status: "Active" });
+    await expect(
+      database.activityLog.count({
+        where: { action: "RoleRevoked", recordId: roleAssignment.id },
+      }),
+    ).resolves.toBe(0);
   });
 
   it("protects assigned Roles from physical deletion", async () => {

@@ -23,7 +23,12 @@ import {
   ApprovalStateConflictError,
   ApprovalValidationError,
 } from "./approval.errors.js";
-import { ApprovalRepository } from "./repositories/approval.repository.js";
+import {
+  ApprovalRepository,
+  type ApprovalMutationAudit,
+  type PersistApprovalActionInput,
+  type PersistApprovalActionResult,
+} from "./repositories/approval.repository.js";
 import { ApprovalService } from "./services/approval.service.js";
 import type {
   ApprovalAuthorizationBoundary,
@@ -39,6 +44,8 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260827120000_activity_logs/migration.sql",
   "../../../../../prisma/migrations/20260828045909_transactional_outbox_foundation/migration.sql",
   "../../../../../prisma/migrations/20260829121500_approval_engine_foundation/migration.sql",
+  "../../../../../prisma/migrations/20260902103000_approval_tenant_integrity/migration.sql",
+  "../../../../../prisma/migrations/20260902120000_approval_decision_concurrency/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
 );
@@ -67,6 +74,30 @@ class TestApprovalAuthorization implements ApprovalAuthorizationBoundary {
     roleId: string,
   ): Promise<boolean> {
     return this.roleMemberships.has(`${organizationId}:${userId}:${roleId}`);
+  }
+}
+
+class SynchronizedApprovalRepository extends ApprovalRepository {
+  private persistArrivals = 0;
+  private releasePersistBarrier!: () => void;
+  private readonly persistBarrier = new Promise<void>((resolve) => {
+    this.releasePersistBarrier = resolve;
+  });
+
+  get synchronizedPersistCalls(): number {
+    return this.persistArrivals;
+  }
+
+  override async persistAction(
+    input: PersistApprovalActionInput,
+    audit?: ApprovalMutationAudit<PersistApprovalActionResult>,
+  ): Promise<PersistApprovalActionResult | null> {
+    this.persistArrivals += 1;
+    if (this.persistArrivals === 2) {
+      this.releasePersistBarrier();
+    }
+    await this.persistBarrier;
+    return super.persistAction(input, audit);
   }
 }
 
@@ -114,6 +145,7 @@ describe("Approval Engine foundation", () => {
   let secondApproverAId: string;
   let delegateAId: string;
   let userBId: string;
+  let secondUserBId: string;
   let roleAId: string;
   let roleBId: string;
 
@@ -262,6 +294,11 @@ describe("Approval Engine foundation", () => {
     );
     delegateAId = await createUser(organizationAId, departmentAId, "delegate");
     userBId = await createUser(organizationBId, departmentBId, "tenant-b");
+    secondUserBId = await createUser(
+      organizationBId,
+      departmentBId,
+      "tenant-b-second",
+    );
 
     roleAId = (
       await database.role.create({
@@ -290,6 +327,7 @@ describe("Approval Engine foundation", () => {
       secondApproverAId,
       delegateAId,
       userBId,
+      secondUserBId,
     ]) {
       authorization.authorizedUsers.add(userId);
     }
@@ -388,6 +426,407 @@ describe("Approval Engine foundation", () => {
       [schemaName],
     );
     expect(deletionActions.rows).toEqual([{ delete_action: "RESTRICT" }]);
+  });
+
+  it("enforces every Approval tenant relationship at the database layer", async () => {
+    async function createTenantGraph(input: {
+      readonly organizationId: string;
+      readonly actorId: string;
+      readonly approverId: string;
+      readonly delegateId: string;
+      readonly roleId: string;
+      readonly suffix: string;
+    }) {
+      const configuration = await database.approvalConfiguration.create({
+        data: {
+          organizationId: input.organizationId,
+          configurationCode: uniqueCode(`TENANT-${input.suffix}`),
+          configurationName: `Tenant integrity ${input.suffix}`,
+          moduleName: "Foundation",
+          entityName: "FoundationRecord",
+          approvalRequired: true,
+          approvalMode: "Multi Level",
+          submissionStatus: "Configured",
+          status: "Active",
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      const userLevel = await database.approvalLevel.create({
+        data: {
+          organizationId: input.organizationId,
+          approvalConfigurationId: configuration.id,
+          levelNumber: input.suffix === "A" ? 1 : 101,
+          levelName: "User approver",
+          approverType: "User",
+          approverUserId: input.approverId,
+          status: "Active",
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      const roleLevel = await database.approvalLevel.create({
+        data: {
+          organizationId: input.organizationId,
+          approvalConfigurationId: configuration.id,
+          levelNumber: input.suffix === "A" ? 2 : 102,
+          levelName: "Role approver",
+          approverType: "Role",
+          approverRoleId: input.roleId,
+          status: "Active",
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      const request = await database.approvalRequest.create({
+        data: {
+          organizationId: input.organizationId,
+          approvalConfigurationId: configuration.id,
+          approvalNumber: uniqueCode(`TENANT-REQ-${input.suffix}`),
+          targetModule: "Foundation",
+          targetEntity: "FoundationRecord",
+          targetRecordId: randomUUID(),
+          requestedById: input.actorId,
+          currentLevelId: userLevel.id,
+          approvalStatus: "Pending",
+          submittedAt: new Date(),
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      const action = await database.approvalAction.create({
+        data: {
+          organizationId: input.organizationId,
+          approvalRequestId: request.id,
+          approvalLevelId: userLevel.id,
+          approverUserId: input.approverId,
+          actionType: "Delegate",
+          delegatedToUserId: input.delegateId,
+          status: "Completed",
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      const history = await database.approvalHistory.create({
+        data: {
+          organizationId: input.organizationId,
+          approvalRequestId: request.id,
+          approvalLevelId: userLevel.id,
+          approvalActionId: action.id,
+          eventType: "Delegated",
+          performedById: input.approverId,
+          createdById: input.actorId,
+        },
+      });
+      const delegation = await database.approvalDelegation.create({
+        data: {
+          organizationId: input.organizationId,
+          delegatorUserId: input.actorId,
+          delegateUserId: input.delegateId,
+          approvalConfigurationId: configuration.id,
+          approvalLevelId: roleLevel.id,
+          effectiveFrom: new Date(),
+          status: "Active",
+          createdById: input.actorId,
+          updatedById: input.actorId,
+        },
+      });
+      return {
+        configuration,
+        userLevel,
+        roleLevel,
+        request,
+        action,
+        history,
+        delegation,
+      };
+    }
+
+    const tenantA = await createTenantGraph({
+      organizationId: organizationAId,
+      actorId: creatorAId,
+      approverId: approverAId,
+      delegateId: delegateAId,
+      roleId: roleAId,
+      suffix: "A",
+    });
+    const tenantB = await createTenantGraph({
+      organizationId: organizationBId,
+      actorId: userBId,
+      approverId: userBId,
+      delegateId: secondUserBId,
+      roleId: roleBId,
+      suffix: "B",
+    });
+
+    expect([
+      tenantA.configuration.organizationId,
+      tenantA.userLevel.organizationId,
+      tenantA.roleLevel.organizationId,
+      tenantA.request.organizationId,
+      tenantA.action.organizationId,
+      tenantA.history.organizationId,
+      tenantA.delegation.organizationId,
+    ]).toEqual(Array(7).fill(organizationAId));
+    expect([
+      tenantB.configuration.organizationId,
+      tenantB.userLevel.organizationId,
+      tenantB.roleLevel.organizationId,
+      tenantB.request.organizationId,
+      tenantB.action.organizationId,
+      tenantB.history.organizationId,
+      tenantB.delegation.organizationId,
+    ]).toEqual(Array(7).fill(organizationBId));
+
+    const crossTenantAttempts: readonly {
+      readonly relationship: string;
+      readonly operation: () => Promise<unknown>;
+    }[] = [
+      {
+        relationship: "configuration.createdBy",
+        operation: () =>
+          database.approvalConfiguration.update({
+            where: { id: tenantA.configuration.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "configuration.updatedBy",
+        operation: () =>
+          database.approvalConfiguration.update({
+            where: { id: tenantA.configuration.id },
+            data: { updatedById: userBId },
+          }),
+      },
+      {
+        relationship: "level.configuration",
+        operation: () =>
+          database.approvalLevel.update({
+            where: { id: tenantA.userLevel.id },
+            data: { approvalConfigurationId: tenantB.configuration.id },
+          }),
+      },
+      {
+        relationship: "level.approverUser",
+        operation: () =>
+          database.approvalLevel.update({
+            where: { id: tenantA.userLevel.id },
+            data: { approverUserId: userBId },
+          }),
+      },
+      {
+        relationship: "level.approverRole",
+        operation: () =>
+          database.approvalLevel.update({
+            where: { id: tenantA.roleLevel.id },
+            data: { approverRoleId: roleBId },
+          }),
+      },
+      {
+        relationship: "level.createdBy",
+        operation: () =>
+          database.approvalLevel.update({
+            where: { id: tenantA.userLevel.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "level.updatedBy",
+        operation: () =>
+          database.approvalLevel.update({
+            where: { id: tenantA.userLevel.id },
+            data: { updatedById: userBId },
+          }),
+      },
+      {
+        relationship: "request.configuration",
+        operation: () =>
+          database.approvalRequest.update({
+            where: { id: tenantA.request.id },
+            data: { approvalConfigurationId: tenantB.configuration.id },
+          }),
+      },
+      {
+        relationship: "request.requestedBy",
+        operation: () =>
+          database.approvalRequest.update({
+            where: { id: tenantA.request.id },
+            data: { requestedById: userBId },
+          }),
+      },
+      {
+        relationship: "request.currentLevel",
+        operation: () =>
+          database.approvalRequest.update({
+            where: { id: tenantA.request.id },
+            data: { currentLevelId: tenantB.userLevel.id },
+          }),
+      },
+      {
+        relationship: "request.createdBy",
+        operation: () =>
+          database.approvalRequest.update({
+            where: { id: tenantA.request.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "request.updatedBy",
+        operation: () =>
+          database.approvalRequest.update({
+            where: { id: tenantA.request.id },
+            data: { updatedById: userBId },
+          }),
+      },
+      {
+        relationship: "action.request",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { approvalRequestId: tenantB.request.id },
+          }),
+      },
+      {
+        relationship: "action.level",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { approvalLevelId: tenantB.userLevel.id },
+          }),
+      },
+      {
+        relationship: "action.approverUser",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { approverUserId: userBId },
+          }),
+      },
+      {
+        relationship: "action.delegatedToUser",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { delegatedToUserId: userBId },
+          }),
+      },
+      {
+        relationship: "action.createdBy",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "action.updatedBy",
+        operation: () =>
+          database.approvalAction.update({
+            where: { id: tenantA.action.id },
+            data: { updatedById: userBId },
+          }),
+      },
+      {
+        relationship: "history.request",
+        operation: () =>
+          database.approvalHistory.update({
+            where: { id: tenantA.history.id },
+            data: { approvalRequestId: tenantB.request.id },
+          }),
+      },
+      {
+        relationship: "history.level",
+        operation: () =>
+          database.approvalHistory.update({
+            where: { id: tenantA.history.id },
+            data: { approvalLevelId: tenantB.userLevel.id },
+          }),
+      },
+      {
+        relationship: "history.action",
+        operation: () =>
+          database.approvalHistory.update({
+            where: { id: tenantA.history.id },
+            data: { approvalActionId: tenantB.action.id },
+          }),
+      },
+      {
+        relationship: "history.performedBy",
+        operation: () =>
+          database.approvalHistory.update({
+            where: { id: tenantA.history.id },
+            data: { performedById: userBId },
+          }),
+      },
+      {
+        relationship: "history.createdBy",
+        operation: () =>
+          database.approvalHistory.update({
+            where: { id: tenantA.history.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "delegation.delegatorUser",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { delegatorUserId: userBId },
+          }),
+      },
+      {
+        relationship: "delegation.delegateUser",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { delegateUserId: userBId },
+          }),
+      },
+      {
+        relationship: "delegation.configuration",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { approvalConfigurationId: tenantB.configuration.id },
+          }),
+      },
+      {
+        relationship: "delegation.level",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { approvalLevelId: tenantB.roleLevel.id },
+          }),
+      },
+      {
+        relationship: "delegation.createdBy",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { createdById: userBId },
+          }),
+      },
+      {
+        relationship: "delegation.updatedBy",
+        operation: () =>
+          database.approvalDelegation.update({
+            where: { id: tenantA.delegation.id },
+            data: { updatedById: userBId },
+          }),
+      },
+    ];
+
+    expect(crossTenantAttempts).toHaveLength(29);
+    for (const attempt of crossTenantAttempts) {
+      await expectDatabaseError(attempt.operation, "P2003");
+    }
+
+    await expect(
+      database.approvalConfiguration.findUniqueOrThrow({
+        where: { id: tenantA.configuration.id },
+        select: { organizationId: true },
+      }),
+    ).resolves.toEqual({ organizationId: organizationAId });
   });
 
   it("validates configurations, preserves organization ownership, and enforces code uniqueness", async () => {
@@ -645,6 +1084,115 @@ describe("Approval Engine foundation", () => {
     expect("delete" in repository).toBe(false);
   });
 
+  it("allows only one concurrent Delegate decision for the same request and level", async () => {
+    const configuration = await createConfiguration("Single");
+    const level = await createUserLevel(configuration.id, 1, approverAId);
+    const request = await submit(configuration.id);
+    const synchronizedRepository = new SynchronizedApprovalRepository(database);
+    const synchronizedService = new ApprovalService(
+      authorization,
+      synchronizedRepository,
+      audit,
+    );
+
+    const results = await Promise.allSettled([
+      synchronizedService.recordAction({
+        organizationId: organizationAId,
+        approvalRequestId: request.id,
+        approverUserId: approverAId,
+        actionType: "Delegate",
+        delegatedToUserId: delegateAId,
+      }),
+      synchronizedService.recordAction({
+        organizationId: organizationAId,
+        approvalRequestId: request.id,
+        approverUserId: approverAId,
+        actionType: "Delegate",
+        delegatedToUserId: secondApproverAId,
+      }),
+    ]);
+
+    expect(synchronizedRepository.synchronizedPersistCalls).toBe(2);
+    const successfulResults = results.filter(
+      (result) => result.status === "fulfilled",
+    );
+    const failedResults = results.filter((result) => result.status === "rejected");
+    expect(successfulResults).toHaveLength(1);
+    expect(failedResults).toHaveLength(1);
+    const successfulResult = successfulResults[0];
+    const failedResult = failedResults[0];
+    if (
+      !successfulResult ||
+      successfulResult.status !== "fulfilled" ||
+      !failedResult ||
+      failedResult.status !== "rejected"
+    ) {
+      throw new Error("Expected one successful and one rejected Delegate result.");
+    }
+    expect(failedResult.reason).toBeInstanceOf(ApprovalStateConflictError);
+    expect(successfulResult.value.request).toMatchObject({
+      id: request.id,
+      approvalStatus: "Pending",
+      currentLevelId: level.id,
+      decisionVersion: 1,
+    });
+
+    const persistedRequest = await database.approvalRequest.findUniqueOrThrow({
+      where: { id: request.id },
+      select: {
+        approvalStatus: true,
+        currentLevelId: true,
+        decisionVersion: true,
+      },
+    });
+    expect(persistedRequest).toEqual({
+      approvalStatus: "Pending",
+      currentLevelId: level.id,
+      decisionVersion: 1,
+    });
+
+    const actions = await database.approvalAction.findMany({
+      where: {
+        organizationId: organizationAId,
+        approvalRequestId: request.id,
+        approvalLevelId: level.id,
+        actionType: "Delegate",
+        status: "Completed",
+      },
+    });
+    expect(actions).toHaveLength(1);
+    expect([delegateAId, secondApproverAId]).toContain(
+      actions[0]?.delegatedToUserId,
+    );
+
+    const delegatedHistories = await database.approvalHistory.findMany({
+      where: {
+        organizationId: organizationAId,
+        approvalRequestId: request.id,
+        approvalLevelId: level.id,
+        eventType: "Delegated",
+      },
+    });
+    expect(delegatedHistories).toHaveLength(1);
+    expect(delegatedHistories[0]?.approvalActionId).toBe(actions[0]?.id);
+    await expect(
+      database.approvalDelegation.count({
+        where: { organizationId: organizationAId },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: {
+          organizationId: organizationAId,
+          module: "Approval Workflow",
+          entityName: "ApprovalAction",
+          recordId: actions[0]?.id,
+          action: "ApprovalActionRecorded",
+        },
+      }),
+    ).resolves.toBe(1);
+  });
+
   it("validates delegation periods, scopes delegated approval, and preserves identities", async () => {
     const configuration = await createConfiguration("Single");
     const level = await createUserLevel(configuration.id, 1, approverAId);
@@ -789,6 +1337,7 @@ describe("Approval Engine foundation", () => {
         organizationId: organizationAId,
         approvalRequestId: request.id,
         expectedCurrentLevelId: level.id,
+        expectedDecisionVersion: request.decisionVersion,
         approverUserId: approverAId,
         actionType: "Reject",
         actionDate: new Date(),

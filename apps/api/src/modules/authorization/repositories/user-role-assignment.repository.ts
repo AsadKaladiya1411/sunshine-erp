@@ -1,12 +1,10 @@
 import { prisma } from "../../../core/database/prisma.js";
-import { AuditService } from "../../../core/audit/audit.service.js";
-import { ActivityLogRepository } from "../../../core/audit/activity-log.repository.js";
-import { SECURITY_ACTIVITY_ACTIONS } from "../../../core/audit/activity-log.types.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import {
   ACTIVE_AUTHORIZATION_STATUS,
   type RoleAssignmentRecord,
 } from "../types/authorization.types.js";
+import type { AuthorizationMutationHook } from "./authorization-mutation.types.js";
 
 export interface AssignRoleToUserInput {
   readonly organizationId: string;
@@ -35,18 +33,11 @@ const roleAssignmentSelection = {
 } as const;
 
 export class UserRoleAssignmentRepository {
-  private readonly audit: AuditService;
-
-  constructor(
-    private readonly database: PrismaClient = prisma,
-    audit?: AuditService,
-  ) {
-    this.audit =
-      audit ?? new AuditService(new ActivityLogRepository(this.database));
-  }
+  constructor(private readonly database: PrismaClient = prisma) {}
 
   async assign(
     input: AssignRoleToUserInput,
+    afterAssign?: AuthorizationMutationHook<RoleAssignmentRecord>,
   ): Promise<RoleAssignmentRecord | null> {
     const evaluatedAt = new Date();
     const result = await this.database.$transaction(async (transaction) => {
@@ -122,19 +113,7 @@ export class UserRoleAssignmentRepository {
         select: roleAssignmentSelection,
       });
       const mappedAssignment = mapRoleAssignment(assignment);
-      await this.audit.recordActivity(
-        {
-          userId: input.createdById,
-          organizationId: input.organizationId,
-          module: "Authorization",
-          entityName: "RoleAssignment",
-          recordId: mappedAssignment.id,
-          action: SECURITY_ACTIVITY_ACTIONS.roleAssigned,
-          performedAt: mappedAssignment.assignedAt,
-          remarks: "Role assigned to user.",
-        },
-        transaction,
-      );
+      await afterAssign?.(mappedAssignment, transaction);
       return { assignment: mappedAssignment, created: true };
     });
     if (!result) {
@@ -147,6 +126,7 @@ export class UserRoleAssignmentRepository {
     assignmentId: string,
     organizationId: string,
     updatedById: string,
+    afterRevoke?: AuthorizationMutationHook<string>,
   ): Promise<boolean> {
     const result = await this.database.$transaction(async (transaction) => {
       const actor = await transaction.user.findFirst({
@@ -165,18 +145,7 @@ export class UserRoleAssignmentRepository {
         data: { status: "Revoked", updatedById },
       });
       if (updated.count === 1) {
-        await this.audit.recordActivity(
-          {
-            userId: updatedById,
-            organizationId,
-            module: "Authorization",
-            entityName: "RoleAssignment",
-            recordId: assignmentId,
-            action: SECURITY_ACTIVITY_ACTIONS.roleRevoked,
-            remarks: "Role assignment revoked.",
-          },
-          transaction,
-        );
+        await afterRevoke?.(assignmentId, transaction);
       }
       return updated;
     });

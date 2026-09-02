@@ -36,6 +36,7 @@ export type ApprovalLevelSumAggregateOutputType = {
 
 export type ApprovalLevelMinAggregateOutputType = {
   id: string | null
+  organizationId: string | null
   approvalConfigurationId: string | null
   levelNumber: number | null
   levelName: string | null
@@ -54,6 +55,7 @@ export type ApprovalLevelMinAggregateOutputType = {
 
 export type ApprovalLevelMaxAggregateOutputType = {
   id: string | null
+  organizationId: string | null
   approvalConfigurationId: string | null
   levelNumber: number | null
   levelName: string | null
@@ -72,6 +74,7 @@ export type ApprovalLevelMaxAggregateOutputType = {
 
 export type ApprovalLevelCountAggregateOutputType = {
   id: number
+  organizationId: number
   approvalConfigurationId: number
   levelNumber: number
   levelName: number
@@ -100,6 +103,7 @@ export type ApprovalLevelSumAggregateInputType = {
 
 export type ApprovalLevelMinAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalConfigurationId?: true
   levelNumber?: true
   levelName?: true
@@ -118,6 +122,7 @@ export type ApprovalLevelMinAggregateInputType = {
 
 export type ApprovalLevelMaxAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalConfigurationId?: true
   levelNumber?: true
   levelName?: true
@@ -136,6 +141,7 @@ export type ApprovalLevelMaxAggregateInputType = {
 
 export type ApprovalLevelCountAggregateInputType = {
   id?: true
+  organizationId?: true
   approvalConfigurationId?: true
   levelNumber?: true
   levelName?: true
@@ -241,6 +247,7 @@ export type ApprovalLevelGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 
 export type ApprovalLevelGroupByOutputType = {
   id: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -282,6 +289,7 @@ export type ApprovalLevelWhereInput = {
   OR?: Prisma.ApprovalLevelWhereInput[]
   NOT?: Prisma.ApprovalLevelWhereInput | Prisma.ApprovalLevelWhereInput[]
   id?: Prisma.UuidFilter<"ApprovalLevel"> | string
+  organizationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   approvalConfigurationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   levelNumber?: Prisma.IntFilter<"ApprovalLevel"> | number
   levelName?: Prisma.StringFilter<"ApprovalLevel"> | string
@@ -309,6 +317,7 @@ export type ApprovalLevelWhereInput = {
 
 export type ApprovalLevelOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalConfigurationId?: Prisma.SortOrder
   levelNumber?: Prisma.SortOrder
   levelName?: Prisma.SortOrder
@@ -337,9 +346,11 @@ export type ApprovalLevelOrderByWithRelationInput = {
 export type ApprovalLevelWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   approvalConfigurationId_levelNumber?: Prisma.ApprovalLevelApprovalConfigurationIdLevelNumberCompoundUniqueInput
+  id_organizationId?: Prisma.ApprovalLevelIdOrganizationIdCompoundUniqueInput
   AND?: Prisma.ApprovalLevelWhereInput | Prisma.ApprovalLevelWhereInput[]
   OR?: Prisma.ApprovalLevelWhereInput[]
   NOT?: Prisma.ApprovalLevelWhereInput | Prisma.ApprovalLevelWhereInput[]
+  organizationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   approvalConfigurationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   levelNumber?: Prisma.IntFilter<"ApprovalLevel"> | number
   levelName?: Prisma.StringFilter<"ApprovalLevel"> | string
@@ -363,10 +374,11 @@ export type ApprovalLevelWhereUniqueInput = Prisma.AtLeast<{
   actions?: Prisma.ApprovalActionListRelationFilter
   histories?: Prisma.ApprovalHistoryListRelationFilter
   delegations?: Prisma.ApprovalDelegationListRelationFilter
-}, "id" | "approvalConfigurationId_levelNumber">
+}, "id" | "approvalConfigurationId_levelNumber" | "id_organizationId">
 
 export type ApprovalLevelOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalConfigurationId?: Prisma.SortOrder
   levelNumber?: Prisma.SortOrder
   levelName?: Prisma.SortOrder
@@ -393,6 +405,7 @@ export type ApprovalLevelScalarWhereWithAggregatesInput = {
   OR?: Prisma.ApprovalLevelScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ApprovalLevelScalarWhereWithAggregatesInput | Prisma.ApprovalLevelScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ApprovalLevel"> | string
+  organizationId?: Prisma.UuidWithAggregatesFilter<"ApprovalLevel"> | string
   approvalConfigurationId?: Prisma.UuidWithAggregatesFilter<"ApprovalLevel"> | string
   levelNumber?: Prisma.IntWithAggregatesFilter<"ApprovalLevel"> | number
   levelName?: Prisma.StringWithAggregatesFilter<"ApprovalLevel"> | string
@@ -433,6 +446,7 @@ export type ApprovalLevelCreateInput = {
 
 export type ApprovalLevelUncheckedCreateInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -477,6 +491,7 @@ export type ApprovalLevelUpdateInput = {
 
 export type ApprovalLevelUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -499,6 +514,7 @@ export type ApprovalLevelUncheckedUpdateInput = {
 
 export type ApprovalLevelCreateManyInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -530,6 +546,7 @@ export type ApprovalLevelUpdateManyMutationInput = {
 
 export type ApprovalLevelUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -561,8 +578,14 @@ export type ApprovalLevelApprovalConfigurationIdLevelNumberCompoundUniqueInput =
   levelNumber: number
 }
 
+export type ApprovalLevelIdOrganizationIdCompoundUniqueInput = {
+  id: string
+  organizationId: string
+}
+
 export type ApprovalLevelCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalConfigurationId?: Prisma.SortOrder
   levelNumber?: Prisma.SortOrder
   levelName?: Prisma.SortOrder
@@ -585,6 +608,7 @@ export type ApprovalLevelAvgOrderByAggregateInput = {
 
 export type ApprovalLevelMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalConfigurationId?: Prisma.SortOrder
   levelNumber?: Prisma.SortOrder
   levelName?: Prisma.SortOrder
@@ -603,6 +627,7 @@ export type ApprovalLevelMaxOrderByAggregateInput = {
 
 export type ApprovalLevelMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  organizationId?: Prisma.SortOrder
   approvalConfigurationId?: Prisma.SortOrder
   levelNumber?: Prisma.SortOrder
   levelName?: Prisma.SortOrder
@@ -1082,6 +1107,7 @@ export type ApprovalLevelScalarWhereInput = {
   OR?: Prisma.ApprovalLevelScalarWhereInput[]
   NOT?: Prisma.ApprovalLevelScalarWhereInput | Prisma.ApprovalLevelScalarWhereInput[]
   id?: Prisma.UuidFilter<"ApprovalLevel"> | string
+  organizationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   approvalConfigurationId?: Prisma.UuidFilter<"ApprovalLevel"> | string
   levelNumber?: Prisma.IntFilter<"ApprovalLevel"> | number
   levelName?: Prisma.StringFilter<"ApprovalLevel"> | string
@@ -1289,6 +1315,7 @@ export type ApprovalLevelCreateWithoutCurrentRequestsInput = {
 
 export type ApprovalLevelUncheckedCreateWithoutCurrentRequestsInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -1347,6 +1374,7 @@ export type ApprovalLevelUpdateWithoutCurrentRequestsInput = {
 
 export type ApprovalLevelUncheckedUpdateWithoutCurrentRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1389,6 +1417,7 @@ export type ApprovalLevelCreateWithoutActionsInput = {
 
 export type ApprovalLevelUncheckedCreateWithoutActionsInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -1447,6 +1476,7 @@ export type ApprovalLevelUpdateWithoutActionsInput = {
 
 export type ApprovalLevelUncheckedUpdateWithoutActionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1489,6 +1519,7 @@ export type ApprovalLevelCreateWithoutHistoriesInput = {
 
 export type ApprovalLevelUncheckedCreateWithoutHistoriesInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -1547,6 +1578,7 @@ export type ApprovalLevelUpdateWithoutHistoriesInput = {
 
 export type ApprovalLevelUncheckedUpdateWithoutHistoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1589,6 +1621,7 @@ export type ApprovalLevelCreateWithoutDelegationsInput = {
 
 export type ApprovalLevelUncheckedCreateWithoutDelegationsInput = {
   id?: string
+  organizationId: string
   approvalConfigurationId: string
   levelNumber: number
   levelName: string
@@ -1647,6 +1680,7 @@ export type ApprovalLevelUpdateWithoutDelegationsInput = {
 
 export type ApprovalLevelUncheckedUpdateWithoutDelegationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  organizationId?: Prisma.StringFieldUpdateOperationsInput | string
   approvalConfigurationId?: Prisma.StringFieldUpdateOperationsInput | string
   levelNumber?: Prisma.IntFieldUpdateOperationsInput | number
   levelName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2106,6 +2140,7 @@ export type ApprovalLevelCountOutputTypeCountDelegationsArgs<ExtArgs extends run
 
 export type ApprovalLevelSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalConfigurationId?: boolean
   levelNumber?: boolean
   levelName?: boolean
@@ -2134,6 +2169,7 @@ export type ApprovalLevelSelect<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type ApprovalLevelSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalConfigurationId?: boolean
   levelNumber?: boolean
   levelName?: boolean
@@ -2157,6 +2193,7 @@ export type ApprovalLevelSelectCreateManyAndReturn<ExtArgs extends runtime.Types
 
 export type ApprovalLevelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  organizationId?: boolean
   approvalConfigurationId?: boolean
   levelNumber?: boolean
   levelName?: boolean
@@ -2180,6 +2217,7 @@ export type ApprovalLevelSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
 
 export type ApprovalLevelSelectScalar = {
   id?: boolean
+  organizationId?: boolean
   approvalConfigurationId?: boolean
   levelNumber?: boolean
   levelName?: boolean
@@ -2196,7 +2234,7 @@ export type ApprovalLevelSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ApprovalLevelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "approvalConfigurationId" | "levelNumber" | "levelName" | "approverType" | "approverUserId" | "approverRoleId" | "isRequired" | "autoApprove" | "status" | "remarks" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["approvalLevel"]>
+export type ApprovalLevelOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "organizationId" | "approvalConfigurationId" | "levelNumber" | "levelName" | "approverType" | "approverUserId" | "approverRoleId" | "isRequired" | "autoApprove" | "status" | "remarks" | "createdById" | "createdAt" | "updatedById" | "updatedAt", ExtArgs["result"]["approvalLevel"]>
 export type ApprovalLevelInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   approvalConfiguration?: boolean | Prisma.ApprovalConfigurationDefaultArgs<ExtArgs>
   approverUser?: boolean | Prisma.ApprovalLevel$approverUserArgs<ExtArgs>
@@ -2239,6 +2277,7 @@ export type $ApprovalLevelPayload<ExtArgs extends runtime.Types.Extensions.Inter
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    organizationId: string
     approvalConfigurationId: string
     levelNumber: number
     levelName: string
@@ -2686,6 +2725,7 @@ export interface Prisma__ApprovalLevelClient<T, Null = never, ExtArgs extends ru
  */
 export interface ApprovalLevelFieldRefs {
   readonly id: Prisma.FieldRef<"ApprovalLevel", 'String'>
+  readonly organizationId: Prisma.FieldRef<"ApprovalLevel", 'String'>
   readonly approvalConfigurationId: Prisma.FieldRef<"ApprovalLevel", 'String'>
   readonly levelNumber: Prisma.FieldRef<"ApprovalLevel", 'Int'>
   readonly levelName: Prisma.FieldRef<"ApprovalLevel", 'String'>

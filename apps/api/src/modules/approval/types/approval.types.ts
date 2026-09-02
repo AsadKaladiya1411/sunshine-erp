@@ -74,6 +74,7 @@ export interface ApprovalConfigurationRecord {
 
 export interface ApprovalLevelRecord {
   readonly id: string;
+  readonly organizationId: string;
   readonly approvalConfigurationId: string;
   readonly levelNumber: number;
   readonly levelName: string;
@@ -102,6 +103,7 @@ export interface ApprovalRequestRecord {
   readonly requestedAt: Date;
   readonly currentLevelId: string | null;
   readonly approvalStatus: string;
+  readonly decisionVersion: number;
   readonly submittedAt: Date | null;
   readonly completedAt: Date | null;
   readonly remarks: string | null;
@@ -113,6 +115,7 @@ export interface ApprovalRequestRecord {
 
 export interface ApprovalActionRecord {
   readonly id: string;
+  readonly organizationId: string;
   readonly approvalRequestId: string;
   readonly approvalLevelId: string;
   readonly approverUserId: string;
@@ -131,6 +134,7 @@ export interface ApprovalActionRecord {
 
 export interface ApprovalHistoryRecord {
   readonly id: string;
+  readonly organizationId: string;
   readonly approvalRequestId: string;
   readonly approvalLevelId: string | null;
   readonly approvalActionId: string | null;

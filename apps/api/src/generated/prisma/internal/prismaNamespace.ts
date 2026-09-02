@@ -2564,6 +2564,7 @@ export type ApprovalConfigurationScalarFieldEnum = (typeof ApprovalConfiguration
 
 export const ApprovalLevelScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   approvalConfigurationId: 'approvalConfigurationId',
   levelNumber: 'levelNumber',
   levelName: 'levelName',
@@ -2595,6 +2596,7 @@ export const ApprovalRequestScalarFieldEnum = {
   requestedAt: 'requestedAt',
   currentLevelId: 'currentLevelId',
   approvalStatus: 'approvalStatus',
+  decisionVersion: 'decisionVersion',
   submittedAt: 'submittedAt',
   completedAt: 'completedAt',
   remarks: 'remarks',
@@ -2609,6 +2611,7 @@ export type ApprovalRequestScalarFieldEnum = (typeof ApprovalRequestScalarFieldE
 
 export const ApprovalActionScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   approvalRequestId: 'approvalRequestId',
   approvalLevelId: 'approvalLevelId',
   approverUserId: 'approverUserId',
@@ -2630,6 +2633,7 @@ export type ApprovalActionScalarFieldEnum = (typeof ApprovalActionScalarFieldEnu
 
 export const ApprovalHistoryScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   approvalRequestId: 'approvalRequestId',
   approvalLevelId: 'approvalLevelId',
   approvalActionId: 'approvalActionId',
