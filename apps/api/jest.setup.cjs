@@ -1,6 +1,9 @@
-process.env.NODE_ENV = "test";
-process.env.DATABASE_URL ??=
-  "postgresql://postgres:postgres@localhost:5432/sunshine_erp";
+const {
+  assertSafeTestDatabaseEnvironment,
+} = require("./test/database-test-safety.cjs");
+
+assertSafeTestDatabaseEnvironment(process.env);
+
 process.env.CORS_ALLOWED_ORIGINS ??= "http://localhost:3000";
 process.env.RATE_LIMIT_WINDOW_MS ??= "60000";
 process.env.RATE_LIMIT_MAX_REQUESTS ??= "100";

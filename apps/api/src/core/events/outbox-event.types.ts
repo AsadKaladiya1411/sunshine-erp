@@ -1,15 +1,16 @@
+import type {
+  DomainEventJsonObject,
+  DomainEventJsonPrimitive,
+  DomainEventJsonValue,
+} from "./domain-event-payload.js";
+
 export const OUTBOX_EVENT_STATUSES = ["Pending", "Published"] as const;
 
 export type OutboxEventStatus = (typeof OUTBOX_EVENT_STATUSES)[number];
 
-export type OutboxJsonPrimitive = string | number | boolean | null;
-
-export type OutboxJsonValue =
-  OutboxJsonPrimitive | OutboxJsonObject | readonly OutboxJsonValue[];
-
-export interface OutboxJsonObject {
-  readonly [key: string]: OutboxJsonValue;
-}
+export type OutboxJsonPrimitive = DomainEventJsonPrimitive;
+export type OutboxJsonValue = DomainEventJsonValue;
+export type OutboxJsonObject = DomainEventJsonObject;
 
 export interface OutboxEventRecord {
   readonly id: string;

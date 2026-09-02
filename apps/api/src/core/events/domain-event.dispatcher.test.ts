@@ -27,13 +27,16 @@ const unmatchedEvent = defineDomainEventType<TestPayload>()(
   "foundation.test.unmatched",
   1,
 );
+const organizationId = "00000000-0000-4000-8000-000000000001";
+const aggregateId = "00000000-0000-4000-8000-000000000002";
+const actorId = "00000000-0000-4000-8000-000000000003";
 
 function createRecordedEvent(sequence = 1) {
   return createDomainEvent(recordedEvent, {
-    organizationId: "organization-1",
+    organizationId,
     aggregateType: "TestAggregate",
-    aggregateId: "aggregate-1",
-    actorId: "user-1",
+    aggregateId,
+    actorId,
     correlationId: "correlation-1",
     causationId: "cause-1",
     payload: {
@@ -52,10 +55,10 @@ describe("Domain Event foundation", () => {
       nested: { labels: ["original"] },
     };
     const event = createDomainEvent(recordedEvent, {
-      organizationId: "organization-1",
+      organizationId,
       aggregateType: "TestAggregate",
-      aggregateId: "aggregate-1",
-      actorId: "user-1",
+      aggregateId,
+      actorId,
       correlationId: "correlation-1",
       causationId: "cause-1",
       payload: inputPayload,
@@ -68,10 +71,10 @@ describe("Domain Event foundation", () => {
     );
     expect(Number.isNaN(Date.parse(event.occurredAt))).toBe(false);
     expect(event).toMatchObject({
-      organizationId: "organization-1",
+      organizationId,
       aggregateType: "TestAggregate",
-      aggregateId: "aggregate-1",
-      actorId: "user-1",
+      aggregateId,
+      actorId,
       correlationId: "correlation-1",
       causationId: "cause-1",
       payload: {

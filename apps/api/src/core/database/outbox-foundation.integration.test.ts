@@ -19,7 +19,9 @@ import { runInDatabaseTransaction } from "./transaction.js";
 import {
   createDomainEvent,
   defineDomainEventType,
+  DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH,
 } from "../events/domain-event.types.js";
+import { InvalidDomainEventPayloadError } from "../events/domain-event-payload.js";
 import { createOutboxDomainEventPublisher } from "../events/outbox-domain-event.publisher.js";
 import { OutboxRepository } from "../events/outbox.repository.js";
 import {
@@ -283,6 +285,24 @@ describe("Transactional Outbox foundation", () => {
     ]);
   });
 
+  it("persists an accepted event at the correlation ID boundary", async () => {
+    const correlationId = "c".repeat(DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH);
+    const event = createDomainEvent(foundationEvent, {
+      correlationId,
+      payload: {
+        sequence: 255,
+        details: { labels: ["nested", "json-safe"] },
+      },
+    });
+
+    const stored = await database.$transaction((transaction) =>
+      repository.append(transaction, event),
+    );
+
+    expect(stored.correlationId).toBe(correlationId);
+    expect(stored.payload).toEqual(event.payload);
+  });
+
   it("prevents duplicate outbox records for a stable event ID", async () => {
     const event = createFoundationEvent();
     await database.$transaction((transaction) =>
@@ -392,14 +412,21 @@ describe("Transactional Outbox foundation", () => {
     const unsafeDefinition = defineDomainEventType<{
       password: string;
     }>()("foundation.outbox.unsafe", 1);
-    const unsafeEvent = createDomainEvent(unsafeDefinition, {
-      correlationId: "unsafe-correlation",
-      payload: { password: "must-never-be-persisted" },
-    });
+    expect(() =>
+      createDomainEvent(unsafeDefinition, {
+        correlationId: "unsafe-correlation",
+        payload: { password: "must-never-be-persisted" },
+      }),
+    ).toThrow(InvalidDomainEventPayloadError);
+    await expect(database.outboxEvent.count()).resolves.toBe(0);
 
+    const forgedUnsafeEvent = {
+      ...createFoundationEvent(),
+      payload: { password: "must-never-be-persisted" },
+    };
     await expect(
       database.$transaction((transaction) =>
-        repository.append(transaction, unsafeEvent),
+        repository.append(transaction, forgedUnsafeEvent),
       ),
     ).rejects.toBeInstanceOf(UnsafeOutboxDataError);
     await expect(database.outboxEvent.count()).resolves.toBe(0);

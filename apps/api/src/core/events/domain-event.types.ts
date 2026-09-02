@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
 
+import {
+  assertDomainEventJsonSafeText,
+  type JsonSafe,
+  normalizeDomainEventPayload,
+} from "./domain-event-payload.js";
+
 declare const domainEventPayloadType: unique symbol;
 
 export type DeepReadonly<T> = T extends (...args: never[]) => unknown
@@ -35,7 +41,7 @@ export interface DomainEvent<
   readonly actorId?: string;
   readonly correlationId: string;
   readonly causationId?: string;
-  readonly payload: DeepReadonly<TPayload>;
+  readonly payload: DeepReadonly<JsonSafe<TPayload>>;
 }
 
 export type AnyDomainEventDefinition = DomainEventDefinition<
@@ -60,7 +66,7 @@ interface CommonDomainEventInput<TPayload extends object> {
   readonly actorId?: string;
   readonly correlationId: string;
   readonly causationId?: string;
-  readonly payload: TPayload;
+  readonly payload: JsonSafe<TPayload>;
 }
 
 type AggregateContext =
@@ -77,10 +83,35 @@ export type CreateDomainEventInput<TPayload extends object> =
   CommonDomainEventInput<TPayload> & AggregateContext;
 
 const eventTypePattern = /^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9-]*){2,}$/;
+const uuidPattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const POSTGRES_INTEGER_MAX = 2_147_483_647;
+const DOMAIN_EVENT_TYPE_MAX_LENGTH = 200;
+const DOMAIN_EVENT_AGGREGATE_TYPE_MAX_LENGTH = 100;
+export const DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH = 255;
+const DOMAIN_EVENT_CAUSATION_ID_MAX_LENGTH = 255;
 
-function requireNonEmpty(value: string, label: string): string {
+function requireText(
+  value: string,
+  label: string,
+  maximumLength?: number,
+): string {
   if (value.trim().length === 0) {
     throw new TypeError(`${label} must not be empty.`);
+  }
+  assertDomainEventJsonSafeText(value, label);
+  if (maximumLength !== undefined && Array.from(value).length > maximumLength) {
+    throw new TypeError(
+      `${label} must not exceed ${maximumLength} characters.`,
+    );
+  }
+  return value;
+}
+
+function requireUuid(value: string, label: string): string {
+  requireText(value, label);
+  if (!uuidPattern.test(value)) {
+    throw new TypeError(`${label} must be a UUID.`);
   }
   return value;
 }
@@ -111,8 +142,15 @@ export function defineDomainEventType<TPayload extends object>() {
         "Domain event types must use lower-case <domain>.<entity>.<action> naming.",
       );
     }
-    if (!Number.isSafeInteger(eventVersion) || eventVersion < 1) {
-      throw new TypeError("Domain event versions must be positive integers.");
+    requireText(eventType, "eventType", DOMAIN_EVENT_TYPE_MAX_LENGTH);
+    if (
+      !Number.isSafeInteger(eventVersion) ||
+      eventVersion < 1 ||
+      eventVersion > POSTGRES_INTEGER_MAX
+    ) {
+      throw new TypeError(
+        `Domain event versions must be integers between 1 and ${POSTGRES_INTEGER_MAX}.`,
+      );
     }
 
     return Object.freeze({ eventType, eventVersion });
@@ -127,22 +165,42 @@ export function createDomainEvent<
   definition: DomainEventDefinition<TPayload, TEventType, TEventVersion>,
   input: CreateDomainEventInput<TPayload>,
 ): DomainEvent<TPayload, TEventType, TEventVersion> {
-  requireNonEmpty(input.correlationId, "correlationId");
+  requireText(
+    input.correlationId,
+    "correlationId",
+    DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH,
+  );
   if (input.organizationId !== undefined) {
-    requireNonEmpty(input.organizationId, "organizationId");
+    requireUuid(input.organizationId, "organizationId");
   }
   if (input.actorId !== undefined) {
-    requireNonEmpty(input.actorId, "actorId");
+    requireUuid(input.actorId, "actorId");
   }
   if (input.causationId !== undefined) {
-    requireNonEmpty(input.causationId, "causationId");
+    requireText(
+      input.causationId,
+      "causationId",
+      DOMAIN_EVENT_CAUSATION_ID_MAX_LENGTH,
+    );
   }
-  if (input.aggregateType !== undefined) {
-    requireNonEmpty(input.aggregateType, "aggregateType");
-    requireNonEmpty(input.aggregateId, "aggregateId");
+  if (
+    (input.aggregateType === undefined) !==
+    (input.aggregateId === undefined)
+  ) {
+    throw new TypeError(
+      "aggregateType and aggregateId must either both be provided or both be omitted.",
+    );
+  }
+  if (input.aggregateType !== undefined && input.aggregateId !== undefined) {
+    requireText(
+      input.aggregateType,
+      "aggregateType",
+      DOMAIN_EVENT_AGGREGATE_TYPE_MAX_LENGTH,
+    );
+    requireUuid(input.aggregateId, "aggregateId");
   }
 
-  const payload = deepFreeze(structuredClone(input.payload));
+  const payload = deepFreeze(normalizeDomainEventPayload(input.payload));
   return Object.freeze({
     eventId: randomUUID(),
     eventType: definition.eventType,
