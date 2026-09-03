@@ -18,9 +18,8 @@ interface DatabaseTestSafetyModule {
 }
 
 const require = createRequire(import.meta.url);
-const testSafety = require(
-  "../../../test/database-test-safety.cjs",
-) as DatabaseTestSafetyModule;
+const testSafety =
+  require("../../../test/database-test-safety.cjs") as DatabaseTestSafetyModule;
 const apiRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../");
 
 function environment(
@@ -36,12 +35,12 @@ function environment(
 
 describe("database integration test safety", () => {
   it("accepts only the explicit local test database identity", () => {
-    expect(
-      testSafety.assertSafeTestDatabaseEnvironment(environment()),
-    ).toEqual({
-      databaseName: testSafety.TEST_DATABASE_NAME,
-      hostname: "localhost",
-    });
+    expect(testSafety.assertSafeTestDatabaseEnvironment(environment())).toEqual(
+      {
+        databaseName: testSafety.TEST_DATABASE_NAME,
+        hostname: "localhost",
+      },
+    );
   });
 
   it("rejects the normal development database", () => {
