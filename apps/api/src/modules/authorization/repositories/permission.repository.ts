@@ -3,6 +3,8 @@ import type { PrismaClient } from "../../../generated/prisma/client.js";
 import type { PermissionRecord } from "../types/authorization.types.js";
 import type { AuthorizationMutationHook } from "./authorization-mutation.types.js";
 
+export type PermissionPersistenceDatabase = Pick<PrismaClient, "permission">;
+
 export interface CreatePermissionInput {
   readonly permissionCode: string;
   readonly permissionName: string;
@@ -67,8 +69,11 @@ export class PermissionRepository {
     return Object.freeze(permissions.map(mapPermission));
   }
 
-  async create(input: CreatePermissionInput): Promise<PermissionRecord> {
-    const permission = await this.database.permission.create({
+  async create(
+    input: CreatePermissionInput,
+    database: PermissionPersistenceDatabase = this.database,
+  ): Promise<PermissionRecord> {
+    const permission = await database.permission.create({
       data: input,
       select: permissionSelection,
     });

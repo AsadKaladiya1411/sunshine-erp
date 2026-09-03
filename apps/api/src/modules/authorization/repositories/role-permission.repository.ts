@@ -1,5 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
-import type { PrismaClient } from "../../../generated/prisma/client.js";
+import type { Prisma, PrismaClient } from "../../../generated/prisma/client.js";
 import {
   ACTIVE_AUTHORIZATION_STATUS,
   type RolePermissionRecord,
@@ -36,57 +36,61 @@ export class RolePermissionRepository {
     input: AssignPermissionToRoleInput,
     afterAssign?: AuthorizationMutationHook<RolePermissionRecord>,
   ): Promise<RolePermissionRecord | null> {
-    const assignment = await this.database.$transaction(async (transaction) => {
-      const role = await transaction.role.findFirst({
-        where: { id: input.roleId, organizationId: input.organizationId },
-        select: { id: true },
-      });
-      const permission = await transaction.permission.findUnique({
-        where: { id: input.permissionId },
-        select: { id: true },
-      });
-      const assigningUser = await transaction.user.findFirst({
-        where: {
-          id: input.assignedById,
-          organizationId: input.organizationId,
-        },
-        select: { id: true },
-      });
+    return this.database.$transaction((transaction) =>
+      this.assignInTransaction(input, transaction, afterAssign),
+    );
+  }
 
-      if (!role || !permission || !assigningUser) {
-        return null;
-      }
-
-      const assignment = await transaction.rolePermission.upsert({
-        where: {
-          roleId_permissionId: {
-            roleId: input.roleId,
-            permissionId: input.permissionId,
-          },
-        },
-        create: {
-          roleId: input.roleId,
-          permissionId: input.permissionId,
-          assignedById: input.assignedById,
-          assignedAt: input.assignedAt,
-          status: ACTIVE_AUTHORIZATION_STATUS,
-        },
-        update: {
-          assignedById: input.assignedById,
-          assignedAt: input.assignedAt ?? new Date(),
-          status: ACTIVE_AUTHORIZATION_STATUS,
-        },
-        select: rolePermissionSelection,
-      });
-
-      const mappedAssignment = mapRolePermission(assignment);
-      await afterAssign?.(mappedAssignment, transaction);
-      return mappedAssignment;
+  async assignInTransaction(
+    input: AssignPermissionToRoleInput,
+    transaction: Prisma.TransactionClient,
+    afterAssign?: AuthorizationMutationHook<RolePermissionRecord>,
+  ): Promise<RolePermissionRecord | null> {
+    const role = await transaction.role.findFirst({
+      where: { id: input.roleId, organizationId: input.organizationId },
+      select: { id: true },
     });
-    if (!assignment) {
+    const permission = await transaction.permission.findUnique({
+      where: { id: input.permissionId },
+      select: { id: true },
+    });
+    const assigningUser = await transaction.user.findFirst({
+      where: {
+        id: input.assignedById,
+        organizationId: input.organizationId,
+      },
+      select: { id: true },
+    });
+
+    if (!role || !permission || !assigningUser) {
       return null;
     }
-    return assignment;
+
+    const assignment = await transaction.rolePermission.upsert({
+      where: {
+        roleId_permissionId: {
+          roleId: input.roleId,
+          permissionId: input.permissionId,
+        },
+      },
+      create: {
+        roleId: input.roleId,
+        permissionId: input.permissionId,
+        assignedById: input.assignedById,
+        assignedAt: input.assignedAt,
+        status: ACTIVE_AUTHORIZATION_STATUS,
+      },
+      update: {
+        assignedById: input.assignedById,
+        assignedAt: input.assignedAt ?? new Date(),
+        status: ACTIVE_AUTHORIZATION_STATUS,
+      },
+      select: rolePermissionSelection,
+    });
+
+    const mappedAssignment = mapRolePermission(assignment);
+    await afterAssign?.(mappedAssignment, transaction);
+    return mappedAssignment;
   }
 
   async deactivate(

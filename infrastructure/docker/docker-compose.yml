@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: sunshine_erp
 
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -34,7 +34,7 @@ services:
       - everysec
 
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
 
     volumes:
       - redis_data:/data
@@ -70,7 +70,7 @@ services:
       CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw
 
     ports:
-      - "${KAFKA_PORT:-9092}:9092"
+      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
 
     healthcheck:
       test:
@@ -95,8 +95,8 @@ services:
       MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-development-only-minio-secret}
 
     ports:
-      - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "127.0.0.1:${MINIO_API_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"
 
     volumes:
       - minio_data:/data

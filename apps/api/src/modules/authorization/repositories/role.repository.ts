@@ -2,6 +2,8 @@ import { prisma } from "../../../core/database/prisma.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import type { RoleRecord } from "../types/authorization.types.js";
 
+export type RolePersistenceDatabase = Pick<PrismaClient, "role">;
+
 export interface CreateRoleInput {
   readonly organizationId: string;
   readonly roleCode: string;
@@ -56,8 +58,11 @@ export class RoleRepository {
     return Object.freeze(roles.map(mapRole));
   }
 
-  async create(input: CreateRoleInput): Promise<RoleRecord> {
-    const role = await this.database.role.create({
+  async create(
+    input: CreateRoleInput,
+    database: RolePersistenceDatabase = this.database,
+  ): Promise<RoleRecord> {
+    const role = await database.role.create({
       data: input,
       select: {
         id: true,

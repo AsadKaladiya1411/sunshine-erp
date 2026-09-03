@@ -1,5 +1,37 @@
 # Turborepo starter
 
+## First tenant bootstrap
+
+After applying all Prisma migrations to a new database, initialize the first
+tenant and administrator exactly once with the CLI below:
+
+```powershell
+npm run bootstrap:first-tenant -- --organization-code=SUNSHINE --organization-name="Sunshine Corporation" --department-code=ADMIN --department-name="Administration" --admin-first-name="First" --admin-last-name="Administrator" --admin-username=admin --admin-email=admin@example.com
+```
+
+The CLI prompts twice for the administrator password without displaying it.
+The password is never accepted as a command-line argument. For non-interactive
+automation, `--password-stdin` accepts one password line from protected
+redirected standard input; do not place the password in shell history or a
+world-readable file.
+
+The command is deliberately fail-closed. It works only when the migrated
+database has no organization, user, administration configuration, session,
+RBAC, or activity-log state. The organization, required department, first
+administrator, initial authorization records, and audit records commit in one
+transaction. Every later or concurrent attempt fails without mutation.
+
+Bootstrap creates one non-wildcard tenant role and permission:
+
+- Role: `ADMINISTRATOR` (`Administrator`)
+- Permission: `administration.manage`
+
+Organization settings and financial-year data are not created because they
+are not required for authentication and no business defaults are assumed.
+Use normal authenticated administration workflows for all later users,
+tenants, roles, and permissions; never use bootstrap as a recovery or account
+creation mechanism.
+
 ## Runtime requirements
 
 - Node.js `^20.19 || ^22.12 || >=24.0`

@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma/client.js";
+import { Prisma, PrismaClient } from "../../../generated/prisma/client.js";
 import { prisma } from "../../../core/database/prisma.js";
 import type { ActivityLogDatabase } from "../../../core/audit/activity-log.repository.js";
 import type {
@@ -207,10 +207,12 @@ async function retireCurrentToken(
 }
 
 export class AuthRepository {
+  constructor(private readonly database: PrismaClient = prisma) {}
+
   async findUserForLogin(
     input: LoginIdentityInput,
   ): Promise<LoginAccount | null> {
-    const user = await prisma.user.findFirst({
+    const user = await this.database.user.findFirst({
       where: {
         organization: { organizationCode: input.organizationCode },
         ...(input.username
@@ -249,7 +251,7 @@ export class AuthRepository {
   }
 
   async clearExpiredLock(userId: string, now: Date): Promise<void> {
-    await prisma.user.updateMany({
+    await this.database.user.updateMany({
       where: { id: userId, lockedUntil: { lte: now } },
       data: { failedLoginAttempts: 0, lockedUntil: null },
     });
@@ -262,7 +264,7 @@ export class AuthRepository {
     lockDurationMs: number,
     audit?: AuthMutationAudit<FailedLoginResult>,
   ): Promise<FailedLoginResult> {
-    return prisma.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       await lockUser(transaction, userId);
       const user = await transaction.user.findUniqueOrThrow({
         where: { id: userId },
@@ -298,7 +300,7 @@ export class AuthRepository {
     input: CreateLoginSessionInput,
     audit?: AuthMutationAudit<CreateLoginSessionResult>,
   ): Promise<CreateLoginSessionResult> {
-    return prisma.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
       const user = await transaction.user.findUniqueOrThrow({
         where: { id: input.userId },
@@ -381,7 +383,7 @@ export class AuthRepository {
   async getSessionForAuthentication(
     sessionId: string,
   ): Promise<SessionAuthenticationRecord | null> {
-    const session = await prisma.userSession.findUnique({
+    const session = await this.database.userSession.findUnique({
       where: { id: sessionId },
       select: {
         ...identitySelection,
@@ -404,7 +406,7 @@ export class AuthRepository {
   }
 
   async markSessionExpired(sessionId: string, now: Date): Promise<void> {
-    await prisma.$transaction(async (transaction) => {
+    await this.database.$transaction(async (transaction) => {
       await lockSession(transaction, sessionId);
       const session = await transaction.userSession.findUnique({
         where: { id: sessionId },
@@ -423,7 +425,7 @@ export class AuthRepository {
   }
 
   async updateSessionActivity(sessionId: string, now: Date): Promise<void> {
-    await prisma.userSession.updateMany({
+    await this.database.userSession.updateMany({
       where: { id: sessionId, status: "Active", expiresAt: { gt: now } },
       data: { lastActivityAt: now },
     });
@@ -433,7 +435,7 @@ export class AuthRepository {
     input: RotateSessionInput,
     audit?: AuthMutationAudit<RotateSessionResult>,
   ): Promise<RotateSessionResult> {
-    return prisma.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       const sessionReference = await transaction.userSession.findFirst({
         where: {
           OR: [
@@ -537,7 +539,7 @@ export class AuthRepository {
     now: Date,
     audit?: AuthMutationAudit<void>,
   ): Promise<void> {
-    await prisma.$transaction(async (transaction) => {
+    await this.database.$transaction(async (transaction) => {
       await lockSession(transaction, sessionId);
       const session = await transaction.userSession.findUnique({
         where: { id: sessionId },
@@ -562,7 +564,7 @@ export class AuthRepository {
     organizationId: string,
     historyDepth: number,
   ): Promise<PasswordAccount | null> {
-    const user = await prisma.user.findUnique({
+    const user = await this.database.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -594,7 +596,7 @@ export class AuthRepository {
     input: ChangePasswordInput,
     audit?: AuthMutationAudit<boolean>,
   ): Promise<boolean> {
-    return prisma.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
       const user = await transaction.user.findUniqueOrThrow({
         where: { id: input.userId },
@@ -640,7 +642,7 @@ export class AuthRepository {
   async createPasswordResetToken(
     input: CreatePasswordResetTokenInput,
   ): Promise<void> {
-    await prisma.$transaction(async (transaction) => {
+    await this.database.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
       await transaction.passwordResetToken.updateMany({
         where: {
@@ -667,7 +669,7 @@ export class AuthRepository {
     now: Date,
     historyDepth: number,
   ): Promise<(PasswordAccount & { readonly resetTokenId: string }) | null> {
-    const token = await prisma.passwordResetToken.findUnique({
+    const token = await this.database.passwordResetToken.findUnique({
       where: { tokenHash },
       select: {
         id: true,
@@ -713,7 +715,7 @@ export class AuthRepository {
     input: CompletePasswordResetInput,
     audit?: AuthMutationAudit<boolean>,
   ): Promise<boolean> {
-    return prisma.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       await lockUser(transaction, input.userId);
       const token = await transaction.passwordResetToken.findUnique({
         where: { id: input.resetTokenId },

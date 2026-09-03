@@ -1,5 +1,5 @@
 import { prisma } from "../../../core/database/prisma.js";
-import type { PrismaClient } from "../../../generated/prisma/client.js";
+import type { Prisma, PrismaClient } from "../../../generated/prisma/client.js";
 import {
   ACTIVE_AUTHORIZATION_STATUS,
   type RoleAssignmentRecord,
@@ -39,87 +39,88 @@ export class UserRoleAssignmentRepository {
     input: AssignRoleToUserInput,
     afterAssign?: AuthorizationMutationHook<RoleAssignmentRecord>,
   ): Promise<RoleAssignmentRecord | null> {
+    return this.database.$transaction((transaction) =>
+      this.assignInTransaction(input, transaction, afterAssign),
+    );
+  }
+
+  async assignInTransaction(
+    input: AssignRoleToUserInput,
+    transaction: Prisma.TransactionClient,
+    afterAssign?: AuthorizationMutationHook<RoleAssignmentRecord>,
+  ): Promise<RoleAssignmentRecord | null> {
     const evaluatedAt = new Date();
-    const result = await this.database.$transaction(async (transaction) => {
-      const user = await transaction.user.findFirst({
-        where: {
-          id: input.userId,
-          organizationId: input.organizationId,
-        },
-        select: { id: true },
-      });
-      const role = await transaction.role.findFirst({
-        where: {
-          id: input.roleId,
-          organizationId: input.organizationId,
-        },
-        select: { id: true },
-      });
-      const actorIsValid = Boolean(
-        await transaction.user.findFirst({
-          where: {
-            id: input.createdById,
-            organizationId: input.organizationId,
-          },
-          select: { id: true },
-        }),
-      );
-      if (!user || !role || !actorIsValid) {
-        return null;
-      }
-
-      await transaction.roleAssignment.updateMany({
-        where: {
-          organizationId: input.organizationId,
-          userId: input.userId,
-          roleId: input.roleId,
-          status: ACTIVE_AUTHORIZATION_STATUS,
-          expiresAt: { lte: evaluatedAt },
-        },
-        data: {
-          status: "Expired",
-          updatedById: input.createdById,
-        },
-      });
-
-      const activeAssignment = await transaction.roleAssignment.findFirst({
-        where: {
-          organizationId: input.organizationId,
-          userId: input.userId,
-          roleId: input.roleId,
-          status: ACTIVE_AUTHORIZATION_STATUS,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: evaluatedAt } }],
-        },
-        select: roleAssignmentSelection,
-      });
-
-      if (activeAssignment) {
-        return {
-          assignment: mapRoleAssignment(activeAssignment),
-          created: false,
-        };
-      }
-
-      const assignment = await transaction.roleAssignment.create({
-        data: {
-          organizationId: input.organizationId,
-          userId: input.userId,
-          roleId: input.roleId,
-          assignedAt: input.assignedAt,
-          expiresAt: input.expiresAt,
-          status: ACTIVE_AUTHORIZATION_STATUS,
-          createdById: input.createdById,
-        },
-        select: roleAssignmentSelection,
-      });
-      const mappedAssignment = mapRoleAssignment(assignment);
-      await afterAssign?.(mappedAssignment, transaction);
-      return { assignment: mappedAssignment, created: true };
+    const user = await transaction.user.findFirst({
+      where: {
+        id: input.userId,
+        organizationId: input.organizationId,
+      },
+      select: { id: true },
     });
-    if (!result) {
+    const role = await transaction.role.findFirst({
+      where: {
+        id: input.roleId,
+        organizationId: input.organizationId,
+      },
+      select: { id: true },
+    });
+    const actorIsValid = Boolean(
+      await transaction.user.findFirst({
+        where: {
+          id: input.createdById,
+          organizationId: input.organizationId,
+        },
+        select: { id: true },
+      }),
+    );
+    if (!user || !role || !actorIsValid) {
       return null;
     }
-    return result.assignment;
+
+    await transaction.roleAssignment.updateMany({
+      where: {
+        organizationId: input.organizationId,
+        userId: input.userId,
+        roleId: input.roleId,
+        status: ACTIVE_AUTHORIZATION_STATUS,
+        expiresAt: { lte: evaluatedAt },
+      },
+      data: {
+        status: "Expired",
+        updatedById: input.createdById,
+      },
+    });
+
+    const activeAssignment = await transaction.roleAssignment.findFirst({
+      where: {
+        organizationId: input.organizationId,
+        userId: input.userId,
+        roleId: input.roleId,
+        status: ACTIVE_AUTHORIZATION_STATUS,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: evaluatedAt } }],
+      },
+      select: roleAssignmentSelection,
+    });
+
+    if (activeAssignment) {
+      return mapRoleAssignment(activeAssignment);
+    }
+
+    const assignment = await transaction.roleAssignment.create({
+      data: {
+        organizationId: input.organizationId,
+        userId: input.userId,
+        roleId: input.roleId,
+        assignedAt: input.assignedAt,
+        expiresAt: input.expiresAt,
+        status: ACTIVE_AUTHORIZATION_STATUS,
+        createdById: input.createdById,
+      },
+      select: roleAssignmentSelection,
+    });
+    const mappedAssignment = mapRoleAssignment(assignment);
+    await afterAssign?.(mappedAssignment, transaction);
+    return mappedAssignment;
   }
 
   async revoke(

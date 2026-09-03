@@ -62,4 +62,9 @@ export const SECURITY_ACTIVITY_ACTIONS = Object.freeze({
   rolePermissionAssigned: "RolePermissionAssigned",
   rolePermissionDeactivated: "RolePermissionDeactivated",
   permissionStatusChanged: "PermissionStatusChanged",
+  roleCreated: "RoleCreated",
+  permissionCreated: "PermissionCreated",
+  bootstrapOrganizationCreated: "BootstrapOrganizationCreated",
+  bootstrapDepartmentCreated: "BootstrapDepartmentCreated",
+  bootstrapAdministratorCreated: "BootstrapAdministratorCreated",
 } as const);
