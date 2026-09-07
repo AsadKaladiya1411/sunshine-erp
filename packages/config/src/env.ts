@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 import { z } from "zod";
 
 const developmentJwtSecret =
@@ -8,6 +9,115 @@ const developmentRefreshDigestSecret =
 const booleanFromEnvironment = z
   .enum(["true", "false"])
   .transform((value) => value === "true");
+
+interface AddressRange {
+  start: bigint;
+  end: bigint;
+}
+
+const ipv4MappedStart = 0xffffn << 32n;
+const ipv4MappedEnd = ipv4MappedStart + (1n << 32n) - 1n;
+const ipv6End = (1n << 128n) - 1n;
+
+function parseIpv4Address(address: string): bigint {
+  return address
+    .split(".")
+    .reduce((result, octet) => (result << 8n) + BigInt(octet), 0n);
+}
+
+function parseIpv6Address(address: string): bigint {
+  let normalized = address;
+  if (normalized.includes(".")) {
+    const lastColon = normalized.lastIndexOf(":");
+    const ipv4 = parseIpv4Address(normalized.slice(lastColon + 1));
+    normalized = `${normalized.slice(0, lastColon)}:${(ipv4 >> 16n).toString(16)}:${(ipv4 & 0xffffn).toString(16)}`;
+  }
+
+  const halves = normalized.split("::");
+  const left = halves[0] ? halves[0].split(":") : [];
+  const right = halves[1] ? halves[1].split(":") : [];
+  const groups = halves.length === 2
+    ? [...left, ...Array<string>(8 - left.length - right.length).fill("0"), ...right]
+    : left;
+
+  return groups.reduce(
+    (result, group) => (result << 16n) + BigInt(`0x${group}`),
+    0n,
+  );
+}
+
+function trustedProxyRange(value: string): AddressRange {
+  const [address, prefix] = value.split("/");
+  const family = isIP(address!);
+  const addressBits = family === 4 ? 32 : 128;
+  const prefixBits = prefix === undefined ? addressBits : Number(prefix);
+  const hostBits = BigInt(addressBits - prefixBits);
+  const addressValue = family === 4
+    ? ipv4MappedStart + parseIpv4Address(address!)
+    : parseIpv6Address(address!);
+  const size = 1n << hostBits;
+  const start = (addressValue / size) * size;
+  return { start, end: start + size - 1n };
+}
+
+function rangesCover(
+  ranges: readonly AddressRange[],
+  targetStart: bigint,
+  targetEnd: bigint,
+): boolean {
+  const relevant = ranges
+    .filter((range) => range.end >= targetStart && range.start <= targetEnd)
+    .map((range) => ({
+      start: range.start < targetStart ? targetStart : range.start,
+      end: range.end > targetEnd ? targetEnd : range.end,
+    }))
+    .sort((left, right) => left.start < right.start ? -1 : left.start > right.start ? 1 : 0);
+
+  let next = targetStart;
+  for (const range of relevant) {
+    if (range.start > next) return false;
+    if (range.end >= targetEnd) return true;
+    if (range.end >= next) next = range.end + 1n;
+  }
+  return false;
+}
+
+function isValidTrustedProxy(value: string): boolean {
+  const [address, prefix, ...extra] = value.split("/");
+  if (!address || address.includes("%") || extra.length > 0) return false;
+  const family = isIP(address);
+  if (family === 0) return false;
+  if (prefix === undefined) return true;
+  if (!/^[1-9]\d{0,2}$/.test(prefix)) return false;
+  const bits = Number(prefix);
+  return bits <= (family === 4 ? 32 : 128);
+}
+
+const trustedProxySchema = z.string().refine(
+  isValidTrustedProxy,
+  {
+    message:
+      "Trusted proxies must be literal IPv4/IPv6 addresses or CIDRs with a nonzero prefix; unrestricted trust is not allowed.",
+  },
+);
+
+const trustedProxyListSchema = z.array(trustedProxySchema).superRefine(
+  (values, context) => {
+    const ranges = values.filter(isValidTrustedProxy).map(trustedProxyRange);
+    if (rangesCover(ranges, ipv4MappedStart, ipv4MappedEnd)) {
+      context.addIssue({
+        code: "custom",
+        message: "Trusted proxy entries must not collectively trust the entire IPv4 address space.",
+      });
+    }
+    if (rangesCover(ranges, 0n, ipv6End)) {
+      context.addIssue({
+        code: "custom",
+        message: "Trusted proxy entries must not collectively trust the entire IPv6 address space.",
+      });
+    }
+  },
+);
 
 const redisUrlSchema = z.string().url().refine(
   (value) => {
@@ -81,6 +191,14 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
 
   DATABASE_URL: z.string().min(1),
+
+  TRUSTED_PROXY_CIDRS: z
+    .string()
+    .default("")
+    .transform((value) =>
+      value.trim() === "" ? [] : value.split(",").map((entry) => entry.trim()),
+    )
+    .pipe(trustedProxyListSchema),
 
   CORS_ALLOWED_ORIGINS: z
     .string()

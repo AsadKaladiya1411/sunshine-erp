@@ -30,6 +30,37 @@ pass must define the CSRF policy together with cookie `SameSite`, `Secure`, and
 origin-validation behavior. Bearer-token and cookie-based flows must be
 evaluated separately before authentication is implemented.
 
+## Trusted proxy boundary
+
+`TRUSTED_PROXY_CIDRS` is an optional comma-separated list of literal IPv4/IPv6
+addresses or CIDRs. Unset or blank means no trusted proxies, preserving direct
+local HTTP access. Whitespace around entries is trimmed. Hostnames, aliases
+such as `loopback` or `uniquelocal`, boolean trust, hop counts, wildcards, and
+zero-prefix (`/0`) networks are rejected, as are IPv6 networks that cover all
+IPv4-mapped addresses. Trust is never inferred from
+`NODE_ENV` or private network membership.
+
+Operators must provide the actual proxy addresses for their deployment and
+keep the allowed networks as narrow as practical. No production topology or
+proxy address is prescribed here. A trusted network grants trust to every
+machine in that network, so it must not include untrusted clients.
+
+Express applies this setting before middleware registration. It starts with
+the socket peer and examines `X-Forwarded-For` from right to left, stopping at
+the first untrusted address. Untrusted peers cannot replace the socket IP
+using forwarded headers. The current rate limiter and authentication audit/
+session metadata continue to use Express `request.ip`.
+
+Trusted proxies must remove or sanitize client-supplied `X-Forwarded-For`,
+`X-Forwarded-Proto`, and `X-Forwarded-Host`, supplying the verified client chain,
+external scheme, and host. When the socket peer is trusted, Express also uses
+forwarded protocol/host values; an IP allowlist cannot compensate for a proxy
+that blindly passes attacker-controlled headers. The standard `Forwarded`
+header is not used for identity resolution by the current Express stack.
+
+This policy does not change refresh-cookie security or authentication rules.
+Proxy trust does not make rate-limit counters shared across API processes.
+
 ## Known rate-limit limitation
 
 The current limiter stores counters in API process memory. Counters are not

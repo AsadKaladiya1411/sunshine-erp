@@ -2,7 +2,7 @@ import { once } from "node:events";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 
-import { env } from "@sunshine-erp/config";
+import { env, parseEnvironment } from "@sunshine-erp/config";
 import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals";
 
 import app from "../../app.js";
@@ -28,6 +28,7 @@ const organizationCode = `AUTH-${suffix}`.slice(0, 50);
 
 type TestUserName =
   | "main"
+  | "proxy"
   | "inactive"
   | "disabled"
   | "locked"
@@ -165,6 +166,7 @@ describe("authentication HTTP and PostgreSQL integration", () => {
     const definitions: readonly [TestUserName, string, Date | null, string?][] =
       [
         ["main", "Active", null],
+        ["proxy", "Active", null],
         ["inactive", "Inactive", null],
         ["disabled", "Disabled", null],
         ["locked", "Active", new Date(Date.now() + 15 * 60_000)],
@@ -234,6 +236,40 @@ describe("authentication HTTP and PostgreSQL integration", () => {
       await prisma.organization.delete({ where: { id: organizationId } });
     }
     await prisma.$disconnect();
+  });
+
+  it.each([
+    { trusted: "127.0.0.1,192.0.2.0/24", expectedIp: "198.51.100.5" },
+    { trusted: "192.0.2.0/24", expectedIp: "127.0.0.1" },
+  ])("persists resolved $expectedIp in both session and login audit", async ({ trusted, expectedIp }) => {
+    const proxyConfiguration = parseEnvironment({
+      NODE_ENV: "test",
+      DATABASE_URL: env.DATABASE_URL,
+      TRUSTED_PROXY_CIDRS: trusted,
+    });
+    app.set("trust proxy", proxyConfiguration.TRUSTED_PROXY_CIDRS);
+    try {
+      const user = users.get("proxy");
+      if (!user) throw new Error("Missing proxy test user.");
+      const response = await request("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "X-Forwarded-For": "203.0.113.99,198.51.100.5,192.0.2.8" },
+        body: JSON.stringify({ organizationCode, username: user.username, password: initialPassword }),
+      });
+      expect(response.status).toBe(200);
+      const audit = await prisma.activityLog.findFirstOrThrow({
+        where: { userId: user.id, action: "LoginSucceeded", ipAddress: expectedIp },
+        orderBy: { performedAt: "desc" },
+      });
+      if (!audit.recordId) throw new Error("Login audit must reference its session.");
+      const session = await prisma.userSession.findUniqueOrThrow({
+        where: { id: audit.recordId },
+      });
+      expect(audit).toMatchObject({ organizationId, ipAddress: expectedIp });
+      expect(session).toMatchObject({ organizationId, userId: user.id, ipAddress: expectedIp });
+    } finally {
+      app.set("trust proxy", env.TRUSTED_PROXY_CIDRS.length > 0 ? env.TRUSTED_PROXY_CIDRS : false);
+    }
   });
 
   it("logs in by organization-scoped username or email and creates a secure session cookie", async () => {

@@ -15,6 +15,11 @@ import { docsRouter } from "./routes/docs.js";
 
 const app = express();
 
+app.set(
+  "trust proxy",
+  env.TRUSTED_PROXY_CIDRS.length > 0 ? env.TRUSTED_PROXY_CIDRS : false,
+);
+
 app.disable("x-powered-by");
 app.use(correlationIdMiddleware);
 app.use(securityHeadersMiddleware);
