@@ -22,6 +22,7 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260827052012_rbac_authorization/migration.sql",
   "../../../../../prisma/migrations/20260827090000_rbac_source_compliance/migration.sql",
   "../../../../../prisma/migrations/20260827120000_activity_logs/migration.sql",
+  "../../../../../prisma/migrations/20260907120000_role_permission_actor_tenant_integrity/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
 );
@@ -315,7 +316,8 @@ describe("RBAC database and authorization foundation", () => {
          AND (table_name, column_name) IN (
            ('permissions', 'resource'),
            ('role_assignments', 'assigned_at'),
-           ('role_assignments', 'expires_at')
+           ('role_assignments', 'expires_at'),
+           ('role_permissions', 'organization_id')
          )
        ORDER BY table_name, column_name`,
       [schemaName],
@@ -337,6 +339,12 @@ describe("RBAC database and authorization foundation", () => {
         table_name: "role_assignments",
         column_name: "expires_at",
         is_nullable: "YES",
+        column_default: null,
+      },
+      {
+        table_name: "role_permissions",
+        column_name: "organization_id",
+        is_nullable: "NO",
         column_default: null,
       },
     ]);
@@ -435,11 +443,146 @@ describe("RBAC database and authorization foundation", () => {
     ).resolves.toBe(false);
   });
 
+  it("enforces Role-Permission role and actor tenancy while keeping Permission global", async () => {
+    const tenantPermission = await permissions.create({
+      permissionCode: `tenant.integrity.${randomUUID()}`,
+      permissionName: "Role-Permission tenant integrity",
+      module: "authorization",
+      action: "verify",
+      status: "Active",
+      createdById: actorAId,
+    });
+    const tenantRoleA = await roles.create({
+      organizationId: organizationAId,
+      roleCode: `TENANT-A-${randomUUID()}`,
+      roleName: `Tenant A ${randomUUID()}`,
+      status: "Active",
+      createdById: actorAId,
+    });
+    const tenantRoleB = await roles.create({
+      organizationId: organizationBId,
+      roleCode: `TENANT-B-${randomUUID()}`,
+      roleName: `Tenant B ${randomUUID()}`,
+      status: "Active",
+      createdById: userBId,
+    });
+
+    await expectDatabaseError(
+      () =>
+        database.rolePermission.create({
+          data: {
+            organizationId: organizationAId,
+            roleId: tenantRoleA.id,
+            permissionId: tenantPermission.id,
+            assignedById: userBId,
+            status: "Active",
+          },
+        }),
+      "P2003",
+    );
+    await expectDatabaseError(
+      () =>
+        database.rolePermission.create({
+          data: {
+            organizationId: organizationBId,
+            roleId: tenantRoleA.id,
+            permissionId: tenantPermission.id,
+            assignedById: userBId,
+            status: "Active",
+          },
+        }),
+      "P2003",
+    );
+
+    const assignmentA =
+      await authorizationAdministration.assignPermissionToRole({
+        organizationId: organizationAId,
+        roleId: tenantRoleA.id,
+        permissionId: tenantPermission.id,
+        assignedById: actorAId,
+      });
+    const assignmentB =
+      await authorizationAdministration.assignPermissionToRole({
+        organizationId: organizationBId,
+        roleId: tenantRoleB.id,
+        permissionId: tenantPermission.id,
+        assignedById: userBId,
+      });
+
+    expect(assignmentA).toMatchObject({ organizationId: organizationAId });
+    expect(assignmentB).toMatchObject({ organizationId: organizationBId });
+    if (!assignmentA) throw new Error("Expected organization A assignment.");
+
+    await expectDatabaseError(
+      () =>
+        database.rolePermission.update({
+          where: { id: assignmentA.id },
+          data: { assignedById: userBId },
+        }),
+      "P2003",
+    );
+    await expect(
+      database.rolePermission.findUniqueOrThrow({
+        where: { id: assignmentA.id },
+      }),
+    ).resolves.toMatchObject({
+      organizationId: organizationAId,
+      assignedById: actorAId,
+    });
+    await expect(
+      database.rolePermission.count({
+        where: { permissionId: tenantPermission.id },
+      }),
+    ).resolves.toBe(2);
+    await expect(
+      database.activityLog.count({
+        where: {
+          action: "RolePermissionAssigned",
+          recordId: { in: [assignmentA.id, assignmentB?.id ?? ""] },
+        },
+      }),
+    ).resolves.toBe(2);
+  });
+
+  it("rejects a cross-tenant repository assignment without mutation or audit", async () => {
+    const permission = await permissions.create({
+      permissionCode: `tenant.repository.${randomUUID()}`,
+      permissionName: "Repository tenant rejection",
+      module: "authorization",
+      action: "reject",
+      status: "Active",
+      createdById: actorAId,
+    });
+    const auditCountBefore = await database.activityLog.count({
+      where: { organizationId: organizationBId },
+    });
+
+    await expect(
+      authorizationAdministration.assignPermissionToRole({
+        organizationId: organizationBId,
+        roleId: roleBId,
+        permissionId: permission.id,
+        assignedById: actorAId,
+      }),
+    ).resolves.toBeNull();
+    await expect(
+      database.rolePermission.count({
+        where: { roleId: roleBId, permissionId: permission.id },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: { organizationId: organizationBId },
+      }),
+    ).resolves.toBe(auditCountBefore);
+  });
+
   it("prevents duplicate Role-Permission rows while reusing Permission across Roles", async () => {
     await expectDatabaseError(
       () =>
         database.rolePermission.create({
           data: {
+            organizationId: organizationAId,
             roleId: roleAId,
             permissionId: readPermissionId,
             assignedById: actorAId,

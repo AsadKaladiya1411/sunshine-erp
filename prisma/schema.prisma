@@ -403,20 +403,22 @@ model Permission {
 }
 
 model RolePermission {
-  id           String   @id @default(uuid()) @db.Uuid
-  roleId       String   @map("role_id") @db.Uuid
-  permissionId String   @map("permission_id") @db.Uuid
-  assignedById String   @map("assigned_by") @db.Uuid
-  assignedAt   DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
-  status       String   @db.VarChar(30)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @map("organization_id") @db.Uuid
+  roleId         String   @map("role_id") @db.Uuid
+  permissionId   String   @map("permission_id") @db.Uuid
+  assignedById   String   @map("assigned_by") @db.Uuid
+  assignedAt     DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  status         String   @db.VarChar(30)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  role       Role       @relation(fields: [roleId, organizationId], references: [id, organizationId], onDelete: Restrict)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
-  assignedBy User       @relation("RolePermissionAssignedBy", fields: [assignedById], references: [id], onDelete: Restrict)
+  assignedBy User       @relation("RolePermissionAssignedBy", fields: [assignedById, organizationId], references: [id, organizationId], onDelete: Restrict)
 
   @@unique([roleId, permissionId])
+  @@index([organizationId])
   @@index([roleId, status])
   @@index([permissionId, status])
   @@index([assignedById])

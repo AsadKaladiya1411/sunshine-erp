@@ -22,6 +22,7 @@ export interface PermissionRecord {
 
 export interface RolePermissionRecord {
   readonly id: string;
+  readonly organizationId: string;
   readonly roleId: string;
   readonly permissionId: string;
   readonly assignedById: string;

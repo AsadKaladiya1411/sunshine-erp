@@ -22,6 +22,7 @@ function mapRolePermission(
 
 const rolePermissionSelection = {
   id: true,
+  organizationId: true,
   roleId: true,
   permissionId: true,
   assignedById: true,
@@ -74,6 +75,7 @@ export class RolePermissionRepository {
         },
       },
       create: {
+        organizationId: input.organizationId,
         roleId: input.roleId,
         permissionId: input.permissionId,
         assignedById: input.assignedById,
@@ -81,6 +83,7 @@ export class RolePermissionRepository {
         status: ACTIVE_AUTHORIZATION_STATUS,
       },
       update: {
+        organizationId: input.organizationId,
         assignedById: input.assignedById,
         assignedAt: input.assignedAt ?? new Date(),
         status: ACTIVE_AUTHORIZATION_STATUS,
