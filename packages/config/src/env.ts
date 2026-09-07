@@ -236,6 +236,17 @@ const envSchema = z.object({
   }
 
   if (
+    configuration.NODE_ENV === "production" &&
+    !configuration.REFRESH_COOKIE_SECURE
+  ) {
+    context.addIssue({
+      code: "custom",
+      path: ["REFRESH_COOKIE_SECURE"],
+      message: "REFRESH_COOKIE_SECURE must be true in production.",
+    });
+  }
+
+  if (
     configuration.REFRESH_COOKIE_SAME_SITE === "none" &&
     !configuration.REFRESH_COOKIE_SECURE
   ) {
