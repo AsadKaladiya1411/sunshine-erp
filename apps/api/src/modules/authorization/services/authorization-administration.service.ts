@@ -23,6 +23,7 @@ import {
   type AssignRoleToUserInput,
 } from "../repositories/user-role-assignment.repository.js";
 import type {
+  AuthorizationStatus,
   RoleAssignmentRecord,
   RolePermissionRecord,
 } from "../types/authorization.types.js";
@@ -174,7 +175,7 @@ export class AuthorizationAdministrationService {
 
   updatePermissionStatus(
     id: string,
-    status: string,
+    status: AuthorizationStatus,
     organizationId: string,
     updatedById: string,
   ): Promise<boolean> {

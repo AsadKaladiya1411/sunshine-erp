@@ -27,6 +27,7 @@ import {
   APPROVAL_MODES,
   APPROVAL_SUBMISSION_STATUS,
   APPROVER_TYPES,
+  type ApprovalActionType,
   type ApprovalActionRecord,
   type ApprovalAuthorizationBoundary,
   type ApprovalConfigurationRecord,
@@ -35,6 +36,7 @@ import {
   type ApprovalHistoryRecord,
   type ApprovalLevelRecord,
   type ApprovalRequestRecord,
+  type ApprovalRequestStatus,
   type CreateApprovalConfigurationInput,
   type CreateApprovalDelegationInput,
   type CreateApprovalLevelInput,
@@ -607,9 +609,9 @@ export class ApprovalService {
 
   private resolveTransition(
     context: ApprovalDecisionContext,
-    actionType: string,
+    actionType: ApprovalActionType,
   ): {
-    readonly toStatus: string;
+    readonly toStatus: ApprovalRequestStatus;
     readonly nextLevelId: string | null;
     readonly completedAt: boolean;
     readonly eventType: ApprovalHistoryEventType;

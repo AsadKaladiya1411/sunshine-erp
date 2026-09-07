@@ -2,6 +2,7 @@ import { prisma } from "../../../core/database/prisma.js";
 import type { Prisma, PrismaClient } from "../../../generated/prisma/client.js";
 import {
   ACTIVE_AUTHORIZATION_STATUS,
+  type AuthorizationStatus,
   type RolePermissionRecord,
 } from "../types/authorization.types.js";
 import type { AuthorizationMutationHook } from "./authorization-mutation.types.js";
@@ -15,9 +16,14 @@ export interface AssignPermissionToRoleInput {
 }
 
 function mapRolePermission(
-  assignment: RolePermissionRecord,
+  assignment: Omit<RolePermissionRecord, "status"> & {
+    readonly status: string;
+  },
 ): RolePermissionRecord {
-  return Object.freeze({ ...assignment });
+  return Object.freeze({
+    ...assignment,
+    status: assignment.status as AuthorizationStatus,
+  });
 }
 
 const rolePermissionSelection = {

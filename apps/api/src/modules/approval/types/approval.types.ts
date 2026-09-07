@@ -62,9 +62,9 @@ export interface ApprovalConfigurationRecord {
   readonly moduleName: string;
   readonly entityName: string;
   readonly approvalRequired: boolean;
-  readonly approvalMode: string;
-  readonly submissionStatus: string;
-  readonly status: string;
+  readonly approvalMode: ApprovalMode;
+  readonly submissionStatus: typeof APPROVAL_SUBMISSION_STATUS;
+  readonly status: ApprovalConfigurationStatus;
   readonly remarks: string | null;
   readonly createdById: string | null;
   readonly createdAt: Date;
@@ -83,7 +83,7 @@ export interface ApprovalLevelRecord {
   readonly approverRoleId: string | null;
   readonly isRequired: boolean;
   readonly autoApprove: boolean;
-  readonly status: string;
+  readonly status: ApprovalLevelStatus;
   readonly remarks: string | null;
   readonly createdById: string | null;
   readonly createdAt: Date;
@@ -102,7 +102,7 @@ export interface ApprovalRequestRecord {
   readonly requestedById: string;
   readonly requestedAt: Date;
   readonly currentLevelId: string | null;
-  readonly approvalStatus: string;
+  readonly approvalStatus: ApprovalRequestStatus;
   readonly decisionVersion: number;
   readonly submittedAt: Date | null;
   readonly completedAt: Date | null;
@@ -125,7 +125,7 @@ export interface ApprovalActionRecord {
   readonly rejectionReason: string | null;
   readonly returnReason: string | null;
   readonly delegatedToUserId: string | null;
-  readonly status: string;
+  readonly status: ApprovalActionStatus;
   readonly createdById: string | null;
   readonly createdAt: Date;
   readonly updatedById: string | null;
@@ -138,9 +138,9 @@ export interface ApprovalHistoryRecord {
   readonly approvalRequestId: string;
   readonly approvalLevelId: string | null;
   readonly approvalActionId: string | null;
-  readonly eventType: string;
-  readonly fromStatus: string | null;
-  readonly toStatus: string | null;
+  readonly eventType: ApprovalHistoryEventType;
+  readonly fromStatus: ApprovalRequestStatus | null;
+  readonly toStatus: ApprovalRequestStatus | null;
   readonly performedById: string | null;
   readonly eventAt: Date;
   readonly reason: string | null;
@@ -159,7 +159,7 @@ export interface ApprovalDelegationRecord {
   readonly effectiveFrom: Date;
   readonly effectiveTo: Date | null;
   readonly reason: string | null;
-  readonly status: string;
+  readonly status: ApprovalDelegationStatus;
   readonly createdById: string | null;
   readonly createdAt: Date;
   readonly updatedById: string | null;

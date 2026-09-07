@@ -2,6 +2,7 @@ import { prisma } from "../../../core/database/prisma.js";
 import type { ActivityLogDatabase } from "../../../core/audit/activity-log.repository.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
 import type {
+  ApprovalActionType,
   ApprovalActionRecord,
   ApprovalConfigurationRecord,
   ApprovalDelegationRecord,
@@ -9,6 +10,7 @@ import type {
   ApprovalHistoryRecord,
   ApprovalLevelRecord,
   ApprovalRequestRecord,
+  ApprovalRequestStatus,
   CreateApprovalConfigurationInput,
   CreateApprovalDelegationInput,
   CreateApprovalLevelInput,
@@ -131,6 +133,85 @@ function immutable<TRecord extends object>(record: TRecord): Readonly<TRecord> {
   return Object.freeze({ ...record });
 }
 
+function mapConfiguration(
+  record: Omit<
+    ApprovalConfigurationRecord,
+    "approvalMode" | "submissionStatus" | "status"
+  > & {
+    readonly approvalMode: string;
+    readonly submissionStatus: string;
+    readonly status: string;
+  },
+): ApprovalConfigurationRecord {
+  return immutable({
+    ...record,
+    approvalMode:
+      record.approvalMode as ApprovalConfigurationRecord["approvalMode"],
+    submissionStatus:
+      record.submissionStatus as ApprovalConfigurationRecord["submissionStatus"],
+    status: record.status as ApprovalConfigurationRecord["status"],
+  });
+}
+
+function mapLevel(
+  record: Omit<ApprovalLevelRecord, "status"> & { readonly status: string },
+): ApprovalLevelRecord {
+  return immutable({
+    ...record,
+    status: record.status as ApprovalLevelRecord["status"],
+  });
+}
+
+function mapRequest(
+  record: Omit<ApprovalRequestRecord, "approvalStatus"> & {
+    readonly approvalStatus: string;
+  },
+): ApprovalRequestRecord {
+  return immutable({
+    ...record,
+    approvalStatus:
+      record.approvalStatus as ApprovalRequestRecord["approvalStatus"],
+  });
+}
+
+function mapAction(
+  record: Omit<ApprovalActionRecord, "status"> & { readonly status: string },
+): ApprovalActionRecord {
+  return immutable({
+    ...record,
+    status: record.status as ApprovalActionRecord["status"],
+  });
+}
+
+function mapHistory(
+  record: Omit<
+    ApprovalHistoryRecord,
+    "eventType" | "fromStatus" | "toStatus"
+  > & {
+    readonly eventType: string;
+    readonly fromStatus: string | null;
+    readonly toStatus: string | null;
+  },
+): ApprovalHistoryRecord {
+  return immutable({
+    ...record,
+    eventType: record.eventType as ApprovalHistoryRecord["eventType"],
+    fromStatus: record.fromStatus as ApprovalHistoryRecord["fromStatus"],
+    toStatus: record.toStatus as ApprovalHistoryRecord["toStatus"],
+  });
+}
+
+function mapDelegation(
+  record: Omit<ApprovalDelegationRecord, "status"> & {
+    readonly status: string;
+  },
+): ApprovalDelegationRecord {
+  return immutable({
+    ...record,
+    status: record.status as ApprovalDelegationRecord["status"],
+  });
+}
+
 export interface ApprovalDecisionContext {
   readonly request: ApprovalRequestRecord;
   readonly configuration: ApprovalConfigurationRecord;
@@ -145,15 +226,15 @@ export interface PersistApprovalActionInput {
   readonly expectedCurrentLevelId: string;
   readonly expectedDecisionVersion: number;
   readonly approverUserId: string;
-  readonly actionType: string;
+  readonly actionType: ApprovalActionType;
   readonly actionDate: Date;
   readonly comments?: string;
   readonly rejectionReason?: string;
   readonly returnReason?: string;
   readonly delegatedToUserId?: string;
   readonly createdById?: string;
-  readonly fromStatus: string;
-  readonly toStatus: string;
+  readonly fromStatus: ApprovalRequestStatus;
+  readonly toStatus: ApprovalRequestStatus;
   readonly nextLevelId: string | null;
   readonly completedAt: Date | null;
   readonly eventType: ApprovalHistoryEventType;
@@ -212,7 +293,7 @@ export class ApprovalRepository {
         },
         select: configurationSelection,
       });
-      const result = immutable(record);
+      const result = mapConfiguration(record);
       await audit?.(result, transaction);
       return result;
     });
@@ -226,7 +307,7 @@ export class ApprovalRepository {
       where: { id, organizationId },
       select: configurationSelection,
     });
-    return record ? immutable(record) : null;
+    return record ? mapConfiguration(record) : null;
   }
 
   async createLevel(
@@ -284,7 +365,7 @@ export class ApprovalRepository {
         },
         select: levelSelection,
       });
-      const result = immutable(record);
+      const result = mapLevel(record);
       await audit?.(result, transaction);
       return result;
     });
@@ -302,7 +383,7 @@ export class ApprovalRepository {
       orderBy: [{ levelNumber: "asc" }, { id: "asc" }],
       select: levelSelection,
     });
-    return Object.freeze(records.map(immutable));
+    return Object.freeze(records.map(mapLevel));
   }
 
   async submitRequest(
@@ -377,7 +458,7 @@ export class ApprovalRepository {
           createdById: input.createdById,
         },
       });
-      const result = immutable(request);
+      const result = mapRequest(request);
       await audit?.(result, transaction);
       return result;
     });
@@ -391,7 +472,7 @@ export class ApprovalRepository {
       where: { id, organizationId },
       select: requestSelection,
     });
-    return record ? immutable(record) : null;
+    return record ? mapRequest(record) : null;
   }
 
   async getDecisionContext(
@@ -423,10 +504,10 @@ export class ApprovalRepository {
     });
     const { approvalConfiguration, currentLevel, actions, ...request } = record;
     return Object.freeze({
-      request: immutable(request),
-      configuration: immutable(approvalConfiguration),
-      currentLevel: currentLevel ? immutable(currentLevel) : null,
-      activeLevels: Object.freeze(activeLevels.map(immutable)),
+      request: mapRequest(request),
+      configuration: mapConfiguration(approvalConfiguration),
+      currentLevel: currentLevel ? mapLevel(currentLevel) : null,
+      activeLevels: Object.freeze(activeLevels.map(mapLevel)),
       approvedLevelIds: Object.freeze([
         ...new Set(actions.map(({ approvalLevelId }) => approvalLevelId)),
       ]),
@@ -494,7 +575,7 @@ export class ApprovalRepository {
         },
         select: historySelection,
       });
-      histories.push(immutable(actionHistory));
+      histories.push(mapHistory(actionHistory));
 
       if (
         input.nextLevelId &&
@@ -515,7 +596,7 @@ export class ApprovalRepository {
           },
           select: historySelection,
         });
-        histories.push(immutable(levelStarted));
+        histories.push(mapHistory(levelStarted));
       }
 
       if (input.appendCompletionEvent) {
@@ -534,7 +615,7 @@ export class ApprovalRepository {
           },
           select: historySelection,
         });
-        histories.push(immutable(completion));
+        histories.push(mapHistory(completion));
       }
 
       const request = await transaction.approvalRequest.findUniqueOrThrow({
@@ -542,8 +623,8 @@ export class ApprovalRepository {
         select: requestSelection,
       });
       const result = Object.freeze({
-        action: immutable(action),
-        request: immutable(request),
+        action: mapAction(action),
+        request: mapRequest(request),
         histories: Object.freeze(histories),
       });
       await audit?.(result, transaction);
@@ -615,7 +696,7 @@ export class ApprovalRepository {
         },
         select: delegationSelection,
       });
-      const result = immutable(record);
+      const result = mapDelegation(record);
       await audit?.(result, transaction);
       return result;
     });
@@ -655,7 +736,7 @@ export class ApprovalRepository {
       orderBy: [{ effectiveFrom: "desc" }, { id: "asc" }],
       select: delegationSelection,
     });
-    return Object.freeze(records.map(immutable));
+    return Object.freeze(records.map(mapDelegation));
   }
 
   async listActions(
@@ -667,7 +748,7 @@ export class ApprovalRepository {
       orderBy: [{ actionDate: "asc" }, { id: "asc" }],
       select: actionSelection,
     });
-    return Object.freeze(records.map(immutable));
+    return Object.freeze(records.map(mapAction));
   }
 
   async listHistory(
@@ -679,7 +760,7 @@ export class ApprovalRepository {
       orderBy: [{ eventAt: "asc" }, { id: "asc" }],
       select: historySelection,
     });
-    return Object.freeze(records.map(immutable));
+    return Object.freeze(records.map(mapHistory));
   }
 }
 

@@ -46,6 +46,7 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260829121500_approval_engine_foundation/migration.sql",
   "../../../../../prisma/migrations/20260902103000_approval_tenant_integrity/migration.sql",
   "../../../../../prisma/migrations/20260902120000_approval_decision_concurrency/migration.sql",
+  "../../../../../prisma/migrations/20260907130000_rbac_approval_lifecycle_constraints/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
 );
@@ -123,6 +124,25 @@ async function expectDatabaseError(
       expect(error).toMatchObject({ code });
     }
   }
+}
+
+async function expectSqlCheckViolation(
+  client: Client,
+  query: string,
+  values: readonly unknown[],
+): Promise<void> {
+  const savepoint = `lifecycle_${randomUUID().replaceAll("-", "")}`;
+  await client.query(`SAVEPOINT ${savepoint}`);
+  try {
+    await client.query(query, [...values]);
+  } catch (error: unknown) {
+    await client.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+    await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+    expect(error).toMatchObject({ code: "23514" });
+    return;
+  }
+  await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+  throw new Error("Expected PostgreSQL check-constraint violation.");
 }
 
 jest.setTimeout(120_000);
@@ -406,8 +426,18 @@ describe("Approval Engine foundation", () => {
         "approval_actions_rejection_reason_check",
         "approval_actions_return_reason_check",
         "approval_actions_delegated_user_check",
+        "approval_actions_status_check",
+        "approval_configurations_approval_mode_check",
+        "approval_configurations_status_check",
+        "approval_configurations_submission_status_check",
         "approval_delegations_different_users_check",
         "approval_delegations_effective_period_check",
+        "approval_delegations_status_check",
+        "approval_histories_event_type_check",
+        "approval_histories_from_status_check",
+        "approval_histories_to_status_check",
+        "approval_levels_status_check",
+        "approval_requests_approval_status_check",
       ]),
     );
 
@@ -426,6 +456,150 @@ describe("Approval Engine foundation", () => {
       [schemaName],
     );
     expect(deletionActions.rows).toEqual([{ delete_action: "RESTRICT" }]);
+  });
+
+  it("enforces every finite Approval lifecycle value and permits nullable history statuses", async () => {
+    const configuration = await createConfiguration("Single");
+    await createUserLevel(configuration.id, 1, approverAId);
+    const request = await submit(configuration.id);
+    const result = await service.recordAction({
+      organizationId: organizationAId,
+      approvalRequestId: request.id,
+      approverUserId: approverAId,
+      actionType: "Approve",
+      createdById: approverAId,
+    });
+    const history = await database.approvalHistory.findFirstOrThrow({
+      where: { approvalRequestId: request.id },
+      orderBy: { eventAt: "asc" },
+    });
+    const delegation = await service.createDelegation({
+      organizationId: organizationAId,
+      delegatorUserId: approverAId,
+      delegateUserId: delegateAId,
+      effectiveFrom: new Date(),
+      status: "Active",
+      createdById: approverAId,
+    });
+
+    await sqlClient.query("BEGIN");
+    try {
+      for (const mode of ["Single", "Multi Level"]) {
+        await sqlClient.query(
+          `UPDATE approval_configurations SET approval_mode = $1 WHERE id = $2`,
+          [mode, configuration.id],
+        );
+      }
+      await sqlClient.query(
+        `UPDATE approval_configurations SET submission_status = 'Configured' WHERE id = $1`,
+        [configuration.id],
+      );
+      for (const status of ["Active", "Inactive"]) {
+        await sqlClient.query(
+          `UPDATE approval_configurations SET status = $1 WHERE id = $2`,
+          [status, configuration.id],
+        );
+        await sqlClient.query(
+          `UPDATE approval_levels SET status = $1 WHERE approval_configuration_id = $2`,
+          [status, configuration.id],
+        );
+      }
+      for (const status of [
+        "Pending",
+        "Approved",
+        "Rejected",
+        "Returned",
+        "Cancelled",
+      ]) {
+        await sqlClient.query(
+          `UPDATE approval_requests SET approval_status = $1 WHERE id = $2`,
+          [status, request.id],
+        );
+        await sqlClient.query(
+          `UPDATE approval_histories SET from_status = $1, to_status = $1 WHERE id = $2`,
+          [status, history.id],
+        );
+      }
+      for (const status of ["Completed", "Cancelled"]) {
+        await sqlClient.query(
+          `UPDATE approval_actions SET status = $1 WHERE id = $2`,
+          [status, result.action.id],
+        );
+      }
+      for (const eventType of [
+        "Submitted",
+        "Level Started",
+        "Approved",
+        "Rejected",
+        "Returned",
+        "Delegated",
+        "Completed",
+        "Cancelled",
+      ]) {
+        await sqlClient.query(
+          `UPDATE approval_histories SET event_type = $1 WHERE id = $2`,
+          [eventType, history.id],
+        );
+      }
+      await sqlClient.query(
+        `UPDATE approval_histories SET from_status = NULL, to_status = NULL WHERE id = $1`,
+        [history.id],
+      );
+      for (const status of ["Active", "Expired", "Cancelled"]) {
+        await sqlClient.query(
+          `UPDATE approval_delegations SET status = $1 WHERE id = $2`,
+          [status, delegation.id],
+        );
+      }
+
+      const invalidUpdates: readonly [string, readonly unknown[]][] = [
+        [
+          `UPDATE approval_configurations SET approval_mode = 'Unexpected' WHERE id = $1`,
+          [configuration.id],
+        ],
+        [
+          `UPDATE approval_configurations SET submission_status = 'Unexpected' WHERE id = $1`,
+          [configuration.id],
+        ],
+        [
+          `UPDATE approval_configurations SET status = 'Unexpected' WHERE id = $1`,
+          [configuration.id],
+        ],
+        [
+          `UPDATE approval_levels SET status = 'Unexpected' WHERE approval_configuration_id = $1`,
+          [configuration.id],
+        ],
+        [
+          `UPDATE approval_requests SET approval_status = 'Unexpected' WHERE id = $1`,
+          [request.id],
+        ],
+        [
+          `UPDATE approval_actions SET status = 'Unexpected' WHERE id = $1`,
+          [result.action.id],
+        ],
+        [
+          `UPDATE approval_histories SET event_type = 'Unexpected' WHERE id = $1`,
+          [history.id],
+        ],
+        [
+          `UPDATE approval_histories SET from_status = 'Unexpected' WHERE id = $1`,
+          [history.id],
+        ],
+        [
+          `UPDATE approval_histories SET to_status = 'Unexpected' WHERE id = $1`,
+          [history.id],
+        ],
+        [
+          `UPDATE approval_delegations SET status = 'Unexpected' WHERE id = $1`,
+          [delegation.id],
+        ],
+      ];
+      for (const [query, values] of invalidUpdates) {
+        await expectSqlCheckViolation(sqlClient, query, values);
+      }
+    } finally {
+      await sqlClient.query("ROLLBACK");
+    }
   });
 
   it("enforces every Approval tenant relationship at the database layer", async () => {

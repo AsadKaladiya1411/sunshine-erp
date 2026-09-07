@@ -16,16 +16,29 @@ import { UserRoleAssignmentRepository } from "../../modules/authorization/reposi
 import { AuthorizationService } from "../../modules/authorization/services/authorization.service.js";
 import { AuthorizationAdministrationService } from "../../modules/authorization/services/authorization-administration.service.js";
 
-const migrationPaths = [
+const foundationalMigrationPaths = [
   "../../../../../prisma/migrations/20260825150000_common_administration_foundation/migration.sql",
   "../../../../../prisma/migrations/20260825220000_authentication_foundation/migration.sql",
   "../../../../../prisma/migrations/20260827052012_rbac_authorization/migration.sql",
   "../../../../../prisma/migrations/20260827090000_rbac_source_compliance/migration.sql",
   "../../../../../prisma/migrations/20260827120000_activity_logs/migration.sql",
+  "../../../../../prisma/migrations/20260829121500_approval_engine_foundation/migration.sql",
+  "../../../../../prisma/migrations/20260902103000_approval_tenant_integrity/migration.sql",
+  "../../../../../prisma/migrations/20260902120000_approval_decision_concurrency/migration.sql",
   "../../../../../prisma/migrations/20260907120000_role_permission_actor_tenant_integrity/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
 );
+const lifecycleMigrationPath = fileURLToPath(
+  new URL(
+    "../../../../../prisma/migrations/20260907130000_rbac_approval_lifecycle_constraints/migration.sql",
+    import.meta.url,
+  ),
+);
+const migrationPaths = [
+  ...foundationalMigrationPaths,
+  lifecycleMigrationPath,
+];
 
 const schemaName = `rbac_foundation_test_${randomUUID().replaceAll("-", "")}`;
 const quotedSchemaName = `"${schemaName}"`;
@@ -48,6 +61,25 @@ async function expectDatabaseError(
     return;
   }
   throw new Error(`Expected database error code ${expectedCode}.`);
+}
+
+async function expectSqlCheckViolation(
+  client: Client,
+  query: string,
+  values: readonly unknown[],
+): Promise<void> {
+  const savepoint = `lifecycle_${randomUUID().replaceAll("-", "")}`;
+  await client.query(`SAVEPOINT ${savepoint}`);
+  try {
+    await client.query(query, [...values]);
+  } catch (error: unknown) {
+    await client.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+    await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+    expect(error).toMatchObject({ code: "23514" });
+    return;
+  }
+  await client.query(`RELEASE SAVEPOINT ${savepoint}`);
+  throw new Error("Expected PostgreSQL check-constraint violation.");
 }
 
 describe("RBAC database and authorization foundation", () => {
@@ -348,6 +380,153 @@ describe("RBAC database and authorization foundation", () => {
         column_default: null,
       },
     ]);
+  });
+
+  it("enforces every finite RBAC status while keeping Permission action free-form", async () => {
+    const constraints = await sqlClient.query<{ constraint_name: string }>(
+      `SELECT constraint_name
+       FROM information_schema.table_constraints
+       WHERE table_schema = $1
+         AND constraint_name IN (
+           'roles_status_check',
+           'permissions_status_check',
+           'role_permissions_status_check',
+           'role_assignments_status_check'
+         )
+       ORDER BY constraint_name`,
+      [schemaName],
+    );
+    expect(constraints.rows.map(({ constraint_name }) => constraint_name)).toEqual([
+      "permissions_status_check",
+      "role_assignments_status_check",
+      "role_permissions_status_check",
+      "roles_status_check",
+    ]);
+
+    const rolePermission = await database.rolePermission.findUniqueOrThrow({
+      where: {
+        roleId_permissionId: {
+          roleId: roleAId,
+          permissionId: readPermissionId,
+        },
+      },
+    });
+    const roleAssignment = await database.roleAssignment.findFirstOrThrow({
+      where: {
+        organizationId: organizationAId,
+        userId: userAId,
+        roleId: roleAId,
+      },
+    });
+
+    await sqlClient.query("BEGIN");
+    try {
+      for (const status of ["Active", "Inactive"]) {
+        await sqlClient.query(`UPDATE roles SET status = $1 WHERE id = $2`, [
+          status,
+          roleAId,
+        ]);
+        await sqlClient.query(
+          `UPDATE permissions SET status = $1 WHERE id = $2`,
+          [status, readPermissionId],
+        );
+        await sqlClient.query(
+          `UPDATE role_permissions SET status = $1 WHERE id = $2`,
+          [status, rolePermission.id],
+        );
+      }
+      for (const status of ["Active", "Inactive", "Expired", "Revoked"]) {
+        await sqlClient.query(
+          `UPDATE role_assignments SET status = $1 WHERE id = $2`,
+          [status, roleAssignment.id],
+        );
+      }
+
+      const freeFormAction = `custom:${randomUUID()}:execute`;
+      await sqlClient.query(`UPDATE permissions SET action = $1 WHERE id = $2`, [
+        freeFormAction,
+        readPermissionId,
+      ]);
+      await expect(
+        sqlClient.query<{ action: string }>(
+          `SELECT action FROM permissions WHERE id = $1`,
+          [readPermissionId],
+        ),
+      ).resolves.toMatchObject({ rows: [{ action: freeFormAction }] });
+
+      await expectSqlCheckViolation(
+        sqlClient,
+        `UPDATE roles SET status = 'Unexpected' WHERE id = $1`,
+        [roleAId],
+      );
+      await expectSqlCheckViolation(
+        sqlClient,
+        `UPDATE permissions SET status = 'Unexpected' WHERE id = $1`,
+        [readPermissionId],
+      );
+      await expectSqlCheckViolation(
+        sqlClient,
+        `UPDATE role_permissions SET status = 'Unexpected' WHERE id = $1`,
+        [rolePermission.id],
+      );
+      await expectSqlCheckViolation(
+        sqlClient,
+        `UPDATE role_assignments SET status = 'Unexpected' WHERE id = $1`,
+        [roleAssignment.id],
+      );
+    } finally {
+      await sqlClient.query("ROLLBACK");
+    }
+  });
+
+  it("fails the lifecycle migration before constraint creation when persisted data is invalid", async () => {
+    const invalidSchemaName = `rbac_lifecycle_preflight_${randomUUID().replaceAll("-", "")}`;
+    const invalidQuotedSchemaName = `"${invalidSchemaName}"`;
+
+    await adminClient.query(`CREATE SCHEMA ${invalidQuotedSchemaName}`);
+    try {
+      await adminClient.query(`SET search_path TO ${invalidQuotedSchemaName}`);
+      for (const migrationPath of foundationalMigrationPaths) {
+        await adminClient.query(await readFile(migrationPath, "utf8"));
+      }
+      const organizationId = randomUUID();
+      await adminClient.query(
+        `INSERT INTO organizations (id, organization_code, organization_name, status)
+         VALUES ($1, 'PREFLIGHT', 'Lifecycle preflight', 'Active')`,
+        [organizationId],
+      );
+      await adminClient.query(
+        `INSERT INTO roles (id, organization_id, role_code, role_name, status)
+         VALUES ($1, $2, 'INVALID', 'Invalid lifecycle role', 'Unexpected')`,
+        [randomUUID(), organizationId],
+      );
+
+      await expect(
+        adminClient.query(await readFile(lifecycleMigrationPath, "utf8")),
+      ).rejects.toThrow(
+        "Cannot enforce roles status lifecycle: invalid persisted values exist.",
+      );
+      await adminClient.query("ROLLBACK");
+
+      const constraints = await adminClient.query<{ count: string }>(
+        `SELECT COUNT(*)::text AS count
+         FROM information_schema.table_constraints
+         WHERE table_schema = $1
+           AND constraint_name = 'roles_status_check'`,
+        [invalidSchemaName],
+      );
+      expect(constraints.rows[0]?.count).toBe("0");
+      await expect(
+        adminClient.query<{ status: string }>(
+          `SELECT status FROM roles WHERE status = 'Unexpected'`,
+        ),
+      ).resolves.toMatchObject({ rows: [{ status: "Unexpected" }] });
+    } finally {
+      await adminClient.query("RESET search_path");
+      await adminClient.query(
+        `DROP SCHEMA IF EXISTS ${invalidQuotedSchemaName} CASCADE`,
+      );
+    }
   });
 
   it("enforces organization-scoped Role identity and global Permission code uniqueness", async () => {

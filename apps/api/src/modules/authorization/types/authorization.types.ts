@@ -1,3 +1,14 @@
+export const AUTHORIZATION_STATUSES = ["Active", "Inactive"] as const;
+export type AuthorizationStatus = (typeof AUTHORIZATION_STATUSES)[number];
+
+export const ROLE_ASSIGNMENT_STATUSES = [
+  "Active",
+  "Inactive",
+  "Expired",
+  "Revoked",
+] as const;
+export type RoleAssignmentStatus = (typeof ROLE_ASSIGNMENT_STATUSES)[number];
+
 export const ACTIVE_AUTHORIZATION_STATUS = "Active" as const;
 
 export interface RoleRecord {
@@ -6,7 +17,7 @@ export interface RoleRecord {
   readonly roleCode: string;
   readonly roleName: string;
   readonly description: string | null;
-  readonly status: string;
+  readonly status: AuthorizationStatus;
 }
 
 export interface PermissionRecord {
@@ -17,7 +28,7 @@ export interface PermissionRecord {
   readonly resource: string | null;
   readonly action: string;
   readonly description: string | null;
-  readonly status: string;
+  readonly status: AuthorizationStatus;
 }
 
 export interface RolePermissionRecord {
@@ -27,7 +38,7 @@ export interface RolePermissionRecord {
   readonly permissionId: string;
   readonly assignedById: string;
   readonly assignedAt: Date;
-  readonly status: string;
+  readonly status: AuthorizationStatus;
 }
 
 export interface RoleAssignmentRecord {
@@ -37,6 +48,6 @@ export interface RoleAssignmentRecord {
   readonly roleId: string;
   readonly assignedAt: Date;
   readonly expiresAt: Date | null;
-  readonly status: string;
+  readonly status: RoleAssignmentStatus;
   readonly createdAt: Date;
 }

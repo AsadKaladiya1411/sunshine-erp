@@ -1,6 +1,9 @@
 import { prisma } from "../../../core/database/prisma.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
-import type { RoleRecord } from "../types/authorization.types.js";
+import type {
+  AuthorizationStatus,
+  RoleRecord,
+} from "../types/authorization.types.js";
 
 export type RolePersistenceDatabase = Pick<PrismaClient, "role">;
 
@@ -9,12 +12,17 @@ export interface CreateRoleInput {
   readonly roleCode: string;
   readonly roleName: string;
   readonly description?: string;
-  readonly status: string;
+  readonly status: AuthorizationStatus;
   readonly createdById?: string;
 }
 
-function mapRole(role: RoleRecord): RoleRecord {
-  return Object.freeze({ ...role });
+function mapRole(
+  role: Omit<RoleRecord, "status"> & { readonly status: string },
+): RoleRecord {
+  return Object.freeze({
+    ...role,
+    status: role.status as AuthorizationStatus,
+  });
 }
 
 export class RoleRepository {
@@ -80,7 +88,7 @@ export class RoleRepository {
   async updateStatus(
     id: string,
     organizationId: string,
-    status: string,
+    status: AuthorizationStatus,
     updatedById?: string,
   ): Promise<boolean> {
     const result = await this.database.role.updateMany({

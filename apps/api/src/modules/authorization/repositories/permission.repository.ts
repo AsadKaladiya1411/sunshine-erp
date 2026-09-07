@@ -1,6 +1,9 @@
 import { prisma } from "../../../core/database/prisma.js";
 import type { PrismaClient } from "../../../generated/prisma/client.js";
-import type { PermissionRecord } from "../types/authorization.types.js";
+import type {
+  AuthorizationStatus,
+  PermissionRecord,
+} from "../types/authorization.types.js";
 import type { AuthorizationMutationHook } from "./authorization-mutation.types.js";
 
 export type PermissionPersistenceDatabase = Pick<PrismaClient, "permission">;
@@ -12,12 +15,17 @@ export interface CreatePermissionInput {
   readonly resource?: string;
   readonly action: string;
   readonly description?: string;
-  readonly status: string;
+  readonly status: AuthorizationStatus;
   readonly createdById?: string;
 }
 
-function mapPermission(permission: PermissionRecord): PermissionRecord {
-  return Object.freeze({ ...permission });
+function mapPermission(
+  permission: Omit<PermissionRecord, "status"> & { readonly status: string },
+): PermissionRecord {
+  return Object.freeze({
+    ...permission,
+    status: permission.status as AuthorizationStatus,
+  });
 }
 
 const permissionSelection = {
@@ -82,7 +90,7 @@ export class PermissionRepository {
 
   async updateStatus(
     id: string,
-    status: string,
+    status: AuthorizationStatus,
     organizationId: string,
     updatedById: string,
     afterUpdate?: AuthorizationMutationHook<string>,
