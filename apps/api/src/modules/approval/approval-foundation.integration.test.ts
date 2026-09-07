@@ -17,6 +17,8 @@ import { Client } from "pg";
 import { ActivityLogRepository } from "../../core/audit/activity-log.repository.js";
 import { AuditService } from "../../core/audit/audit.service.js";
 import { PrismaClient } from "../../generated/prisma/client.js";
+import { UserRoleAssignmentRepository } from "../authorization/repositories/user-role-assignment.repository.js";
+import { AuthorizationService } from "../authorization/services/authorization.service.js";
 import {
   ApprovalAuthorizationError,
   ApprovalDelegationAmbiguousError,
@@ -25,11 +27,15 @@ import {
 } from "./approval.errors.js";
 import {
   ApprovalRepository,
+  type ApprovalActionRevalidator,
   type ApprovalMutationAudit,
   type PersistApprovalActionInput,
   type PersistApprovalActionResult,
 } from "./repositories/approval.repository.js";
-import { ApprovalService } from "./services/approval.service.js";
+import {
+  ApprovalService,
+  RbacApprovalAuthorizationBoundary,
+} from "./services/approval.service.js";
 import type {
   ApprovalAuthorizationBoundary,
   ApprovalMode,
@@ -46,6 +52,7 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260829121500_approval_engine_foundation/migration.sql",
   "../../../../../prisma/migrations/20260902103000_approval_tenant_integrity/migration.sql",
   "../../../../../prisma/migrations/20260902120000_approval_decision_concurrency/migration.sql",
+  "../../../../../prisma/migrations/20260907120000_role_permission_actor_tenant_integrity/migration.sql",
   "../../../../../prisma/migrations/20260907130000_rbac_approval_lifecycle_constraints/migration.sql",
 ].map((migrationPath) =>
   fileURLToPath(new URL(migrationPath, import.meta.url)),
@@ -91,6 +98,7 @@ class SynchronizedApprovalRepository extends ApprovalRepository {
 
   override async persistAction(
     input: PersistApprovalActionInput,
+    revalidate: ApprovalActionRevalidator,
     audit?: ApprovalMutationAudit<PersistApprovalActionResult>,
   ): Promise<PersistApprovalActionResult | null> {
     this.persistArrivals += 1;
@@ -98,7 +106,32 @@ class SynchronizedApprovalRepository extends ApprovalRepository {
       this.releasePersistBarrier();
     }
     await this.persistBarrier;
-    return super.persistAction(input, audit);
+    return super.persistAction(input, revalidate, audit);
+  }
+}
+
+class PausedApprovalRepository extends ApprovalRepository {
+  private notifyPersistReached!: () => void;
+  private resumePersist!: () => void;
+  readonly persistReached = new Promise<void>((resolve) => {
+    this.notifyPersistReached = resolve;
+  });
+  private readonly persistRelease = new Promise<void>((resolve) => {
+    this.resumePersist = resolve;
+  });
+
+  release(): void {
+    this.resumePersist();
+  }
+
+  override async persistAction(
+    input: PersistApprovalActionInput,
+    revalidate: ApprovalActionRevalidator,
+    audit?: ApprovalMutationAudit<PersistApprovalActionResult>,
+  ): Promise<PersistApprovalActionResult | null> {
+    this.notifyPersistReached();
+    await this.persistRelease;
+    return super.persistAction(input, revalidate, audit);
   }
 }
 
@@ -1367,6 +1400,120 @@ describe("Approval Engine foundation", () => {
     ).resolves.toBe(1);
   });
 
+  it("rejects an Approval action when persisted authorization is revoked before its transaction", async () => {
+    const permissionCode = uniqueCode("APPROVAL-DECIDE");
+    const permission = await database.permission.create({
+      data: {
+        permissionCode,
+        permissionName: "Approval decision",
+        module: "Approval Workflow",
+        resource: "ApprovalRequest",
+        action: "Decide",
+        status: "Active",
+        createdById: creatorAId,
+      },
+    });
+    await database.rolePermission.create({
+      data: {
+        organizationId: organizationAId,
+        roleId: roleAId,
+        permissionId: permission.id,
+        assignedById: creatorAId,
+        status: "Active",
+      },
+    });
+    const roleAssignment = await database.roleAssignment.create({
+      data: {
+        organizationId: organizationAId,
+        userId: approverAId,
+        roleId: roleAId,
+        status: "Active",
+        createdById: creatorAId,
+      },
+    });
+
+    const configuration = await createConfiguration("Single");
+    await service.createLevel({
+      organizationId: organizationAId,
+      approvalConfigurationId: configuration.id,
+      levelNumber: 1,
+      levelName: "Transactional role approval",
+      approverType: "Role",
+      approverRoleId: roleAId,
+      status: "Active",
+      createdById: creatorAId,
+    });
+    const request = await submit(configuration.id);
+    const historyBefore = await database.approvalHistory.count({
+      where: { approvalRequestId: request.id },
+    });
+    const actionAuditBefore = await database.activityLog.count({
+      where: {
+        organizationId: organizationAId,
+        module: "Approval Workflow",
+        entityName: "ApprovalAction",
+        action: "ApprovalActionRecorded",
+      },
+    });
+
+    const authorizationReader = new UserRoleAssignmentRepository(database);
+    const rbacAuthorization = new AuthorizationService(
+      authorizationReader,
+      authorizationReader,
+    );
+    const pausedRepository = new PausedApprovalRepository(database);
+    const transactionalService = new ApprovalService(
+      new RbacApprovalAuthorizationBoundary(
+        permissionCode,
+        rbacAuthorization,
+      ),
+      pausedRepository,
+      audit,
+    );
+
+    const action = transactionalService.recordAction({
+      organizationId: organizationAId,
+      approvalRequestId: request.id,
+      approverUserId: approverAId,
+      actionType: "Approve",
+    });
+    await pausedRepository.persistReached;
+    await database.roleAssignment.update({
+      where: { id: roleAssignment.id },
+      data: { status: "Revoked", updatedById: creatorAId },
+    });
+    pausedRepository.release();
+
+    await expect(action).rejects.toBeInstanceOf(ApprovalAuthorizationError);
+    await expect(
+      database.approvalRequest.findUniqueOrThrow({ where: { id: request.id } }),
+    ).resolves.toMatchObject({
+      approvalStatus: "Pending",
+      decisionVersion: 0,
+      completedAt: null,
+    });
+    await expect(
+      database.approvalAction.count({
+        where: { approvalRequestId: request.id },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.approvalHistory.count({
+        where: { approvalRequestId: request.id },
+      }),
+    ).resolves.toBe(historyBefore);
+    await expect(
+      database.activityLog.count({
+        where: {
+          organizationId: organizationAId,
+          module: "Approval Workflow",
+          entityName: "ApprovalAction",
+          action: "ApprovalActionRecorded",
+        },
+      }),
+    ).resolves.toBe(actionAuditBefore);
+  });
+
   it("validates delegation periods, scopes delegated approval, and preserves identities", async () => {
     const configuration = await createConfiguration("Single");
     const level = await createUserLevel(configuration.id, 1, approverAId);
@@ -1507,21 +1654,24 @@ describe("Approval Engine foundation", () => {
     });
 
     await expectDatabaseError(() =>
-      repository.persistAction({
-        organizationId: organizationAId,
-        approvalRequestId: request.id,
-        expectedCurrentLevelId: level.id,
-        expectedDecisionVersion: request.decisionVersion,
-        approverUserId: approverAId,
-        actionType: "Reject",
-        actionDate: new Date(),
-        fromStatus: "Pending",
-        toStatus: "Rejected",
-        nextLevelId: null,
-        completedAt: new Date(),
-        eventType: "Rejected",
-        appendCompletionEvent: false,
-      }),
+      repository.persistAction(
+        {
+          organizationId: organizationAId,
+          approvalRequestId: request.id,
+          expectedCurrentLevelId: level.id,
+          expectedDecisionVersion: request.decisionVersion,
+          approverUserId: approverAId,
+          actionType: "Reject",
+          actionDate: new Date(),
+          fromStatus: "Pending",
+          toStatus: "Rejected",
+          nextLevelId: null,
+          completedAt: new Date(),
+          eventType: "Rejected",
+          appendCompletionEvent: false,
+        },
+        async () => undefined,
+      ),
     );
     await expect(
       database.approvalRequest.findUniqueOrThrow({ where: { id: request.id } }),

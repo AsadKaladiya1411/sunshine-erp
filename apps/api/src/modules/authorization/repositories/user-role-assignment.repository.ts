@@ -16,6 +16,11 @@ export interface AssignRoleToUserInput {
   readonly createdById: string;
 }
 
+export type AuthorizationReadDatabase = Pick<
+  PrismaClient,
+  "user" | "roleAssignment"
+>;
+
 function mapRoleAssignment(
   assignment: Omit<RoleAssignmentRecord, "status"> & {
     readonly status: string;
@@ -177,9 +182,10 @@ export class UserRoleAssignmentRepository {
   async findActiveAssignments(
     userId: string,
     organizationId: string,
+    database: AuthorizationReadDatabase = this.database,
   ): Promise<readonly RoleAssignmentRecord[]> {
     const now = new Date();
-    const assignments = await this.database.roleAssignment.findMany({
+    const assignments = await database.roleAssignment.findMany({
       where: {
         userId,
         organizationId,
@@ -196,8 +202,9 @@ export class UserRoleAssignmentRepository {
   async getEffectivePermissionCodes(
     userId: string,
     organizationId: string,
+    database: AuthorizationReadDatabase = this.database,
   ): Promise<readonly string[]> {
-    const userExists = await this.database.user.count({
+    const userExists = await database.user.count({
       where: { id: userId, organizationId },
     });
 
@@ -206,7 +213,7 @@ export class UserRoleAssignmentRepository {
     }
 
     const now = new Date();
-    const assignments = await this.database.roleAssignment.findMany({
+    const assignments = await database.roleAssignment.findMany({
       where: {
         userId,
         organizationId,

@@ -5,6 +5,7 @@ import {
 import {
   AuthorizationService,
   authorizationService,
+  type AuthorizationReadContext,
 } from "../../authorization/services/authorization.service.js";
 import {
   ApprovalAuthorizationError,
@@ -17,6 +18,7 @@ import {
   ApprovalRepository,
   approvalRepository,
   type ApprovalDecisionContext,
+  type ApprovalTransactionContext,
   type PersistApprovalActionResult,
 } from "../repositories/approval.repository.js";
 import {
@@ -43,6 +45,21 @@ import {
   type RecordApprovalActionInput,
   type SubmitApprovalRequestInput,
 } from "../types/approval.types.js";
+
+interface TransactionalApprovalAuthorizationBoundary
+  extends ApprovalAuthorizationBoundary {
+  canPerformApproval(
+    userId: string,
+    organizationId: string,
+    database?: AuthorizationReadContext,
+  ): Promise<boolean>;
+  hasActiveRole(
+    userId: string,
+    organizationId: string,
+    roleId: string,
+    database?: AuthorizationReadContext,
+  ): Promise<boolean>;
+}
 
 const APPROVAL_ACTIVITY_ACTIONS = Object.freeze({
   configurationCreated: "ApprovalConfigurationCreated",
@@ -96,11 +113,16 @@ export class RbacApprovalAuthorizationBoundary implements ApprovalAuthorizationB
     }
   }
 
-  canPerformApproval(userId: string, organizationId: string): Promise<boolean> {
+  canPerformApproval(
+    userId: string,
+    organizationId: string,
+    database?: AuthorizationReadContext,
+  ): Promise<boolean> {
     return this.authorization.hasPermission(
       userId,
       organizationId,
       this.permissionCode,
+      database,
     );
   }
 
@@ -108,11 +130,13 @@ export class RbacApprovalAuthorizationBoundary implements ApprovalAuthorizationB
     userId: string,
     organizationId: string,
     roleId: string,
+    database?: AuthorizationReadContext,
   ): Promise<boolean> {
     return this.authorization.hasActiveRole(
       userId,
       organizationId,
       roleId,
+      database,
     );
   }
 }
@@ -125,7 +149,7 @@ export interface ApprovalActionResult {
 
 export class ApprovalService {
   constructor(
-    private readonly authorization: ApprovalAuthorizationBoundary,
+    private readonly authorization: TransactionalApprovalAuthorizationBoundary,
     private readonly repository: ApprovalRepository = approvalRepository,
     private readonly audit: AuditService = auditService,
   ) {}
@@ -367,36 +391,10 @@ export class ApprovalService {
         "Only a pending Approval Request with a current level accepts actions.",
       );
     }
-    if (
-      !(await this.authorization.canPerformApproval(
-        input.approverUserId,
-        input.organizationId,
-      ))
-    ) {
-      throw new ApprovalAuthorizationError();
-    }
-    if (
-      input.delegatedToUserId &&
-      !(await this.authorization.canPerformApproval(
-        input.delegatedToUserId,
-        input.organizationId,
-      ))
-    ) {
-      throw new ApprovalAuthorizationError(
-        "Delegated user is not authorized for approval operations.",
-      );
-    }
+    await this.assertApprovalPermissions(input);
     const actionDate = input.actionDate ?? new Date();
     await this.assertApproverEligibility(context, input, actionDate);
-    if (
-      input.actionType === "Approve" &&
-      context.configuration.approvalMode === "Single" &&
-      context.request.requestedById === input.approverUserId
-    ) {
-      throw new ApprovalAuthorizationError(
-        "Creator cannot approve their own submission.",
-      );
-    }
+    this.assertSelfApproval(context, input);
 
     const transition = this.resolveTransition(context, input.actionType);
     const result = await this.repository.persistAction(
@@ -420,6 +418,41 @@ export class ApprovalService {
         eventType: transition.eventType,
         reason: input.rejectionReason ?? input.returnReason,
         appendCompletionEvent: transition.appendCompletionEvent,
+      },
+      async (currentContext, database) => {
+        if (
+          currentContext.request.approvalStatus !== "Pending" ||
+          !currentContext.currentLevel
+        ) {
+          throw new ApprovalStateConflictError(
+            "Only a pending Approval Request with a current level accepts actions.",
+          );
+        }
+        await this.assertApprovalPermissions(input, database);
+        await this.assertApproverEligibility(
+          currentContext,
+          input,
+          actionDate,
+          database,
+        );
+        this.assertSelfApproval(currentContext, input);
+
+        const currentTransition = this.resolveTransition(
+          currentContext,
+          input.actionType,
+        );
+        if (
+          currentTransition.toStatus !== transition.toStatus ||
+          currentTransition.nextLevelId !== transition.nextLevelId ||
+          currentTransition.completedAt !== transition.completedAt ||
+          currentTransition.eventType !== transition.eventType ||
+          currentTransition.appendCompletionEvent !==
+            transition.appendCompletionEvent
+        ) {
+          throw new ApprovalStateConflictError(
+            "Approval decision context changed before the action could be recorded.",
+          );
+        }
       },
       async (persisted, database) => {
         await this.audit.recordActivity(
@@ -518,6 +551,7 @@ export class ApprovalService {
     context: ApprovalDecisionContext,
     input: RecordApprovalActionInput,
     actionDate: Date,
+    database?: ApprovalTransactionContext,
   ): Promise<void> {
     const level = context.currentLevel;
     if (!level) {
@@ -541,6 +575,7 @@ export class ApprovalService {
         level.approverUserId,
         input.approverUserId,
         actionDate,
+        database,
       );
       return;
     }
@@ -553,6 +588,7 @@ export class ApprovalService {
         input.approverUserId,
         input.organizationId,
         level.approverRoleId,
+        database,
       )
     ) {
       return;
@@ -566,6 +602,7 @@ export class ApprovalService {
       input.delegatedFromUserId,
       input.organizationId,
       level.approverRoleId,
+      database,
     );
     if (!delegatorHasRole) {
       throw new ApprovalAuthorizationError(
@@ -577,6 +614,7 @@ export class ApprovalService {
       input.delegatedFromUserId,
       input.approverUserId,
       actionDate,
+      database,
     );
   }
 
@@ -585,18 +623,22 @@ export class ApprovalService {
     delegatorUserId: string,
     delegateUserId: string,
     at: Date,
+    database?: ApprovalTransactionContext,
   ): Promise<void> {
     if (!context.currentLevel) {
       throw new ApprovalStateConflictError("Approval level is unavailable.");
     }
-    const delegations = await this.repository.findApplicableDelegations({
-      organizationId: context.request.organizationId,
-      delegatorUserId,
-      delegateUserId,
-      approvalConfigurationId: context.configuration.id,
-      approvalLevelId: context.currentLevel.id,
-      at,
-    });
+    const delegations = await this.repository.findApplicableDelegations(
+      {
+        organizationId: context.request.organizationId,
+        delegatorUserId,
+        delegateUserId,
+        approvalConfigurationId: context.configuration.id,
+        approvalLevelId: context.currentLevel.id,
+        at,
+      },
+      database,
+    );
     if (delegations.length === 0) {
       throw new ApprovalAuthorizationError(
         "No active delegation authorizes this approver.",
@@ -604,6 +646,48 @@ export class ApprovalService {
     }
     if (delegations.length > 1) {
       throw new ApprovalDelegationAmbiguousError();
+    }
+  }
+
+  private async assertApprovalPermissions(
+    input: RecordApprovalActionInput,
+    database?: ApprovalTransactionContext,
+  ): Promise<void> {
+    if (
+      !(await this.authorization.canPerformApproval(
+        input.approverUserId,
+        input.organizationId,
+        database,
+      ))
+    ) {
+      throw new ApprovalAuthorizationError();
+    }
+    if (
+      input.delegatedToUserId &&
+      !(await this.authorization.canPerformApproval(
+        input.delegatedToUserId,
+        input.organizationId,
+        database,
+      ))
+    ) {
+      throw new ApprovalAuthorizationError(
+        "Delegated user is not authorized for approval operations.",
+      );
+    }
+  }
+
+  private assertSelfApproval(
+    context: ApprovalDecisionContext,
+    input: RecordApprovalActionInput,
+  ): void {
+    if (
+      input.actionType === "Approve" &&
+      context.configuration.approvalMode === "Single" &&
+      context.request.requestedById === input.approverUserId
+    ) {
+      throw new ApprovalAuthorizationError(
+        "Creator cannot approve their own submission.",
+      );
     }
   }
 

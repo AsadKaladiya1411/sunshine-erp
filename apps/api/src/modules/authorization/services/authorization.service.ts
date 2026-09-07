@@ -1,11 +1,17 @@
 import { AuthorizationError } from "../../../core/http/errors.js";
 import { logger } from "../../../core/logging/logger.js";
-import { userRoleAssignmentRepository } from "../repositories/user-role-assignment.repository.js";
+import {
+  userRoleAssignmentRepository,
+  type AuthorizationReadDatabase,
+} from "../repositories/user-role-assignment.repository.js";
+
+export type AuthorizationReadContext = AuthorizationReadDatabase;
 
 export interface EffectivePermissionReader {
   getEffectivePermissionCodes(
     userId: string,
     organizationId: string,
+    database?: AuthorizationReadContext,
   ): Promise<readonly string[]>;
 }
 
@@ -13,6 +19,7 @@ export interface ActiveRoleReader {
   findActiveAssignments(
     userId: string,
     organizationId: string,
+    database?: AuthorizationReadContext,
   ): Promise<readonly { readonly roleId: string }[]>;
 }
 
@@ -28,10 +35,12 @@ export class AuthorizationService {
     userId: string,
     organizationId: string,
     roleId: string,
+    database?: AuthorizationReadContext,
   ): Promise<boolean> {
     const assignments = await this.activeRoleReader.findActiveAssignments(
       userId,
       organizationId,
+      database,
     );
     return assignments.some((assignment) => assignment.roleId === roleId);
   }
@@ -39,12 +48,15 @@ export class AuthorizationService {
   async getEffectivePermissions(
     userId: string,
     organizationId: string,
+    database?: AuthorizationReadContext,
   ): Promise<ReadonlySet<string>> {
     try {
-      const permissions = await this.permissionReader.getEffectivePermissionCodes(
-        userId,
-        organizationId,
-      );
+      const permissions =
+        await this.permissionReader.getEffectivePermissionCodes(
+          userId,
+          organizationId,
+          database,
+        );
       return new Set(permissions);
     } catch (error: unknown) {
       logger.error(
@@ -59,6 +71,7 @@ export class AuthorizationService {
     userId: string,
     organizationId: string,
     permission: string,
+    database?: AuthorizationReadContext,
   ): Promise<boolean> {
     if (permission.length === 0) {
       return false;
@@ -66,6 +79,7 @@ export class AuthorizationService {
     const permissions = await this.getEffectivePermissions(
       userId,
       organizationId,
+      database,
     );
     return permissions.has(permission);
   }

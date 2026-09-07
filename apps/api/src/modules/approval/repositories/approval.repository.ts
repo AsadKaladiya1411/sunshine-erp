@@ -1,6 +1,9 @@
 import { prisma } from "../../../core/database/prisma.js";
 import type { ActivityLogDatabase } from "../../../core/audit/activity-log.repository.js";
-import type { PrismaClient } from "../../../generated/prisma/client.js";
+import type {
+  Prisma,
+  PrismaClient,
+} from "../../../generated/prisma/client.js";
 import type {
   ApprovalActionType,
   ApprovalActionRecord,
@@ -219,6 +222,18 @@ export interface ApprovalDecisionContext {
   readonly activeLevels: readonly ApprovalLevelRecord[];
   readonly approvedLevelIds: readonly string[];
 }
+
+type ApprovalDecisionDatabase = Pick<
+  PrismaClient,
+  "approvalRequest" | "approvalLevel" | "approvalDelegation"
+>;
+
+export type ApprovalTransactionContext = Prisma.TransactionClient;
+
+export type ApprovalActionRevalidator = (
+  context: ApprovalDecisionContext,
+  database: ApprovalTransactionContext,
+) => Promise<void>;
 
 export interface PersistApprovalActionInput {
   readonly organizationId: string;
@@ -478,8 +493,9 @@ export class ApprovalRepository {
   async getDecisionContext(
     id: string,
     organizationId: string,
+    database: ApprovalDecisionDatabase = this.database,
   ): Promise<ApprovalDecisionContext | null> {
-    const record = await this.database.approvalRequest.findFirst({
+    const record = await database.approvalRequest.findFirst({
       where: { id, organizationId },
       select: {
         ...requestSelection,
@@ -494,7 +510,7 @@ export class ApprovalRepository {
     if (!record) {
       return null;
     }
-    const activeLevels = await this.database.approvalLevel.findMany({
+    const activeLevels = await database.approvalLevel.findMany({
       where: {
         approvalConfigurationId: record.approvalConfigurationId,
         status: "Active",
@@ -516,9 +532,26 @@ export class ApprovalRepository {
 
   async persistAction(
     input: PersistApprovalActionInput,
+    revalidate: ApprovalActionRevalidator,
     audit?: ApprovalMutationAudit<PersistApprovalActionResult>,
   ): Promise<PersistApprovalActionResult | null> {
     return this.database.$transaction(async (transaction) => {
+      const context = await this.getDecisionContext(
+        input.approvalRequestId,
+        input.organizationId,
+        transaction,
+      );
+      if (
+        !context ||
+        context.request.approvalStatus !== input.fromStatus ||
+        context.request.currentLevelId !== input.expectedCurrentLevelId ||
+        context.request.decisionVersion !== input.expectedDecisionVersion
+      ) {
+        return null;
+      }
+
+      await revalidate(context, transaction);
+
       const locked = await transaction.approvalRequest.updateMany({
         where: {
           id: input.approvalRequestId,
@@ -709,8 +742,11 @@ export class ApprovalRepository {
     readonly approvalConfigurationId: string;
     readonly approvalLevelId: string;
     readonly at: Date;
-  }): Promise<readonly ApprovalDelegationRecord[]> {
-    const records = await this.database.approvalDelegation.findMany({
+  }, database?: ApprovalDecisionDatabase): Promise<
+    readonly ApprovalDelegationRecord[]
+  > {
+    const queryDatabase = database ?? this.database;
+    const records = await queryDatabase.approvalDelegation.findMany({
       where: {
         organizationId: input.organizationId,
         delegatorUserId: input.delegatorUserId,
