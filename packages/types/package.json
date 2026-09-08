@@ -9,10 +9,13 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 0"
   },
   "devDependencies": {
+    "@sunshine-erp/eslint-config": "*",
     "@sunshine-erp/typescript-config": "*",
+    "eslint": "^9.39.1",
     "typescript": "5.9.2"
   }
 }
