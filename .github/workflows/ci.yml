@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-checks:
+    name: Repository and static checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install npm 11.17.0
+        run: npm install --global npm@11.17.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run check-types
+
+      - name: Build
+        run: npm run build
+
+      - name: Test Worker and foundation packages
+        run: |
+          npm test --workspace=worker
+          npm test --workspace=@sunshine-erp/business-rules
+          npm test --workspace=@sunshine-erp/messaging
+          npm test --workspace=@sunshine-erp/notifications
+          npm test --workspace=@sunshine-erp/storage
+          npm test --workspace=@sunshine-erp/workflow
+
+  api-integration:
+    name: API integration checks
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: sunshine_erp_test
+          POSTGRES_USER: sunshine_ci
+          POSTGRES_PASSWORD: sunshine_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sunshine_ci -d sunshine_erp_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://sunshine_ci:sunshine_ci_password@127.0.0.1:5432/sunshine_erp_test
+      REDIS_URL: redis://127.0.0.1:6379
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install npm 11.17.0
+        run: npm install --global npm@11.17.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Prisma schema
+        run: npm run prisma:validate
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Apply test database migrations
+        run: npx prisma migrate deploy
+
+      - name: Run API tests
+        run: npm test --workspace=api
