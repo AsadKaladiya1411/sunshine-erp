@@ -1,7 +1,9 @@
 # HTTP Security Boundary
 
-The current API foundation does not implement authentication, browser
-sessions, cookies, JWTs, or authorization.
+The current API foundation implements organization-scoped authentication and
+centralized authorization. Authentication routes are available under
+`/api/v1/auth`; access tokens are JWT bearer tokens, refresh credentials use an
+HttpOnly cookie, and authenticated sessions are validated against PostgreSQL.
 
 ## Current controls
 
@@ -11,24 +13,36 @@ sessions, cookies, JWTs, or authorization.
   HTTPS. The directive remains enabled through Helmet defaults outside
   development.
 - CORS permits browser requests only from the configured origin allowlist.
-- CORS credentials are disabled.
+- CORS credentials are enabled so approved browser origins can use the
+  refresh-token cookie.
 - Requests without an `Origin` header remain available to health probes and
   server-to-server clients.
+- Refresh tokens use an HttpOnly cookie whose `Secure`, `SameSite`, and path
+  attributes come from centralized configuration. Production configuration
+  rejects an insecure refresh cookie, and `SameSite=None` also requires
+  `Secure` in every environment.
+- Authenticated routes validate the JWT access token and its authoritative
+  PostgreSQL-backed session. Centralized RBAC permission enforcement is
+  available for permission-protected operations.
 - JSON request bodies have a configurable maximum size.
 - `/api/v1` uses a temporary per-process rate limiter.
 - Structured logs redact common credential-bearing fields while retaining the
   correlation ID.
+- Client-supplied correlation IDs are accepted only after trimming when they
+  contain no more than 255 ASCII letters, digits, periods, underscores, colons,
+  or hyphens. Missing or invalid values are replaced with a generated UUID.
 
 ## CSRF boundary
 
-No CSRF mechanism is implemented in this pass because the API does not yet use
-cookie-based authentication or sessions. Restrictive CORS is not treated as a
-replacement for CSRF protection.
+The API does not implement a general-purpose CSRF-token framework. The
+cookie-bearing refresh and logout routes require an `Origin` header that
+exactly matches the configured origin allowlist. The refresh credential remains
+in its HttpOnly cookie, while protected access-token operations use bearer
+authentication.
 
-If browser cookie-based authentication is approved later, that authentication
-pass must define the CSRF policy together with cookie `SameSite`, `Secure`, and
-origin-validation behavior. Bearer-token and cookie-based flows must be
-evaluated separately before authentication is implemented.
+Restrictive CORS is not treated as the sole CSRF control. The trusted-Origin
+check is enforced directly on refresh and logout in addition to the configured
+refresh-cookie `SameSite` and `Secure` attributes.
 
 ## Trusted proxy boundary
 

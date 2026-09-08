@@ -28,9 +28,11 @@ Bootstrap creates one non-wildcard tenant role and permission:
 
 Organization settings and financial-year data are not created because they
 are not required for authentication and no business defaults are assumed.
-Use normal authenticated administration workflows for all later users,
-tenants, roles, and permissions; never use bootstrap as a recovery or account
-creation mechanism.
+Normal Administration HTTP workflows for later users, tenants, roles, and
+permissions are not currently exposed. The one-time bootstrap CLI exists only
+for the initial tenant and administrator bootstrap; do not reuse it as a
+substitute for future Administration endpoints, recovery, or routine account
+creation.
 
 ## Runtime requirements
 
