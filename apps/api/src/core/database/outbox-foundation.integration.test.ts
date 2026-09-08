@@ -15,11 +15,15 @@ import {
 import { Client } from "pg";
 
 import { PrismaClient } from "../../generated/prisma/client.js";
-import { runInDatabaseTransaction } from "./transaction.js";
+import {
+  runInDatabaseTransaction,
+  type DatabaseTransaction,
+} from "./transaction.js";
 import {
   createDomainEvent,
   defineDomainEventType,
   DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH,
+  type AnyDomainEvent,
 } from "../events/domain-event.types.js";
 import { InvalidDomainEventPayloadError } from "../events/domain-event-payload.js";
 import { createOutboxDomainEventPublisher } from "../events/outbox-domain-event.publisher.js";
@@ -75,6 +79,127 @@ function createFoundationEvent(sequence = 1) {
     },
   });
 }
+
+interface MalformedEnvelopeCase {
+  readonly name: string;
+  readonly overrides: Partial<AnyDomainEvent>;
+  readonly expectedMessage: string;
+}
+
+const malformedEnvelopeCases: readonly MalformedEnvelopeCase[] = [
+  {
+    name: "a blank event type",
+    overrides: { eventType: " " },
+    expectedMessage: "Domain event types must use lower-case",
+  },
+  {
+    name: "an invalid event type",
+    overrides: { eventType: "foundation.outbox" },
+    expectedMessage: "Domain event types must use lower-case",
+  },
+  {
+    name: "an oversized event type",
+    overrides: { eventType: `foundation.outbox.${"a".repeat(201)}` },
+    expectedMessage: "eventType must not exceed 200 characters",
+  },
+  {
+    name: "a blank correlation ID",
+    overrides: { correlationId: " " },
+    expectedMessage: "correlationId must not be empty",
+  },
+  {
+    name: "an invalid correlation ID",
+    overrides: { correlationId: "correlation\0invalid" },
+    expectedMessage: "Null characters are not allowed in correlationId",
+  },
+  {
+    name: "an oversized correlation ID",
+    overrides: {
+      correlationId: "c".repeat(DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH + 1),
+    },
+    expectedMessage: "correlationId must not exceed 255 characters",
+  },
+  {
+    name: "a blank causation ID",
+    overrides: { causationId: " " },
+    expectedMessage: "causationId must not be empty",
+  },
+  {
+    name: "an invalid causation ID",
+    overrides: { causationId: "causation\0invalid" },
+    expectedMessage: "Null characters are not allowed in causationId",
+  },
+  {
+    name: "an oversized causation ID",
+    overrides: { causationId: "c".repeat(256) },
+    expectedMessage: "causationId must not exceed 255 characters",
+  },
+  {
+    name: "an aggregate type without an aggregate ID",
+    overrides: { aggregateId: undefined },
+    expectedMessage: "aggregateType and aggregateId must either both",
+  },
+  {
+    name: "an aggregate ID without an aggregate type",
+    overrides: { aggregateType: undefined },
+    expectedMessage: "aggregateType and aggregateId must either both",
+  },
+  {
+    name: "a blank aggregate type",
+    overrides: { aggregateType: " " },
+    expectedMessage: "aggregateType must not be empty",
+  },
+  {
+    name: "an oversized aggregate type",
+    overrides: { aggregateType: "a".repeat(101) },
+    expectedMessage: "aggregateType must not exceed 100 characters",
+  },
+  {
+    name: "an invalid aggregate UUID",
+    overrides: { aggregateId: "not-a-uuid" },
+    expectedMessage: "aggregateId must be a UUID",
+  },
+  {
+    name: "a blank occurrence timestamp",
+    overrides: { occurredAt: " " },
+    expectedMessage: "occurredAt must not be empty",
+  },
+  {
+    name: "an invalid occurrence timestamp",
+    overrides: { occurredAt: "not-a-date" },
+    expectedMessage: "occurredAt must be a valid date",
+  },
+  {
+    name: "an invalid event UUID",
+    overrides: { eventId: "not-a-uuid" },
+    expectedMessage: "eventId must be a UUID",
+  },
+  {
+    name: "an invalid organization UUID",
+    overrides: { organizationId: "not-a-uuid" },
+    expectedMessage: "organizationId must be a UUID",
+  },
+  {
+    name: "an invalid actor UUID",
+    overrides: { actorId: "not-a-uuid" },
+    expectedMessage: "actorId must be a UUID",
+  },
+  {
+    name: "a zero event version",
+    overrides: { eventVersion: 0 },
+    expectedMessage: "Domain event versions must be integers between 1",
+  },
+  {
+    name: "a non-integer event version",
+    overrides: { eventVersion: 1.5 },
+    expectedMessage: "Domain event versions must be integers between 1",
+  },
+  {
+    name: "an oversized event version",
+    overrides: { eventVersion: 2_147_483_648 },
+    expectedMessage: "Domain event versions must be integers between 1",
+  },
+];
 
 jest.setTimeout(90_000);
 
@@ -302,6 +427,25 @@ describe("Transactional Outbox foundation", () => {
     expect(stored.correlationId).toBe(correlationId);
     expect(stored.payload).toEqual(event.payload);
   });
+
+  it.each(malformedEnvelopeCases)(
+    "rejects $name before Prisma persistence",
+    async ({ overrides, expectedMessage }) => {
+      const create = jest.fn();
+      const transaction = {
+        outboxEvent: { create },
+      } as unknown as DatabaseTransaction;
+      const fabricatedEvent = {
+        ...createFoundationEvent(),
+        ...overrides,
+      } as AnyDomainEvent;
+
+      await expect(
+        repository.append(transaction, fabricatedEvent),
+      ).rejects.toThrow(expectedMessage);
+      expect(create).not.toHaveBeenCalled();
+    },
+  );
 
   it("prevents duplicate outbox records for a stable event ID", async () => {
     const event = createFoundationEvent();

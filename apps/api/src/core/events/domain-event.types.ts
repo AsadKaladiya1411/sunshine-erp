@@ -61,11 +61,15 @@ export type DomainEventFrom<TDefinition extends AnyDomainEventDefinition> =
     ? DomainEvent<TPayload, TEventType, TEventVersion>
     : never;
 
-interface CommonDomainEventInput<TPayload extends object> {
+interface DomainEventContext {
   readonly organizationId?: string;
   readonly actorId?: string;
   readonly correlationId: string;
   readonly causationId?: string;
+}
+
+interface CommonDomainEventInput<TPayload extends object>
+  extends DomainEventContext {
   readonly payload: JsonSafe<TPayload>;
 }
 
@@ -116,6 +120,79 @@ function requireUuid(value: string, label: string): string {
   return value;
 }
 
+function requireEventDefinition(
+  eventType: string,
+  eventVersion: number,
+): void {
+  if (!eventTypePattern.test(eventType)) {
+    throw new TypeError(
+      "Domain event types must use lower-case <domain>.<entity>.<action> naming.",
+    );
+  }
+  requireText(eventType, "eventType", DOMAIN_EVENT_TYPE_MAX_LENGTH);
+  if (
+    !Number.isSafeInteger(eventVersion) ||
+    eventVersion < 1 ||
+    eventVersion > POSTGRES_INTEGER_MAX
+  ) {
+    throw new TypeError(
+      `Domain event versions must be integers between 1 and ${POSTGRES_INTEGER_MAX}.`,
+    );
+  }
+}
+
+function requireEventContext(
+  context: DomainEventContext & Partial<AggregateContext>,
+): void {
+  requireText(
+    context.correlationId,
+    "correlationId",
+    DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH,
+  );
+  if (context.organizationId !== undefined) {
+    requireUuid(context.organizationId, "organizationId");
+  }
+  if (context.actorId !== undefined) {
+    requireUuid(context.actorId, "actorId");
+  }
+  if (context.causationId !== undefined) {
+    requireText(
+      context.causationId,
+      "causationId",
+      DOMAIN_EVENT_CAUSATION_ID_MAX_LENGTH,
+    );
+  }
+  if (
+    (context.aggregateType === undefined) !==
+    (context.aggregateId === undefined)
+  ) {
+    throw new TypeError(
+      "aggregateType and aggregateId must either both be provided or both be omitted.",
+    );
+  }
+  if (
+    context.aggregateType !== undefined &&
+    context.aggregateId !== undefined
+  ) {
+    requireText(
+      context.aggregateType,
+      "aggregateType",
+      DOMAIN_EVENT_AGGREGATE_TYPE_MAX_LENGTH,
+    );
+    requireUuid(context.aggregateId, "aggregateId");
+  }
+}
+
+export function assertDomainEventEnvelope(event: AnyDomainEvent): void {
+  requireUuid(event.eventId, "eventId");
+  requireEventDefinition(event.eventType, event.eventVersion);
+  requireText(event.occurredAt, "occurredAt");
+  if (Number.isNaN(new Date(event.occurredAt).getTime())) {
+    throw new TypeError("occurredAt must be a valid date.");
+  }
+  requireEventContext(event);
+}
+
 function deepFreeze<T>(
   value: T,
   seen = new WeakSet<object>(),
@@ -137,21 +214,7 @@ export function defineDomainEventType<TPayload extends object>() {
     eventType: TEventType,
     eventVersion: TEventVersion,
   ): DomainEventDefinition<TPayload, TEventType, TEventVersion> => {
-    if (!eventTypePattern.test(eventType)) {
-      throw new TypeError(
-        "Domain event types must use lower-case <domain>.<entity>.<action> naming.",
-      );
-    }
-    requireText(eventType, "eventType", DOMAIN_EVENT_TYPE_MAX_LENGTH);
-    if (
-      !Number.isSafeInteger(eventVersion) ||
-      eventVersion < 1 ||
-      eventVersion > POSTGRES_INTEGER_MAX
-    ) {
-      throw new TypeError(
-        `Domain event versions must be integers between 1 and ${POSTGRES_INTEGER_MAX}.`,
-      );
-    }
+    requireEventDefinition(eventType, eventVersion);
 
     return Object.freeze({ eventType, eventVersion });
   };
@@ -165,40 +228,7 @@ export function createDomainEvent<
   definition: DomainEventDefinition<TPayload, TEventType, TEventVersion>,
   input: CreateDomainEventInput<TPayload>,
 ): DomainEvent<TPayload, TEventType, TEventVersion> {
-  requireText(
-    input.correlationId,
-    "correlationId",
-    DOMAIN_EVENT_CORRELATION_ID_MAX_LENGTH,
-  );
-  if (input.organizationId !== undefined) {
-    requireUuid(input.organizationId, "organizationId");
-  }
-  if (input.actorId !== undefined) {
-    requireUuid(input.actorId, "actorId");
-  }
-  if (input.causationId !== undefined) {
-    requireText(
-      input.causationId,
-      "causationId",
-      DOMAIN_EVENT_CAUSATION_ID_MAX_LENGTH,
-    );
-  }
-  if (
-    (input.aggregateType === undefined) !==
-    (input.aggregateId === undefined)
-  ) {
-    throw new TypeError(
-      "aggregateType and aggregateId must either both be provided or both be omitted.",
-    );
-  }
-  if (input.aggregateType !== undefined && input.aggregateId !== undefined) {
-    requireText(
-      input.aggregateType,
-      "aggregateType",
-      DOMAIN_EVENT_AGGREGATE_TYPE_MAX_LENGTH,
-    );
-    requireUuid(input.aggregateId, "aggregateId");
-  }
+  requireEventContext(input);
 
   const payload = deepFreeze(normalizeDomainEventPayload(input.payload));
   return Object.freeze({

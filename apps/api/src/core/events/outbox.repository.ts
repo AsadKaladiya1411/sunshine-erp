@@ -1,7 +1,10 @@
 import { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../database/prisma.js";
 import type { DatabaseTransaction } from "../database/transaction.js";
-import type { AnyDomainEvent } from "./domain-event.types.js";
+import {
+  assertDomainEventEnvelope,
+  type AnyDomainEvent,
+} from "./domain-event.types.js";
 import type {
   OutboxEventRecord,
   OutboxEventStatus,
@@ -65,7 +68,8 @@ export class OutboxRepository {
     event: AnyDomainEvent,
     availableAt = new Date(),
   ): Promise<OutboxEventRecord> {
-    const occurredAt = validDate(new Date(event.occurredAt), "occurredAt");
+    assertDomainEventEnvelope(event);
+    const occurredAt = new Date(event.occurredAt);
     validDate(availableAt, "availableAt");
     const payload = serializeSafeOutboxPayload(event.payload);
 
