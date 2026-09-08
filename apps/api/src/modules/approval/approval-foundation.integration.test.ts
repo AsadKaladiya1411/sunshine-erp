@@ -49,6 +49,8 @@ const migrationPaths = [
   "../../../../../prisma/migrations/20260827090000_rbac_source_compliance/migration.sql",
   "../../../../../prisma/migrations/20260827120000_activity_logs/migration.sql",
   "../../../../../prisma/migrations/20260828045909_transactional_outbox_foundation/migration.sql",
+  "../../../../../prisma/migrations/20260901120000_group_1_tenant_integrity/migration.sql",
+  "../../../../../prisma/migrations/20260901123000_organization_id_database_default/migration.sql",
   "../../../../../prisma/migrations/20260829121500_approval_engine_foundation/migration.sql",
   "../../../../../prisma/migrations/20260902103000_approval_tenant_integrity/migration.sql",
   "../../../../../prisma/migrations/20260902120000_approval_decision_concurrency/migration.sql",
