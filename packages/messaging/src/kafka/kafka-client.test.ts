@@ -1,4 +1,5 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { KafkaJS } from "@confluentinc/kafka-javascript";
+import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import {
   KafkaInfrastructureClient,
   type KafkaAdminTransport,
@@ -48,7 +49,72 @@ function createRecordingLogger(): {
   };
 }
 
+function installRawAdmin(
+  listTopics: KafkaJS.Admin["listTopics"],
+): KafkaJS.Admin {
+  const admin = {
+    connect: jest.fn(async () => undefined),
+    disconnect: jest.fn(async () => undefined),
+    listTopics,
+  } as unknown as KafkaJS.Admin;
+
+  jest.spyOn(KafkaJS.Kafka.prototype, "admin").mockReturnValue(admin);
+  return admin;
+}
+
 describe("Kafka infrastructure client", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("treats a healthy broker with no topics as healthy", async () => {
+    const listTopics = jest.fn(async () => [] as string[]);
+    const admin = installRawAdmin(listTopics);
+    const client = new KafkaInfrastructureClient({
+      enabled: true,
+      brokers: ["localhost:9092"],
+      clientId: "foundation-test",
+    });
+
+    await expect(client.connect()).resolves.toBe(true);
+    await expect(client.ping()).resolves.toBe(true);
+    expect(listTopics).toHaveBeenCalledWith({ timeout: 2_000 });
+    await client.disconnect();
+    expect(admin.disconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats a healthy broker with topics as healthy", async () => {
+    const listTopics = jest.fn(async () => ["sunshine.infrastructure.events"]);
+    const client = new KafkaInfrastructureClient({
+      enabled: true,
+      brokers: ["localhost:9092"],
+      clientId: "foundation-test",
+    });
+    installRawAdmin(listTopics);
+
+    await expect(client.connect()).resolves.toBe(true);
+    await expect(client.ping()).resolves.toBe(true);
+    expect(listTopics).toHaveBeenCalledWith({ timeout: 2_000 });
+    await client.disconnect();
+  });
+
+  it("reports a Kafka API health-check failure as unhealthy", async () => {
+    const listTopics = jest.fn(async (): Promise<string[]> => {
+      throw new Error("Kafka API unavailable");
+    });
+    const client = new KafkaInfrastructureClient({
+      enabled: true,
+      brokers: ["localhost:9092"],
+      clientId: "foundation-test",
+    });
+    installRawAdmin(listTopics);
+
+    await expect(client.connect()).resolves.toBe(true);
+    await expect(client.ping()).resolves.toBe(false);
+    expect(listTopics).toHaveBeenCalledWith({ timeout: 2_000 });
+    await client.disconnect();
+  });
+
   it("connects, checks health, and disconnects through the private transport", async () => {
     const admin = createAdmin();
     const client = new KafkaInfrastructureClient(

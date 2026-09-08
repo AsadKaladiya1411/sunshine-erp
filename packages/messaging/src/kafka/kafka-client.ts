@@ -109,7 +109,7 @@ class ConfluentKafkaAdminTransport implements KafkaAdminTransport {
   }
 
   async ping(): Promise<void> {
-    await this.admin.fetchTopicMetadata({ timeout: kafkaHealthTimeoutMs });
+    await this.admin.listTopics({ timeout: kafkaHealthTimeoutMs });
   }
 }
 

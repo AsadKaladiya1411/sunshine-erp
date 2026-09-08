@@ -112,19 +112,52 @@ describe("HTTP security middleware foundation", () => {
     expect(response.headers.get("x-powered-by")).toBeNull();
   });
 
-  it("generates or propagates one authoritative correlation ID", async () => {
-    const generatedResponse = await fetch(`${apiServer.baseUrl}/health`);
-    const propagatedResponse = await fetch(`${apiServer.baseUrl}/health`, {
+  it("generates a correlation ID when the request header is missing", async () => {
+    const response = await fetch(`${apiServer.baseUrl}/health`);
+
+    expect(response.headers.get("x-correlation-id")).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  it("preserves and echoes a valid client correlation ID", async () => {
+    const response = await fetch(`${apiServer.baseUrl}/health`, {
       headers: {
-        "X-Correlation-ID": "client-correlation-id",
+        "X-Correlation-ID": "Client.ID_01:segment-value",
       },
     });
 
-    expect(generatedResponse.headers.get("x-correlation-id")).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    expect(response.headers.get("x-correlation-id")).toBe(
+      "Client.ID_01:segment-value",
     );
-    expect(propagatedResponse.headers.get("x-correlation-id")).toBe(
-      "client-correlation-id",
+  });
+
+  it.each([
+    ["blank", "   "],
+    ["oversized", "x".repeat(256)],
+    ["disallowed-character", "client/correlation"],
+  ])(
+    "generates a correlation ID for a %s client value",
+    async (_case, value) => {
+      const response = await fetch(`${apiServer.baseUrl}/health`, {
+        headers: { "X-Correlation-ID": value },
+      });
+
+      expect(response.headers.get("x-correlation-id")).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
+    },
+  );
+
+  it("safely replaces a combined duplicate correlation header", async () => {
+    const headers = new Headers();
+    headers.append("X-Correlation-ID", "first-id");
+    headers.append("X-Correlation-ID", "second-id");
+
+    const response = await fetch(`${apiServer.baseUrl}/health`, { headers });
+
+    expect(response.headers.get("x-correlation-id")).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
   });
 

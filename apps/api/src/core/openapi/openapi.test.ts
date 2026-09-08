@@ -129,9 +129,20 @@ describe("OpenAPI foundation", () => {
       {
         name: "X-Correlation-ID",
         in: "header",
+        schema: {
+          type: "string",
+          maxLength: 255,
+          pattern: "^[A-Za-z0-9._:-]+$",
+        },
       },
     );
-    expect(openApiDocument.components?.headers?.CorrelationId).toBeDefined();
+    expect(openApiDocument.components?.headers?.CorrelationId).toMatchObject({
+      schema: {
+        type: "string",
+        maxLength: 255,
+        pattern: "^[A-Za-z0-9._:-]+$",
+      },
+    });
   });
 
   it("reserves the /api/v1 namespace without fake operations", () => {
