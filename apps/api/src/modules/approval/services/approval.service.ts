@@ -495,21 +495,11 @@ export class ApprovalService {
         "Delegation effective_to cannot precede effective_from.",
       );
     }
-    for (const userId of [input.delegatorUserId, input.delegateUserId]) {
-      if (
-        !(await this.authorization.canPerformApproval(
-          userId,
-          input.organizationId,
-        ))
-      ) {
-        throw new ApprovalAuthorizationError(
-          "Delegator and delegate must both be authorized for approval operations.",
-        );
-      }
-    }
+    await this.assertDelegationPermissions(input);
 
     const record = await this.repository.createDelegation(
       input,
+      (database) => this.assertDelegationPermissions(input, database),
       async (created, database) => {
         await this.audit.recordActivity(
           {
@@ -531,6 +521,25 @@ export class ApprovalService {
       );
     }
     return record;
+  }
+
+  private async assertDelegationPermissions(
+    input: CreateApprovalDelegationInput,
+    database?: ApprovalTransactionContext,
+  ): Promise<void> {
+    for (const userId of [input.delegatorUserId, input.delegateUserId]) {
+      if (
+        !(await this.authorization.canPerformApproval(
+          userId,
+          input.organizationId,
+          database,
+        ))
+      ) {
+        throw new ApprovalAuthorizationError(
+          "Delegator and delegate must both be authorized for approval operations.",
+        );
+      }
+    }
   }
 
   listActions(

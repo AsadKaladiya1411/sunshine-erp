@@ -18,7 +18,10 @@ import { ActivityLogRepository } from "../../core/audit/activity-log.repository.
 import { AuditService } from "../../core/audit/audit.service.js";
 import { PrismaClient } from "../../generated/prisma/client.js";
 import { UserRoleAssignmentRepository } from "../authorization/repositories/user-role-assignment.repository.js";
-import { AuthorizationService } from "../authorization/services/authorization.service.js";
+import {
+  AuthorizationService,
+  type AuthorizationReadContext,
+} from "../authorization/services/authorization.service.js";
 import {
   ApprovalAuthorizationError,
   ApprovalDelegationAmbiguousError,
@@ -134,6 +137,35 @@ class PausedApprovalRepository extends ApprovalRepository {
     this.notifyPersistReached();
     await this.persistRelease;
     return super.persistAction(input, revalidate, audit);
+  }
+}
+
+class PausedDelegationAuthorizationBoundary extends RbacApprovalAuthorizationBoundary {
+  private canPerformCalls = 0;
+  private notifyTransactionalCheckReached!: () => void;
+  private resumeTransactionalCheck!: () => void;
+  readonly transactionalCheckReached = new Promise<void>((resolve) => {
+    this.notifyTransactionalCheckReached = resolve;
+  });
+  private readonly transactionalCheckRelease = new Promise<void>((resolve) => {
+    this.resumeTransactionalCheck = resolve;
+  });
+
+  release(): void {
+    this.resumeTransactionalCheck();
+  }
+
+  override async canPerformApproval(
+    userId: string,
+    organizationId: string,
+    database?: AuthorizationReadContext,
+  ): Promise<boolean> {
+    this.canPerformCalls += 1;
+    if (this.canPerformCalls === 3) {
+      this.notifyTransactionalCheckReached();
+      await this.transactionalCheckRelease;
+    }
+    return super.canPerformApproval(userId, organizationId, database);
   }
 }
 
@@ -1594,6 +1626,101 @@ describe("Approval Engine foundation", () => {
         actionType: "Approve",
       }),
     ).rejects.toBeInstanceOf(ApprovalAuthorizationError);
+  });
+
+  it("rejects delegation when authorization is revoked before its transactional revalidation", async () => {
+    const permissionCode = uniqueCode("APPROVAL-DELEGATE");
+    const permission = await database.permission.create({
+      data: {
+        permissionCode,
+        permissionName: "Approval delegation",
+        module: "Approval Workflow",
+        resource: "ApprovalDelegation",
+        action: "Delegate",
+        status: "Active",
+        createdById: creatorAId,
+      },
+    });
+    await database.rolePermission.create({
+      data: {
+        organizationId: organizationAId,
+        roleId: roleAId,
+        permissionId: permission.id,
+        assignedById: creatorAId,
+        status: "Active",
+      },
+    });
+    const delegatorAssignment = await database.roleAssignment.create({
+      data: {
+        organizationId: organizationAId,
+        userId: approverAId,
+        roleId: roleAId,
+        status: "Active",
+        createdById: creatorAId,
+      },
+    });
+    await database.roleAssignment.create({
+      data: {
+        organizationId: organizationAId,
+        userId: delegateAId,
+        roleId: roleAId,
+        status: "Active",
+        createdById: creatorAId,
+      },
+    });
+
+    const authorizationReader = new UserRoleAssignmentRepository(database);
+    const rbacAuthorization = new AuthorizationService(
+      authorizationReader,
+      authorizationReader,
+    );
+    const pausedAuthorization = new PausedDelegationAuthorizationBoundary(
+      permissionCode,
+      rbacAuthorization,
+    );
+    const transactionalService = new ApprovalService(
+      pausedAuthorization,
+      repository,
+      audit,
+    );
+
+    const delegation = transactionalService.createDelegation({
+      organizationId: organizationAId,
+      delegatorUserId: approverAId,
+      delegateUserId: delegateAId,
+      effectiveFrom: new Date(),
+      status: "Active",
+      createdById: creatorAId,
+    });
+    await pausedAuthorization.transactionalCheckReached;
+    await database.roleAssignment.update({
+      where: { id: delegatorAssignment.id },
+      data: { status: "Revoked", updatedById: creatorAId },
+    });
+    pausedAuthorization.release();
+
+    await expect(delegation).rejects.toBeInstanceOf(
+      ApprovalAuthorizationError,
+    );
+    await expect(
+      database.approvalDelegation.count({
+        where: {
+          organizationId: organizationAId,
+          delegatorUserId: approverAId,
+          delegateUserId: delegateAId,
+        },
+      }),
+    ).resolves.toBe(0);
+    await expect(
+      database.activityLog.count({
+        where: {
+          organizationId: organizationAId,
+          module: "Approval Workflow",
+          entityName: "ApprovalDelegation",
+          action: "ApprovalDelegationCreated",
+        },
+      }),
+    ).resolves.toBe(0);
   });
 
   it("refuses ambiguous delegation instead of inventing a precedence rule", async () => {

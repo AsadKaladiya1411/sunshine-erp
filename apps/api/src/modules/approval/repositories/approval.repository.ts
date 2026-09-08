@@ -235,6 +235,10 @@ export type ApprovalActionRevalidator = (
   database: ApprovalTransactionContext,
 ) => Promise<void>;
 
+export type ApprovalDelegationRevalidator = (
+  database: ApprovalTransactionContext,
+) => Promise<void>;
+
 export interface PersistApprovalActionInput {
   readonly organizationId: string;
   readonly approvalRequestId: string;
@@ -667,6 +671,7 @@ export class ApprovalRepository {
 
   async createDelegation(
     input: CreateApprovalDelegationInput,
+    revalidate: ApprovalDelegationRevalidator,
     audit?: ApprovalMutationAudit<ApprovalDelegationRecord>,
   ): Promise<ApprovalDelegationRecord | null> {
     return this.database.$transaction(async (transaction) => {
@@ -713,6 +718,8 @@ export class ApprovalRepository {
       ) {
         return null;
       }
+
+      await revalidate(transaction);
 
       const record = await transaction.approvalDelegation.create({
         data: {
