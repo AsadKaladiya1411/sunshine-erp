@@ -1,6 +1,7 @@
 import { once } from "node:events";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { env } from "@sunshine-erp/config";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 import app from "../../app.js";
@@ -41,6 +42,12 @@ describe("OpenAPI foundation", () => {
 
     expect(validatedDocument.openapi).toBe("3.0.3");
     expect(validatedDocument.info.title).toBe("NO CHEAT ERP API");
+    expect(validatedDocument.servers).toEqual([
+      {
+        url: `http://localhost:${env.PORT}`,
+        description: "Local development server",
+      },
+    ]);
   });
 
   it("serves Swagger UI and the JSON specification", async () => {

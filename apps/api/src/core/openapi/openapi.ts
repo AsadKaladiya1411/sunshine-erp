@@ -20,7 +20,7 @@ export const openApiDocument: OpenAPIV3.Document = {
   },
   servers: [
     {
-      url: "http://localhost:4000",
+      url: `http://localhost:${env.PORT}`,
       description: "Local development server",
     },
   ],
