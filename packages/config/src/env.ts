@@ -400,6 +400,19 @@ const envSchema = z.object({
         });
       }
     }
+
+    if (
+      configuration.NODE_ENV === "production" &&
+      configuration.STORAGE_ENDPOINT &&
+      new URL(configuration.STORAGE_ENDPOINT).protocol !== "https:"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["STORAGE_ENDPOINT"],
+        message:
+          "STORAGE_ENDPOINT must use HTTPS when object storage is enabled in production.",
+      });
+    }
   }
 });
 

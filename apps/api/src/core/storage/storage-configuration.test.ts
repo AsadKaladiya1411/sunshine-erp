@@ -6,17 +6,30 @@ const baseEnvironment = {
   DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/sunshine_erp",
 };
 
+const productionEnvironment = {
+  ...baseEnvironment,
+  NODE_ENV: "production",
+  JWT_SECRET: "production-jwt-secret-at-least-32-characters",
+  REFRESH_TOKEN_DIGEST_SECRET:
+    "production-refresh-digest-secret-at-least-32-characters",
+  REFRESH_COOKIE_SECURE: "true",
+};
+
+const enabledStorageEnvironment = {
+  STORAGE_ENABLED: "true",
+  STORAGE_ENDPOINT: "http://localhost:9000",
+  STORAGE_ACCESS_KEY: "sunshine-minio",
+  STORAGE_SECRET_KEY: "development-only-minio-secret",
+  STORAGE_BUCKET: "sunshine-erp",
+  STORAGE_REGION: "us-east-1",
+};
+
 describe("object storage configuration", () => {
   it("accepts a valid enabled local MinIO configuration", () => {
     expect(
       parseEnvironment({
         ...baseEnvironment,
-        STORAGE_ENABLED: "true",
-        STORAGE_ENDPOINT: "http://localhost:9000",
-        STORAGE_ACCESS_KEY: "sunshine-minio",
-        STORAGE_SECRET_KEY: "development-only-minio-secret",
-        STORAGE_BUCKET: "sunshine-erp",
-        STORAGE_REGION: "us-east-1",
+        ...enabledStorageEnvironment,
       }),
     ).toMatchObject({
       STORAGE_ENABLED: true,
@@ -24,6 +37,46 @@ describe("object storage configuration", () => {
       STORAGE_BUCKET: "sunshine-erp",
       STORAGE_REGION: "us-east-1",
     });
+  });
+
+  it("rejects plaintext storage when enabled in production", () => {
+    expect(() =>
+      parseEnvironment({
+        ...productionEnvironment,
+        ...enabledStorageEnvironment,
+      }),
+    ).toThrow(
+      "STORAGE_ENDPOINT must use HTTPS when object storage is enabled in production.",
+    );
+  });
+
+  it("accepts HTTPS storage when enabled in production", () => {
+    expect(
+      parseEnvironment({
+        ...productionEnvironment,
+        ...enabledStorageEnvironment,
+        STORAGE_ENDPOINT: "https://storage.example.com",
+      }),
+    ).toMatchObject({
+      STORAGE_ENABLED: true,
+      STORAGE_ENDPOINT: "https://storage.example.com",
+    });
+  });
+
+  it("preserves HTTP storage for local development and test environments", () => {
+    for (const NODE_ENV of ["development", "test"] as const) {
+      expect(
+        parseEnvironment({
+          ...baseEnvironment,
+          ...enabledStorageEnvironment,
+          NODE_ENV,
+        }),
+      ).toMatchObject({
+        NODE_ENV,
+        STORAGE_ENABLED: true,
+        STORAGE_ENDPOINT: "http://localhost:9000",
+      });
+    }
   });
 
   it("allows storage to remain disabled without endpoint or credentials", () => {
