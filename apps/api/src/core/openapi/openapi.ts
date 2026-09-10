@@ -34,6 +34,10 @@ export const openApiDocument: OpenAPIV3.Document = {
       description:
         "Organization-scoped authentication and authoritative PostgreSQL session management.",
     },
+    {
+      name: "Administration",
+      description: "Organization-scoped ERP administration operations.",
+    },
   ],
   paths: {
     "/api/v1": {
@@ -221,6 +225,52 @@ export const openApiDocument: OpenAPIV3.Document = {
           },
           "400": { $ref: "#/components/responses/ValidationError" },
           "401": { $ref: "#/components/responses/AuthenticationError" },
+        },
+      },
+    },
+    "/api/v1/administration/organization": {
+      get: {
+        operationId: "getCurrentOrganization",
+        tags: ["Administration"],
+        summary: "Get the authenticated user's organization",
+        description:
+          "Returns only the organization identified by the authenticated request context. Requires the administration.manage permission.",
+        security: [{ bearerAuth: [] }],
+        responses: {
+          "200": {
+            description: "Current organization details.",
+            content: jsonContent("OrganizationResponse"),
+          },
+          "401": { $ref: "#/components/responses/AuthenticationError" },
+          "403": { $ref: "#/components/responses/Forbidden" },
+          "404": { $ref: "#/components/responses/NotFound" },
+        },
+      },
+      patch: {
+        operationId: "updateCurrentOrganization",
+        tags: ["Administration"],
+        summary: "Update the authenticated user's organization",
+        description:
+          "Updates the approved mutable fields of the organization identified by the authenticated request context. Organization code and status are read-only in this operation. Requires the administration.manage permission.",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: jsonContent("UpdateOrganizationRequest"),
+        },
+        responses: {
+          "200": {
+            description: "Updated organization details.",
+            content: jsonContent("OrganizationResponse"),
+          },
+          "400": { $ref: "#/components/responses/ValidationError" },
+          "401": { $ref: "#/components/responses/AuthenticationError" },
+          "403": { $ref: "#/components/responses/Forbidden" },
+          "404": { $ref: "#/components/responses/NotFound" },
+          "409": {
+            description:
+              "Organization details conflict with an existing Organization.",
+            content: jsonContent("StandardErrorResponse"),
+          },
         },
       },
     },

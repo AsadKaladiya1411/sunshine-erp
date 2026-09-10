@@ -5,6 +5,10 @@ import {
   changePasswordBodySchema,
   loginBodySchema,
 } from "../../modules/auth/validation/auth.schemas.js";
+import {
+  organizationResponseSchema,
+  updateOrganizationBodySchema,
+} from "../../modules/administration/validation/organization.schemas.js";
 
 const healthResponseSchema = z.object({
   status: z.literal("ok"),
@@ -93,6 +97,11 @@ const changePasswordResponseSchema = z.object({
   data: z.object({ passwordChanged: z.literal(true) }),
 });
 
+const updateOrganizationRequestOpenApiSchema = {
+  ...zodToOpenApiSchema(updateOrganizationBodySchema),
+  minProperties: 1,
+} satisfies OpenAPIV3.SchemaObject;
+
 export const openApiSchemas = {
   HealthResponse: zodToOpenApiSchema(healthResponseSchema, "output"),
   DatabaseHealthResponse: zodToOpenApiSchema(
@@ -133,4 +142,9 @@ export const openApiSchemas = {
     changePasswordResponseSchema,
     "output",
   ),
+  OrganizationResponse: zodToOpenApiSchema(
+    organizationResponseSchema,
+    "output",
+  ),
+  UpdateOrganizationRequest: updateOrganizationRequestOpenApiSchema,
 } satisfies Record<string, OpenAPIV3.SchemaObject>;

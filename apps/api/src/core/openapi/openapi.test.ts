@@ -188,4 +188,54 @@ describe("OpenAPI foundation", () => {
     ).toBeDefined();
     expect(openApiDocument.components?.responses?.Forbidden).toBeDefined();
   });
+
+  it("documents tenant-scoped Organization read and update contracts", () => {
+    const organizationPath =
+      openApiDocument.paths["/api/v1/administration/organization"];
+
+    expect(organizationPath?.get).toMatchObject({
+      operationId: "getCurrentOrganization",
+      security: [{ bearerAuth: [] }],
+    });
+    expect(organizationPath?.patch).toMatchObject({
+      operationId: "updateCurrentOrganization",
+      security: [{ bearerAuth: [] }],
+    });
+    expect(
+      openApiDocument.components?.schemas?.UpdateOrganizationRequest,
+    ).toMatchObject({
+      type: "object",
+      additionalProperties: false,
+      minProperties: 1,
+      properties: {
+        organizationName: { type: "string", maxLength: 150 },
+        cityId: { type: "string", format: "uuid", nullable: true },
+      },
+    });
+    expect(
+      JSON.stringify(
+        openApiDocument.components?.schemas?.UpdateOrganizationRequest,
+      ),
+    ).not.toContain("organizationCode");
+    expect(
+      JSON.stringify(
+        openApiDocument.components?.schemas?.UpdateOrganizationRequest,
+      ),
+    ).not.toContain('"status"');
+    expect(
+      openApiDocument.components?.schemas?.OrganizationResponse,
+    ).toBeDefined();
+    expect(organizationPath?.patch?.responses?.["409"]).toMatchObject({
+      description:
+        "Organization details conflict with an existing Organization.",
+      content: {
+        "application/json": {
+          schema: expect.any(Object),
+        },
+      },
+    });
+    expect(
+      JSON.stringify(organizationPath?.patch?.responses?.["409"]),
+    ).not.toContain("Authentication state conflicts");
+  });
 });
