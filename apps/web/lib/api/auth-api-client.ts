@@ -37,6 +37,8 @@ interface RequestOptions extends RequestInit {
   readonly authenticated?: boolean;
 }
 
+const refreshLockName = "sunshine-erp-auth-refresh";
+
 export type WebFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
@@ -119,6 +121,7 @@ async function readJson(response: Response): Promise<unknown> {
 export class AuthenticationApiClient {
   private accessToken: string | null = null;
   private refreshPromise: Promise<string> | null = null;
+  private authenticationGeneration = 0;
   private authenticationLostHandler: (() => void) | null = null;
 
   constructor(
@@ -153,7 +156,14 @@ export class AuthenticationApiClient {
 
   async restoreSession(): Promise<AuthenticatedUserIdentity> {
     await this.refreshAccessToken();
-    return this.getCurrentUser();
+    return this.send<AuthenticatedUserIdentity>(
+      "/api/v1/auth/me",
+      {
+        method: "GET",
+        authenticated: true,
+      },
+      false,
+    );
   }
 
   getCurrentUser(): Promise<AuthenticatedUserIdentity> {
@@ -185,7 +195,7 @@ export class AuthenticationApiClient {
 
   private refreshAccessToken(): Promise<string> {
     if (!this.refreshPromise) {
-      this.refreshPromise = this.performRefresh().finally(() => {
+      this.refreshPromise = this.performCoordinatedRefresh().finally(() => {
         this.refreshPromise = null;
       });
     }
@@ -193,23 +203,50 @@ export class AuthenticationApiClient {
     return this.refreshPromise;
   }
 
+  private performCoordinatedRefresh(): Promise<string> {
+    const lockManager =
+      typeof navigator === "undefined" ? undefined : navigator.locks;
+
+    if (!lockManager) {
+      return this.performRefresh();
+    }
+
+    return lockManager
+      .request(refreshLockName, () => this.performRefresh())
+      .then((refreshResult) => refreshResult);
+  }
+
   private async performRefresh(): Promise<string> {
+    const authenticationGeneration = this.authenticationGeneration;
+
     try {
       const result = await this.send<AccessTokenData>(
         "/api/v1/auth/refresh",
         { method: "POST" },
         false,
       );
+
+      if (authenticationGeneration !== this.authenticationGeneration) {
+        throw new ApiError(
+          "AUTHENTICATION_STATE_CHANGED",
+          "Authentication state changed while the session was refreshing.",
+          null,
+        );
+      }
+
       this.accessToken = result.accessToken;
       return result.accessToken;
     } catch (error: unknown) {
-      this.clearAuthentication();
+      if (authenticationGeneration === this.authenticationGeneration) {
+        this.clearAuthentication();
+      }
       throw error;
     }
   }
 
   private clearAuthentication(): void {
     const hadAccessToken = this.accessToken !== null;
+    this.authenticationGeneration += 1;
     this.accessToken = null;
 
     if (hadAccessToken) {

@@ -165,6 +165,46 @@ describe("AuthenticationApiClient", () => {
     );
   });
 
+  it("does not refresh a second time when /me rejects a newly restored token", async () => {
+    let refreshCalls = 0;
+    const fetchMock = jest.fn<WebFetch>(async (input) => {
+      const url = String(input);
+
+      if (url.endsWith("/auth/refresh")) {
+        refreshCalls += 1;
+        return jsonResponse(200, {
+          success: true,
+          data: {
+            accessToken: "restored-token",
+            tokenType: "Bearer",
+            expiresIn: 900,
+          },
+        });
+      }
+
+      return jsonResponse(401, {
+        success: false,
+        error: {
+          code: "AUTHENTICATION_ERROR",
+          message: "Authentication required",
+        },
+      });
+    });
+    const client = new AuthenticationApiClient(
+      "http://localhost:4000",
+      fetchMock,
+      () => "restore-rejection-correlation-id",
+    );
+
+    await expect(client.restoreSession()).rejects.toMatchObject({
+      code: "AUTHENTICATION_ERROR",
+      status: 401,
+    });
+    expect(refreshCalls).toBe(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(client.hasAccessToken()).toBe(false);
+  });
+
   it("shares one in-flight refresh across concurrent unauthorized requests and retries each once", async () => {
     let releaseRefresh: ((response: Response) => void) | undefined;
     const pendingRefresh = new Promise<Response>((resolve) => {
@@ -242,6 +282,97 @@ describe("AuthenticationApiClient", () => {
     expect(refreshCalls).toBe(1);
     expect(attempts.get("http://localhost:4000/first")).toBe(2);
     expect(attempts.get("http://localhost:4000/second")).toBe(2);
+  });
+
+  it("serializes refresh-token rotation across separate browser clients", async () => {
+    const existingLocks = Object.getOwnPropertyDescriptor(navigator, "locks");
+    let lockTail = Promise.resolve();
+    const requestLock = jest.fn(
+      <T,>(_name: string, callback: () => Promise<T>): Promise<T> => {
+        const result = lockTail.then(callback);
+        lockTail = result.then(
+          () => undefined,
+          () => undefined,
+        );
+        return result;
+      },
+    );
+    Object.defineProperty(navigator, "locks", {
+      configurable: true,
+      value: { request: requestLock },
+    });
+
+    let releaseFirstRefresh: (() => void) | undefined;
+    const firstRefreshPending = new Promise<void>((resolve) => {
+      releaseFirstRefresh = resolve;
+    });
+    let currentRefreshCredential = "refresh-1";
+    let refreshCalls = 0;
+    const presentedCredentials: string[] = [];
+    const fetchMock = jest.fn<WebFetch>(async (input, options) => {
+      const url = String(input);
+
+      if (url.endsWith("/auth/refresh")) {
+        refreshCalls += 1;
+        const presentedCredential = currentRefreshCredential;
+        presentedCredentials.push(presentedCredential);
+
+        if (refreshCalls === 1) {
+          await firstRefreshPending;
+        }
+
+        currentRefreshCredential = `refresh-${refreshCalls + 1}`;
+        return jsonResponse(200, {
+          success: true,
+          data: {
+            accessToken: `access-${refreshCalls}`,
+            tokenType: "Bearer",
+            expiresIn: 900,
+          },
+        });
+      }
+
+      return jsonResponse(200, {
+        success: true,
+        data: {
+          ...identity,
+          sessionId: new Headers(options?.headers).get("Authorization"),
+        },
+      });
+    });
+    const firstClient = new AuthenticationApiClient(
+      "http://localhost:4000",
+      fetchMock,
+      () => "first-tab-correlation-id",
+    );
+    const secondClient = new AuthenticationApiClient(
+      "http://localhost:4000",
+      fetchMock,
+      () => "second-tab-correlation-id",
+    );
+
+    try {
+      const firstRestoration = firstClient.restoreSession();
+      const secondRestoration = secondClient.restoreSession();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(refreshCalls).toBe(1);
+      releaseFirstRefresh?.();
+
+      await expect(
+        Promise.all([firstRestoration, secondRestoration]),
+      ).resolves.toHaveLength(2);
+      expect(refreshCalls).toBe(2);
+      expect(presentedCredentials).toEqual(["refresh-1", "refresh-2"]);
+      expect(requestLock).toHaveBeenCalledTimes(2);
+    } finally {
+      if (existingLocks) {
+        Object.defineProperty(navigator, "locks", existingLocks);
+      } else {
+        Reflect.deleteProperty(navigator, "locks");
+      }
+    }
   });
 
   it("retries a delayed stale-token 401 with the current token without refreshing again", async () => {
@@ -583,6 +714,89 @@ describe("AuthenticationApiClient", () => {
     expect(refreshCalls).toBe(1);
     expect(protectedCalls).toBe(2);
     expect(client.hasAccessToken()).toBe(false);
+  });
+
+  it("does not restore an access token when an in-flight refresh finishes after logout", async () => {
+    let releaseRefresh: ((response: Response) => void) | undefined;
+    let markRefreshStarted: (() => void) | undefined;
+    const pendingRefresh = new Promise<Response>((resolve) => {
+      releaseRefresh = resolve;
+    });
+    const refreshStarted = new Promise<void>((resolve) => {
+      markRefreshStarted = resolve;
+    });
+    let protectedCalls = 0;
+    const fetchMock = jest.fn<WebFetch>(async (input) => {
+      const url = String(input);
+
+      if (url.endsWith("/auth/login")) {
+        return jsonResponse(200, {
+          success: true,
+          data: {
+            accessToken: "logout-race-token",
+            tokenType: "Bearer",
+            expiresIn: 900,
+            user: identity,
+          },
+        });
+      }
+
+      if (url.endsWith("/auth/refresh")) {
+        markRefreshStarted?.();
+        return pendingRefresh;
+      }
+
+      if (url.endsWith("/auth/logout")) {
+        return jsonResponse(200, {
+          success: true,
+          data: { loggedOut: true },
+        });
+      }
+
+      protectedCalls += 1;
+      return jsonResponse(401, {
+        success: false,
+        error: {
+          code: "AUTHENTICATION_ERROR",
+          message: "Authentication required",
+        },
+      });
+    });
+    const client = new AuthenticationApiClient(
+      "http://localhost:4000",
+      fetchMock,
+      () => "logout-race-correlation-id",
+    );
+    await client.login({
+      organizationCode: "SUNSHINE",
+      username: "admin",
+      password: "valid-password",
+    });
+
+    const protectedRequest = client.request("/protected", {
+      authenticated: true,
+    });
+    await refreshStarted;
+    await client.logout();
+    expect(client.hasAccessToken()).toBe(false);
+
+    releaseRefresh?.(
+      jsonResponse(200, {
+        success: true,
+        data: {
+          accessToken: "late-refresh-token",
+          tokenType: "Bearer",
+          expiresIn: 900,
+        },
+      }),
+    );
+
+    await expect(protectedRequest).rejects.toMatchObject({
+      code: "AUTHENTICATION_STATE_CHANGED",
+      status: null,
+    });
+    expect(client.hasAccessToken()).toBe(false);
+    expect(protectedCalls).toBe(1);
   });
 
   it("logs out through the backend and always clears the memory token", async () => {
