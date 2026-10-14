@@ -1,0 +1,32 @@
+{
+  "name": "truck-hisab-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.46.2"
+  },
+  "engines": {
+    "node": "^20.19 || ^22.12 || >=24.0"
+  }
+}
+

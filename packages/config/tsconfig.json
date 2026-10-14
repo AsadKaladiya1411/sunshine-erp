@@ -1,5 +1,0 @@
-{
-  "extends": "@sunshine-erp/typescript-config/node.json",
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
-}
